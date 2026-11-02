@@ -3957,7 +3957,11 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         });
         A.eyeGeo = new THREE.BufferGeometry();
         A.eyeGeo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); A.eyeGeo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); A.eyeGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); A.eyeGeo.setIndex(idx);
-        A.eyeMat = new THREE.MeshStandardMaterial({ map: eyeTexture(spec.eye ? spec.eye.iris : 0x3a2414, spec.eye && spec.eye.slit, spec.eye && spec.eye.pup), roughness: 0.05, metalness: 0, envMapIntensity: 2.2 });
+        const eyeMap = eyeTexture(spec.eye ? spec.eye.iris : 0x3a2414, spec.eye && spec.eye.slit, spec.eye && spec.eye.pup);
+        // ojo húmedo: iris mate debajo y una córnea transparente encima (clearcoat), que da el reflejo nítido sin teñir el iris de cielo
+        A.eyeMat = spec.eye && spec.eye.wet
+          ? new THREE.MeshPhysicalMaterial({ map: eyeMap, roughness: 0.35, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.1 })
+          : new THREE.MeshStandardMaterial({ map: eyeMap, roughness: 0.05, metalness: 0, envMapIntensity: 2.2 });
         A.extras = spec.extras ? spec.extras(T) : [];
         assets[id] = A;
         return A;
@@ -3989,7 +3993,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         const sc = WS * (spec.scale || 1) * (o.sc || 1);
         g.scale.setScalar(sc); scene.add(g);
         if (o.x !== undefined) g.position.set(o.x, height(o.x, o.z), o.z);
-        const a = Object.assign({ id, A, T, spec, g, mesh, shell, n, bones, sc, k: { walk: 0, sit: 0, lie: 0, graze: 0, alert: 0, rear: 0, run: 0 }, look: 0, lookT: 0, gait: rand(), vis: 0, timer: rand() * 4, state: 'idle', ph: rand() * 6.28, ry: rand() * 6.28 }, o);
+        const a = Object.assign({ id, A, T, spec, g, mesh, shell, eyes, n, bones, sc, k: { walk: 0, sit: 0, lie: 0, graze: 0, alert: 0, rear: 0, run: 0 }, look: 0, lookT: 0, gait: rand(), vis: 0, timer: rand() * 4, state: 'idle', ph: rand() * 6.28, ry: rand() * 6.28 }, o);
         a.tail = Object.keys(n).filter((k) => /^tail\d/.test(k)).sort((p, q) => +p.slice(4) - +q.slice(4)).map((k) => n[k]);
         inds.push(a);
         return a;
@@ -4274,6 +4278,31 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           n.FL0.rotation.z = 0.25; n.FR0.rotation.z = -0.25;
           a.tail.forEach((b, i) => { b.rotation.x = i === 0 ? 0.9 : 0.12 + (i > a.tail.length - 3 ? -0.35 : 0); b.rotation.y = Math.sin(t * 0.8 + a.ph - i * 0.4) * 0.05; });
           n.root.position.y = -a.T.gaitH * 0.18;
+          if (a.id === 'aullador') {
+            const hw = a.howl || 0;
+            // encorvado y pesado: espalda redonda, hombros adelante; al aullar se inclina hacia delante y estira el cuello
+            n.spine.rotation.x = 0.24 + hw * 0.1; n.chest.rotation.x = 0.26 + hw * 0.12;
+            n.neck0.rotation.x = 0.62 - hw * 0.55; n.neck1.rotation.x = 0.22 - hw * 0.1;
+            n.head.rotation.x = 0.12 - hw * 0.35 + Math.sin(t * 0.37 + a.ph) * 0.04;
+            n.head.rotation.z = Math.sin(t * 0.23 + a.ph * 2) * 0.07; // ladea la cabeza despacio
+            // respiración lenta y visible (más honda durante el aullido)
+            const br = 1 + Math.sin(t * 1.6 + a.ph) * 0.02 + hw * 0.04 * Math.sin(t * 9);
+            n.chest.scale.set(br, br, 1);
+            // garganta: el hioides se infla al aullar; la cabeza compensa la escala para no crecer con ella
+            const th = 1 + hw * (0.28 + 0.06 * Math.sin(t * 11));
+            n.neck1.scale.set(th, 1 + hw * 0.08, th); n.head.scale.set(1 / th, 1 / (1 + hw * 0.08), 1 / th);
+            if (a.parts && a.parts.mouth) { const o = Math.max(0.001, hw * (0.85 + 0.15 * Math.sin(t * 13))); a.parts.mouth.scale.setScalar(o); a.parts.mouth.visible = hw > 0.02; }
+            // cola prensil: cae de la rama y la punta se enrosca en un gancho, lista para agarrarse
+            const m = a.tail.length;
+            a.tail.forEach((b, i) => {
+              b.rotation.x = i === 0 ? 1.0 : i < m - 5 ? 0.1 : -0.55 - (i - (m - 5)) * 0.08;
+              b.rotation.y = Math.sin(t * 0.5 + a.ph - i * 0.35) * 0.06 * (i / m);
+            });
+            // parpadeo: los ojos se ocultan un instante y se ve el párpado oscuro de la cara
+            a.blinkT = (a.blinkT === undefined ? 2 + rand() * 4 : a.blinkT) - (a.dtL || 0.016);
+            if (a.blinkT < 0) a.blinkT = 2.5 + rand() * 4.5;
+            if (a.eyes) a.eyes.visible = a.blinkT > 0.13;
+          }
         } else if (mode === 'hang') {
           n.pelvis.rotation.x = -1.5; n.spine.rotation.x = 0.05; n.chest.rotation.x = 0.05;
           n.neck0.rotation.x = 1.1; n.neck1.rotation.x = 0.3; n.head.rotation.x = 0.15;
@@ -4377,7 +4406,19 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         if (m === 'perch' || m === 'hang') {
           const br = a.br, p = branchPoint(br, a.at), dir = norm(sub3(br.p1, br.p0));
           a.timer -= dt;
-          if (a.timer < 0) { a.timer = 2 + rand() * 5; a.lookT = (rand() - 0.5) * (a.id === 'nocturno' ? 2.2 : 1.2); if (a.id === 'aullador' && rand() < 0.45) { a.howlT = 3.5; const now = performance.now(); if (a.vis > 0.5 && a.near && !a.pupH && now - (CV.wildlife.lastHowl || -1e9) > 30000 && CV.audio && CV.audio.sfx && CV.audio.sfx.howl) { CV.wildlife.lastHowl = now; CV.audio.sfx.howl(); } } }
+          a.dtL = dt;
+          if (a.timer < 0) {
+            // tranquilos: casi todo el tiempo quietos, mirando despacio a un lado y otro
+            a.timer = (a.id === 'aullador' ? 4 : 2) + rand() * 5; a.lookT = (rand() - 0.5) * (a.id === 'nocturno' ? 2.2 : a.id === 'aullador' ? 0.9 : 1.2);
+            // aúllan sobre todo al amanecer y al atardecer (sol bajo), para marcar su territorio; de día, de vez en cuando
+            const sh = CV.sunHeight, dusk = sh !== undefined && sh > -0.06 && sh < 0.2;
+            if (a.id === 'aullador' && !a.pupH && rand() < (dusk ? 0.8 : 0.3)) {
+              a.howlT = 3.5; const now = performance.now();
+              // coro de la tropa: los demás responden con un pequeño desfase
+              inds.forEach((q) => { if (q !== a && q.id === 'aullador' && !(q.howlT > 0)) { q.howlT = 3.2 + rand() * 0.8; q.timer = Math.max(q.timer, 5); } });
+              if (a.vis > 0.5 && a.near && now - (CV.wildlife.lastHowl || -1e9) > 30000 && CV.audio && CV.audio.sfx && CV.audio.sfx.howl) { CV.wildlife.lastHowl = now; CV.audio.sfx.howl(); }
+            }
+          }
           a.howlT = Math.max(0, (a.howlT || 0) - dt); a.howl = Math.min(1, a.howlT) * (a.howlT > 0 ? 1 : 0);
           primatePose(a, t, m);
           if (m === 'perch') {
@@ -4938,19 +4979,43 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
             return mul(c, grain(P, 0.16));
           } });
         S.aullador = primate({ tpl: quad({ L: 0.45, hipH: 0.48, shH: 0.5, hipD: 0.2, chD: 0.2, hipW: 0.18, chW: 0.19, bellyW: 0.2, neckL: 0.07, neckA: 20, neckR0: 0.08, neckR1: 0.08,
-            // cabeza redonda, cara chata y ancha (sin hocico de perro) y la gran barba de la garganta que amplifica el aullido
-            headL: 0.13, headW: 0.13, headH: 0.13, headA: 10, snoutL: 0.12, snW: 0.11, snH: 0.1, noseK: 0.62, pads: 0.5, beard: 0.06, eyeR: 0.011, eyeTh: 32, eyeFwd: 0.85, eyeIn: 0.2, earH: 0.012, earW: 0.02, earRound: 1,
-            fr: [0.042, 0.032, 0.025], hr: [0.05, 0.036, 0.028], pawR: 0.03, pawH: 0.018, pawL: 0.09, wristK: 0.03, hockK: 0.04, upK: 0.5, tailL: 0.62, tailR0: 0.04, tailR1: 0.013, tailN: 9, tailUp: -30 }),
-          fur: { len: 0.038, dens: 560, thick: 0.46, root: 0.42, tip: [1.12, 1.0, 0.9], clump: 0.3 }, eye: { iris: 0x3a1e0a }, bareRough: 0.9,
-          furFn: (P) => (P.kind === 'body' && P.st > 10.6 && P.top > -0.2 && (P.top < 0.55 || P.st > 12.2) ? 0.18 : defaultFur(P, S.aullador) * (P.kind === 'body' && P.st > 9 && P.top < -0.2 ? 1.6 : 1)),
+            // (foto de referencia) cabeza alta y redonda, hocico corto y en declive (no un tubo), ojos grandes al frente
+            // de la cara, y la garganta ensanchada por el hioides (dewlap) bajo una barba larga: su caja de resonancia
+            headL: 0.12, headW: 0.135, headH: 0.14, headA: 24, dome: 0.22, eyeK: 0.5, snoutL: 0.28, snW: 0.092, snH: 0.1, noseK: 0.4, pads: 0.25, snUp: -0.1, noseDrop: 0.04, beard: 0.085, dewlap: 0.025,
+            eyeR: 0.0115, eyeTh: 38, eyeZ: 0.16, eyeFwd: 1.0, eyeIn: 0.7, earH: 0.012, earW: 0.02, earRound: 1,
+            // hombros anchos y brazos fuertes; cola prensil larga y gruesa (el tercio final es el que agarra)
+            fr: [0.048, 0.036, 0.027], hr: [0.05, 0.036, 0.028], pawR: 0.03, pawH: 0.018, pawL: 0.09, wristK: 0.03, hockK: 0.04, upK: 0.5, tailL: 0.72, tailR0: 0.05, tailR1: 0.02, tailN: 12, tailUp: -30 }),
+          fur: { len: 0.042, dens: 600, thick: 0.46, root: 0.42, tip: [1.1, 1.0, 0.9], clump: 0.36 }, eye: { iris: 0x4a2410, wet: true }, bareRough: 0.9,
+          furFn: (P) => {
+            // cara: piel casi desnuda; barba y garganta: pelo largo; cola: punta desnuda por debajo (la "palma" que agarra)
+            if (P.kind === 'body' && P.st > 10.7 && P.top > -0.3 && (P.top < 0.86 || P.st > 11.8)) return 0.18;
+            if (P.kind === 'tail' && P.v > 0.72 && P.top < -0.2) return 0.08;
+            return defaultFur(P, S.aullador) * (P.kind === 'body' && P.st > 8.6 && P.top < -0.15 ? 2.1 : P.kind === 'tail' ? 1.15 : 1);
+          },
           paint(P) {
-            // pelaje caoba rojizo, más oscuro en vientre y patas, con reflejos dorado-rojizos en el lomo (no naranja)
-            let c = mul(mx(hx(0x4a1408), hx(0x86301a), sm(-0.6, 0.9, P.top)), 0.85 + 0.3 * fb(P.U * 6, P.V * 4));
-            if (P.kind === 'body' && P.top > 0.5 && P.st > 2 && P.st < 8) c = mx(c, hx(0xb8641e), 0.35 * sm(0.5, 0.95, P.top));
-            // piel desnuda negra solo en la cara (alrededor de ojos y boca); la coronilla sigue roja y la barba es caoba oscuro
-            if (P.kind === 'body' && P.st > 10.6 && P.top > -0.2 && (P.top < 0.55 || P.st > 12.2)) c = mul(hx(0x241a17), 0.9 + 0.2 * vn(P.U * 80, P.V * 80));
+            // cobrizo de la foto: rojo-marrón apagado abajo, naranja dorado en lomo y flancos donde da el sol
+            let c = mul(mx(hx(0x461608), hx(0x86361a), sm(-0.6, 0.8, P.top)), 0.85 + 0.3 * fb(P.U * 6, P.V * 4));
+            if (P.kind === 'body' && P.st > 1.5 && P.st < 8) c = mx(c, hx(0xb0602a), 0.45 * sm(0.05, 0.9, P.top));
+            if (P.kind === 'leg' && P.top > 0.2 && P.v < 0.5) c = mx(c, hx(0x9a4a20), 0.3);
+            // cabeza y hombros más oscuros (castaño rojizo profundo), como en la foto
+            if (P.kind === 'body' && P.st > 7.2) c = mx(c, hx(0x3e140a), 0.65 * sm(7.2, 10.2, P.st));
+            // cola más clara y dorada que el cuerpo, con la punta inferior desnuda
+            if (P.kind === 'tail') c = mx(mx(hx(0x6e2e12), hx(0xa86a34), sm(-0.4, 0.8, P.top)), hx(0xb88248), 0.3 * P.v);
+            if (P.kind === 'tail' && P.v > 0.72 && P.top < -0.2) c = mul(hx(0x2c2220), 0.9 + 0.2 * vn(P.U * 60, P.V * 60));
+            // cara: piel negro-grisácea desnuda alrededor de ojos, hocico y labios
+            if (P.kind === 'body' && P.st > 10.7 && P.top > -0.3 && (P.top < 0.86 || P.st > 11.8)) c = mul(hx(0x2e2826), 0.85 + 0.25 * vn(P.U * 80, P.V * 80));
             if (P.kind === 'leg' && P.v > 0.85) c = hx(0x2a1e1a);
             return mul(c, grain(P, 0.2));
+          },
+          // boca del aullido: los aulladores redondean los labios en una "O" oscura; se abre con el canto
+          extras: (T) => {
+            const n = T.nose, hb = T.B[T.bi.head].pos, g = new THREE.SphereGeometry(1, 14, 10);
+            g.scale(n.r[0] * 0.55, n.r[1] * 0.55, n.r[0] * 0.2);
+            const m = new THREE.Matrix4().lookAt(new THREE.Vector3(0, 0, 0), new THREE.Vector3(...n.hd), new THREE.Vector3(...n.hU)); m.multiply(new THREE.Matrix4().makeRotationY(Math.PI));
+            g.applyMatrix4(m);
+            const p = add3(add3(n.pos, n.hU, -n.r[1] * 0.55), n.hd, n.r[0] * 0.05);
+            // centrada en su propio punto: así se puede abrir (escalar) sin moverse de la cara
+            return [{ bone: 'head', geo: g, mat: new THREE.MeshBasicMaterial({ color: 0x0c0505 }), pos: [p[0] - hb[0], p[1] - hb[1], p[2] - hb[2]], name: 'mouth' }];
           } });
         S.arana = primate({ tpl: quad({ L: 0.4, hipH: 0.6, shH: 0.7, hipD: 0.17, chD: 0.18, hipW: 0.15, chW: 0.16, bellyW: 0.15, neckL: 0.07, neckA: 25, neckR0: 0.06, neckR1: 0.06,
             headL: 0.12, headW: 0.1, headH: 0.1, headA: 8, snoutL: 0.26, snW: 0.06, snH: 0.055, eyeR: 0.0105, eyeTh: 32, eyeFwd: 0.85, eyeIn: 0.2, earH: 0.016, earW: 0.022, earRound: 1,
@@ -6145,18 +6210,29 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     frog() { const b = 170 + Math.random() * 90, n = 2 + ((Math.random() * 3) | 0); for (let i = 0; i < n; i++) tone(b, 0.11, 'square', 0.022, i * 0.17, b * 0.7); },
     heart() { tone(68, 0.16, 'sine', 0.5, 0, 42); tone(62, 0.18, 'sine', 0.38, 0.2, 40); },
     type() { tone(1800 + Math.random() * 400, 0.02, 'square', 0.008); },
-    // aullido del mono aullador: rugido grave y ronco que sube y baja en oleadas
+    // aullido del mono aullador (APROXIMACIÓN sintética, no una grabación): voz grave y áspera (diente de sierra
+    // con temblor + ruido) que pasa por tres formantes como una "o-a" abierta; empieza con gruñidos cortos
+    // que se aceleran y termina en un rugido largo que sube y baja, como el canto real
     howl() {
       const c = A.ctx; if (!c || !A.on || !A.noise) return;
-      const t = c.currentTime, g = c.createGain(), bp = filt('bandpass', 520, 1.2), lp = filt('lowpass', 900);
+      const t = c.currentTime, D = 3.6, g = c.createGain(), mix = c.createGain();
+      mix.gain.value = 1; mix.connect(g); g.connect(A.master);
+      const src = c.createGain(); src.gain.value = 1;
+      // formantes de la "caja de resonancia" (hioides): graves y anchos
+      [[330, 3, 1], [780, 5, 0.55], [1250, 7, 0.25]].forEach(([f, q, k]) => { const b = filt('bandpass', f, q), bg = c.createGain(); bg.gain.value = k; b.connect(bg); bg.connect(mix); src.connect(b); });
+      // fuente: cuerdas vocales graves con temblor (vibrato) y aire ronco
+      const o = c.createOscillator(), og = c.createGain(), vib = c.createOscillator(), vg = c.createGain();
+      o.type = 'sawtooth'; og.gain.value = 0.35; vib.frequency.value = 7; vg.gain.value = 6; vib.connect(vg); vg.connect(o.frequency);
+      o.frequency.setValueAtTime(82, t); o.frequency.linearRampToValueAtTime(118, t + 1.6); o.frequency.linearRampToValueAtTime(132, t + 2.4); o.frequency.linearRampToValueAtTime(86, t + D);
+      o.connect(og); og.connect(src);
+      const n = c.createBufferSource(), ng = c.createGain(); n.buffer = A.noise; n.loop = true; ng.gain.value = 0.5; n.connect(ng); ng.connect(src);
+      // envolvente: 4 gruñidos que se aceleran, luego el rugido sostenido con oleadas
       g.gain.setValueAtTime(0.0001, t);
-      for (let i = 0; i < 6; i++) { const s = t + i * 0.55; g.gain.exponentialRampToValueAtTime(0.045, s + 0.2); g.gain.exponentialRampToValueAtTime(0.008, s + 0.5); }
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 3.6);
-      const n = c.createBufferSource(); n.buffer = A.noise; n.connect(bp); bp.connect(g);
-      const o = c.createOscillator(), og = c.createGain(); o.type = 'sawtooth'; og.gain.value = 0.3;
-      o.frequency.setValueAtTime(95, t); o.frequency.linearRampToValueAtTime(128, t + 1.8); o.frequency.linearRampToValueAtTime(88, t + 3.5);
-      o.connect(og); og.connect(lp); lp.connect(g); g.connect(A.master);
-      n.start(t); n.stop(t + 3.7); o.start(t); o.stop(t + 3.7);
+      [0, 0.42, 0.74, 0.98].forEach((s, i) => { g.gain.exponentialRampToValueAtTime(0.03 + i * 0.006, t + s + 0.1); g.gain.exponentialRampToValueAtTime(0.004, t + s + 0.22); });
+      g.gain.exponentialRampToValueAtTime(0.055, t + 1.5);
+      for (let k = 0; k < 4; k++) { g.gain.exponentialRampToValueAtTime(0.03, t + 1.75 + k * 0.45); g.gain.exponentialRampToValueAtTime(0.055, t + 1.97 + k * 0.45); }
+      g.gain.exponentialRampToValueAtTime(0.0001, t + D);
+      o.start(t); vib.start(t); n.start(t); o.stop(t + D + 0.1); vib.stop(t + D + 0.1); n.stop(t + D + 0.1);
     },
   };
 
