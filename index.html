@@ -6888,7 +6888,10 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       AU.speak('Hola. Así suena la narración de Cuenca Viva.', ST.narrator).then((ok) => {
         AU.voice = was; const d = AU.diag();
         info.textContent = ` Sonido: ${d.ctx === 'running' ? 'activo' : 'bloqueado (' + d.ctx + ')'} · Voz: ${ok ? 'funciona' : 'no arrancó'} · ${d.es} voces en español${d.plain ? ' · usando la voz del sistema' : ''}.` +
-          (ok && d.ctx === 'running' ? ' Si no escucharon nada, suban el volumen y quiten el modo silencio.' : ' Envíen este mensaje al desarrollador.');
+          (ok && d.ctx === 'running' ? ' Si no escucharon nada, suban el volumen y quiten el modo silencio.' : ' Envíen este mensaje al desarrollador.') +
+          // Safari puede silenciar la pestaña y la página no tiene forma de saberlo: se explica dónde reactivarla
+          (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+            ? ' En iPhone: toquen el botón de opciones de Safari (junto a la dirección); si aparece «Activar sonido de esta pestaña», tóquenlo.' : '');
       });
     };
     $('#voiceTest').onclick = () => {
