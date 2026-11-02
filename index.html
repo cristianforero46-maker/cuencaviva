@@ -1596,6 +1596,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       u.mieDirectionalG.value = 0.86;
     }
     const dayK = smooth(-0.04, 0.15, sunDir.y);
+    CV.sunHeight = sunDir.y; // el pueblo enciende sus faroles al anochecer
     hemi.intensity = (pmrem ? 0.6 : 1.1) * (0.12 + 0.88 * dayK);
     if (cloudU) { cloudU.uDirty.value = 1 - a; cloudU.uCover.value = lerp(0.36, 0.53, a); cloudU.uDay.value = dayK; }
     scene.fog.color.copy(pal.fogDirty).lerp(pal.fogClean, a);
@@ -2003,14 +2004,16 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         return g;
       }
       CV.plantGeo = { rosette: rosetteGeo(20), tuft: tuftGeo(16) };
-      const NF = Math.round(2300 * Math.max(0.45, QK));
+      const NF = Math.round(3600 * Math.max(0.45, QK));
       const fStemG = new THREE.CylinderGeometry(0.28, 0.36, 1, 6); fStemG.translate(0, 0.5, 0);
       const fStem = new THREE.InstancedMesh(fStemG, std(0x4f4134, 1), NF);
       const fRos = new THREE.InstancedMesh(CV.plantGeo.rosette, std(0xffffff, 0.72, 0, { side: THREE.DoubleSide }), NF);
       const fr = [];
-      for (let tries = 0; fr.length < NF && tries < 100000; tries++) {
+      for (let tries = 0; fr.length < NF && tries < 180000; tries++) {
         const x = (rand() * 2 - 1) * 780, z = (rand() * 2 - 1) * 760, h = height(x, z);
         if (h < 106 || slope(x, z) > 1.1) continue;
+        // frailejonales: se agrupan en valles densos y dejan claros de pajonal entre ellos
+        if (W.fbm(x * 0.012 + 7, z * 0.012 - 3, 2) < 0.48 && rand() < 0.8) continue;
         let th = thr(x, z) * 0.8 + (rand() - 0.5) * 0.12;
         if (rand() < 0.3) th = -1;
         fr.push({ x, y: h - 0.2, z, sc: 1.1 + rand() * 1.4, th });
@@ -2317,12 +2320,83 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const mesh = (g, m, x, y, z, sx, sy, sz, ry, parent = root) => { const o = sh(new THREE.Mesh(g, m)); o.position.set(x, y, z); o.scale.set(sx, sy, sz); o.rotation.y = ry || 0; parent.add(o); return o; };
       const canvasTex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; };
 
-      // ---------- plaza y calles ----------
-      const paving = std(0xa89a80, 0.95);
-      const plaza = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), paving); plaza.rotation.x = -Math.PI / 2; plaza.position.y = 0.05; plaza.receiveShadow = true; root.add(plaza);
-      [-19.5, 19.5].forEach((k) => {
-        [[k, 0, 6, 84], [0, k, 84, 6]].forEach(([x, z, w, d]) => { const s = new THREE.Mesh(new THREE.PlaneGeometry(w, d), paving); s.rotation.x = -Math.PI / 2; s.position.set(x, 0.04, z); s.receiveShadow = true; root.add(s); });
+      const rep = (t, rx, ry) => { const c = t.clone(); c.needsUpdate = true; c.wrapS = c.wrapT = THREE.RepeatWrapping; c.repeat.set(rx, ry); return c; };
+      // pañete de cal: blanco irregular, con manchas de humedad y salpicaduras de barro abajo
+      const plasterTex = canvasTex(256, 256, (x, w, h) => {
+        x.fillStyle = '#f4f2ec'; x.fillRect(0, 0, w, h);
+        for (let i = 0; i < 2600; i++) { const v = 215 + Math.random() * 40 | 0; x.fillStyle = `rgba(${v},${v - 4},${v - 12},.35)`; x.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 5, 1 + Math.random() * 4); }
+        for (let i = 0; i < 9; i++) { const g = x.createRadialGradient(0, 0, 0, 0, 0, 30); g.addColorStop(0, 'rgba(150,135,110,.16)'); g.addColorStop(1, 'rgba(150,135,110,0)'); x.save(); x.translate(Math.random() * w, Math.random() * h); x.scale(1, 1.8); x.fillStyle = g; x.fillRect(-30, -30, 60, 60); x.restore(); }
+        const g = x.createLinearGradient(0, h, 0, h * 0.72); g.addColorStop(0, 'rgba(110,90,65,.55)'); g.addColorStop(1, 'rgba(110,90,65,0)'); x.fillStyle = g; x.fillRect(0, h * 0.72, w, h * 0.28);
+        x.strokeStyle = 'rgba(120,110,95,.35)'; x.lineWidth = 0.8;
+        for (let i = 0; i < 5; i++) { let px = Math.random() * w, py = Math.random() * h; x.beginPath(); x.moveTo(px, py); for (let k = 0; k < 6; k++) { px += (Math.random() - 0.5) * 14; py += 4 + Math.random() * 8; x.lineTo(px, py); } x.stroke(); }
       });
+      // empedrado: cantos rodados de río con junta de tierra
+      const cobbleTex = canvasTex(256, 256, (x, w, h) => {
+        x.fillStyle = '#6d6250'; x.fillRect(0, 0, w, h);
+        for (let r = 0; r < 16; r++) for (let c = 0; c < 16; c++) {
+          const cx = (c + 0.5 + (r % 2) * 0.5) * 16 + (Math.random() - 0.5) * 4, cy = (r + 0.5) * 16 + (Math.random() - 0.5) * 4, v = 120 + Math.random() * 60 | 0;
+          const g = x.createRadialGradient(cx - 2, cy - 2, 1, cx, cy, 8); g.addColorStop(0, `rgb(${v + 25},${v + 20},${v + 8})`); g.addColorStop(1, `rgb(${v - 30},${v - 34},${v - 40})`);
+          x.fillStyle = g; x.beginPath(); x.ellipse(cx, cy, 6 + Math.random() * 1.5, 5.5 + Math.random() * 1.5, Math.random() * 3, 0, 6.3); x.fill();
+        }
+      });
+      // teja de barro: canales que bajan por el faldón, cada una con su tono
+      const tileTex = canvasTex(128, 128, (x, w, h) => {
+        for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+          const v = 0.8 + Math.random() * 0.35, X = c * 16, Y = r * 16;
+          const g = x.createLinearGradient(X, 0, X + 16, 0); g.addColorStop(0, `rgb(${90 * v | 0},${38 * v | 0},${24 * v | 0})`); g.addColorStop(0.5, `rgb(${215 * v | 0},${120 * v | 0},${85 * v | 0})`); g.addColorStop(1, `rgb(${95 * v | 0},${40 * v | 0},${26 * v | 0})`);
+          x.fillStyle = g; x.fillRect(X, Y, 16, 16);
+          x.fillStyle = 'rgba(40,20,10,.45)'; x.fillRect(X, Y + 14, 16, 2);
+          if (Math.random() < 0.25) { x.fillStyle = `rgba(70,80,50,${0.2 + Math.random() * 0.3})`; x.fillRect(X + 2, Y + 4, 12, 9); }
+        }
+      });
+
+      // ---------- plaza y calles ----------
+      const paving = std(0xffffff, 0.95, 0, { map: rep(cobbleTex, 6, 6), bumpMap: rep(cobbleTex, 6, 6), bumpScale: 0.6 });
+      const plaza = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), paving); plaza.rotation.x = -Math.PI / 2; plaza.position.y = 0.05; plaza.receiveShadow = true; root.add(plaza);
+      const streetM = std(0xffffff, 0.95, 0, { map: rep(cobbleTex, 1.2, 17), bumpMap: rep(cobbleTex, 1.2, 17), bumpScale: 0.6 });
+      [-19.5, 19.5].forEach((k) => {
+        [[k, 0, 6, 84, 0], [0, k, 6, 84, 1]].forEach(([x, z, w, d, turn]) => { const s = new THREE.Mesh(new THREE.PlaneGeometry(w, d), streetM); s.rotation.set(-Math.PI / 2, 0, turn ? Math.PI / 2 : 0); s.position.set(x, 0.04, z); s.receiveShadow = true; root.add(s); });
+      });
+      // andenes: bordillo de piedra a lado y lado de cada calle
+      const curbM = std(0x9a9284, 0.9);
+      [-19.5, 19.5].forEach((k) => [-3.2, 3.2].forEach((o) => { mesh(cube, curbM, k + o, 0, 0, 0.4, 0.18, 84); mesh(cube, curbM, 0, 0, k + o, 84, 0.18, 0.4); }));
+
+      // ---------- parque principal: fuente, árboles, bancas y faroles ----------
+      const stoneM = std(0xbab3a3, 0.85, 0, { map: rep(plasterTex, 2, 1) });
+      mesh(new THREE.CylinderGeometry(3.2, 3.4, 0.7, 24), stoneM, 0, 0.35, 0, 1, 1, 1);
+      const pool = new THREE.Mesh(new THREE.CircleGeometry(2.9, 24), std(0x4f7d86, 0.08, 0.2)); pool.rotation.x = -Math.PI / 2; pool.position.y = 0.66; root.add(pool);
+      mesh(new THREE.CylinderGeometry(0.35, 0.5, 2.2, 12), stoneM, 0, 1.1, 0, 1, 1, 1);
+      mesh(new THREE.CylinderGeometry(1.2, 0.3, 0.35, 16), stoneM, 0, 2.2, 0, 1, 1, 1);
+      const jet = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.4, 12, 1, true), new THREE.MeshStandardMaterial({ color: 0xdff3f7, transparent: true, opacity: 0.45, roughness: 0.1, side: THREE.DoubleSide }));
+      jet.position.y = 2.6; jet.rotation.x = Math.PI; root.add(jet);
+      ups.push((dt, t) => { jet.scale.set(1 + Math.sin(t * 9) * 0.06, 1 + Math.sin(t * 7) * 0.08, 1 + Math.cos(t * 9) * 0.06); });
+      const parkTrunk = std(0x5a4632, 0.95), parkLeaf = std(0x3d6a2c, 0.85, 0, { flatShading: true });
+      const leafG = new THREE.IcosahedronGeometry(1, 1);
+      [[-10.5, -10.5], [10.5, -10.5], [-10.5, 10.5], [10.5, 10.5]].forEach(([x, z], i) => {
+        mesh(new THREE.CylinderGeometry(0.22, 0.32, 3.6, 7), parkTrunk, x, 1.8, z, 1, 1, 1);
+        mesh(leafG, parkLeaf, x, 5, z, 2.8, 2.2, 2.8, i);
+        mesh(leafG, parkLeaf, x + 1.2, 4.3, z - 0.6, 1.8, 1.5, 1.8, i * 2);
+        // jardinera con flores alrededor del árbol
+        mesh(new THREE.CylinderGeometry(1.6, 1.6, 0.4, 14), curbM, x, 0.2, z, 1, 1, 1);
+        for (let k = 0; k < 10; k++) { const a = (k / 10) * 6.283; mesh(new THREE.SphereGeometry(0.22, 6, 5), std([0xd2343c, 0xf2c335, 0xe07ab0, 0xf4f1e8][k % 4], 0.7), x + Math.cos(a) * 1.15, 0.5, z + Math.sin(a) * 1.15, 1, 0.8, 1); }
+      });
+      const woodM = std(0x7a5232, 0.8), ironM = std(0x1f2326, 0.5, 0.6);
+      [[0, -10.8, 0], [0, 10.8, Math.PI], [-10.8, 0, Math.PI / 2], [10.8, 0, -Math.PI / 2]].forEach(([x, z, ry]) => {
+        const b = new THREE.Group(); b.position.set(x, 0, z); b.rotation.y = ry; root.add(b);
+        mesh(cube, woodM, 0, 0.45, 0, 2.2, 0.08, 0.6, 0, b); mesh(cube, woodM, 0, 0.55, -0.3, 2.2, 0.55, 0.07, 0, b);
+        [-0.95, 0.95].forEach((lx) => mesh(cube, ironM, lx, 0, 0, 0.08, 0.45, 0.55, 0, b));
+      });
+      // faroles coloniales: se encienden con el atardecer
+      const lampGlass = new THREE.MeshStandardMaterial({ color: 0xfff0c8, emissive: 0xffc46b, emissiveIntensity: 0, roughness: 0.3 });
+      const lampPos = [];
+      [-1, 1].forEach((a) => { lampPos.push([a * 4, -11], [a * 14, 14], [a * 16.8, 0], [a * 16.8, 16.8]); });
+      lampPos.push([0, 16.8]); // al sur queda la torre de la iglesia
+      lampPos.forEach(([x, z]) => {
+        mesh(new THREE.CylinderGeometry(0.07, 0.11, 3.6, 6), ironM, x, 1.8, z, 1, 1, 1);
+        mesh(new THREE.CylinderGeometry(0.28, 0.18, 0.55, 6), lampGlass, x, 3.85, z, 1, 1, 1);
+        mesh(new THREE.ConeGeometry(0.36, 0.3, 6), ironM, x, 4.25, z, 1, 1, 1);
+      });
+      ups.push((dt, t, v) => { lampGlass.emissiveIntensity = CV.sunHeight !== undefined ? 1.6 * (1 - smooth(-0.05, 0.12, CV.sunHeight)) : 0; });
 
       // ---------- casas ----------
       const reserved = (x, z) => (x === 0 && z === -26) || (x === 26 && z === -13) || (x === -26 && (z === -13 || z === 0)) || (x < -12 && z > 2);
@@ -2331,38 +2405,82 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         if (Math.abs(ix) <= 1 && Math.abs(iz) <= 1) continue;
         const x = ix * 13, z = iz * 13;
         if (Math.hypot(x, z) > 46 || reserved(x, z)) continue;
-        houses.push({ x: x + (rand() - 0.5) * 1.6, z: z + (rand() - 0.5) * 1.6, w: 7 + rand() * 3, d: 6 + rand() * 2.4, h: 4.2 + rand() * 1.4, ry: rand() < 0.5 ? 0 : Math.PI / 2 });
+        // casas de uno y dos pisos, con la fachada mirando a la calle más cercana
+        const two = rand() < 0.4;
+        houses.push({ x: x + (rand() - 0.5) * 1.6, z: z + (rand() - 0.5) * 1.6, w: 7 + rand() * 3, d: 6 + rand() * 2.4, h: two ? 7 + rand() * 0.8 : 4.2 + rand() * 1.2, two, ry: rand() < 0.5 ? 0 : Math.PI / 2 });
       }
-      const n = houses.length;
-      const walls = new THREE.InstancedMesh(cube, std(0xffffff, 0.92), n);
+      const n = houses.length, nTwo = houses.filter((h) => h.two).length;
+      const walls = new THREE.InstancedMesh(cube, std(0xffffff, 0.92, 0, { map: rep(plasterTex, 1, 1), bumpMap: rep(plasterTex, 1, 1), bumpScale: 0.4 }), n);
       const zocalo = new THREE.InstancedMesh(cube, std(0xffffff, 0.8), n);
-      const roofs = new THREE.InstancedMesh(roofG, std(0xffffff, 0.75, 0, { flatShading: true }), n);
-      const doors = new THREE.InstancedMesh(cube, std(0xffffff, 0.6), n * 3);
-      const wallC = [0xf2ede2, 0xeee5d0, 0xf5f1e8, 0xe9dfc8].map(C);
-      const bandC = [0xc0392b, 0x2e86c1, 0x27ae60, 0xe1b12c, 0x8e44ad, 0x16a085, 0xd35400].map(C);
-      const roofC = [0xa4472f, 0x8f3b28, 0xb5553a, 0x9a4a32].map(C);
+      const roofs = new THREE.InstancedMesh(roofG, std(0xffffff, 0.75, 0, { map: rep(tileTex, 3, 3), bumpMap: rep(tileTex, 3, 3), bumpScale: 1.2 }), n);
+      // vanos: puerta y ventanas con marco de madera pintada, vidrio oscuro y postigos abiertos a los lados
+      const NW = n * 3 + nTwo * 3;
+      const doors = new THREE.InstancedMesh(cube, std(0xffffff, 0.6), NW);
+      const frames = new THREE.InstancedMesh(cube, std(0xffffff, 0.7), NW);
+      const shutters = new THREE.InstancedMesh(cube, std(0xffffff, 0.75), NW * 2);
+      // balcones de madera en las casas de dos pisos, con materas de geranios
+      const balc = new THREE.InstancedMesh(cube, std(0xffffff, 0.75), nTwo * 3);
+      const balTex = canvasTex(64, 32, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = '#fff'; x.fillRect(0, 0, w, 4); x.fillRect(0, h - 4, w, 4); for (let i = 0; i < 8; i++) x.fillRect(i * 8 + 2, 0, 3, h); });
+      const rail = new THREE.InstancedMesh(cube, std(0xffffff, 0.75, 0, { map: rep(balTex, 3, 1), alphaTest: 0.5, transparent: false, side: THREE.DoubleSide }), nTwo);
+      const pots = new THREE.InstancedMesh(new THREE.SphereGeometry(0.2, 7, 5), std(0xffffff, 0.7), nTwo * 8);
+      const wallC = [0xf2ede2, 0xeee5d0, 0xf5f1e8, 0xe9dfc8, 0xf0e2c4, 0xe8d9d0].map(C);
+      const bandC = [0xa8322a, 0x2a6f9e, 0x2f7d4c, 0xc99a2a, 0x6e3f86, 0x1d7a6c, 0xb5541c].map(C);
+      const roofC = [0xc87a5a, 0xb86a4c, 0xd08868, 0xa8604a].map(C);
+      const glass = C(0x24313a), potC = [0xd2343c, 0xe0517a, 0xf4f1e8, 0xd2343c].map(C);
       const off = (hs, lx, lz) => [hs.x + lx * Math.cos(hs.ry) + lz * Math.sin(hs.ry), hs.z - lx * Math.sin(hs.ry) + lz * Math.cos(hs.ry)];
+      let nw = 0, nb = 0, nr = 0, np = 0;
+      const at = (hs, lx, y, lz, sx, sy, sz) => { const [x, z] = off(hs, lx, lz); dummy.rotation.set(0, hs.ry, 0); dummy.position.set(x, y, z); dummy.scale.set(sx, sy, sz); dummy.updateMatrix(); return dummy.matrix; };
       houses.forEach((hs, i) => {
-        const band = bandC[(rand() * bandC.length) | 0];
+        const band = bandC[(rand() * bandC.length) | 0], wood = band.clone().multiplyScalar(0.75), fz = hs.d / 2;
         dummy.rotation.set(0, hs.ry, 0);
-        dummy.position.set(hs.x, 0, hs.z); dummy.scale.set(hs.w, hs.h, hs.d); dummy.updateMatrix(); walls.setMatrixAt(i, dummy.matrix); walls.setColorAt(i, wallC[i % wallC.length]);
+        dummy.position.set(hs.x, 0, hs.z); dummy.scale.set(hs.w, hs.h, hs.d); dummy.updateMatrix(); walls.setMatrixAt(i, dummy.matrix); walls.setColorAt(i, wallC[(rand() * wallC.length) | 0]);
         dummy.scale.set(hs.w + 0.14, 1.1, hs.d + 0.14); dummy.updateMatrix(); zocalo.setMatrixAt(i, dummy.matrix); zocalo.setColorAt(i, band);
-        dummy.position.set(hs.x, hs.h, hs.z); dummy.scale.set(hs.w + 1.3, 1.6, (hs.d + 1.4) / 1.732); dummy.updateMatrix(); roofs.setMatrixAt(i, dummy.matrix); roofs.setColorAt(i, roofC[(rand() * roofC.length) | 0]);
-        [[0, 0, 1.3, 2.5], [-hs.w / 3.2, 1.8, 1.1, 1.2], [hs.w / 3.2, 1.8, 1.1, 1.2]].forEach(([lx, y, w, h], k) => {
-          const [x, z] = off(hs, lx, hs.d / 2 + 0.06);
-          dummy.position.set(x, y, z); dummy.scale.set(w, h, 0.12); dummy.updateMatrix(); doors.setMatrixAt(i * 3 + k, dummy.matrix);
-          doors.setColorAt(i * 3 + k, k === 0 ? band.clone().multiplyScalar(0.7) : C(0x3b4a52));
+        dummy.position.set(hs.x, hs.h, hs.z); dummy.scale.set(hs.w + 1.6, 1.7, (hs.d + 1.8) / 1.732); dummy.updateMatrix(); roofs.setMatrixAt(i, dummy.matrix); roofs.setColorAt(i, roofC[(rand() * roofC.length) | 0]);
+        const holes = [[0, 0, 1.3, 2.5], [-hs.w / 3.2, 1.6, 1.1, 1.3], [hs.w / 3.2, 1.6, 1.1, 1.3]];
+        if (hs.two) holes.push([-hs.w / 3.2, 4.5, 1.1, 1.5], [0, 4.5, 1.1, 1.5], [hs.w / 3.2, 4.5, 1.1, 1.5]);
+        holes.forEach(([lx, y, w, h], k) => {
+          frames.setMatrixAt(nw, at(hs, lx, y - 0.12, fz + 0.03, w + 0.3, h + 0.24, 0.1)); frames.setColorAt(nw, k === 0 ? wood : C(0xf4f1e8));
+          doors.setMatrixAt(nw, at(hs, lx, y, fz + 0.06, w, h, 0.1)); doors.setColorAt(nw, k === 0 ? wood.clone().multiplyScalar(0.8) : glass);
+          if (k) [-1, 1].forEach((s, q) => { shutters.setMatrixAt(nw * 2 + q, at(hs, lx + s * (w / 2 + 0.33), y, fz + 0.07, w / 2, h, 0.06)); shutters.setColorAt(nw * 2 + q, wood); });
+          else [0, 1].forEach((q) => shutters.setMatrixAt(nw * 2 + q, at(hs, 0, -5, 0, 0.001, 0.001, 0.001)));
+          nw++;
         });
+        if (hs.two) {
+          const bw = hs.w * 0.86;
+          balc.setMatrixAt(nb, at(hs, 0, 3.55, fz + 0.6, bw, 0.16, 1.2)); balc.setColorAt(nb++, wood.clone().multiplyScalar(0.8));
+          // canes bajo el balcón
+          [-1, 1].forEach((s) => { balc.setMatrixAt(nb, at(hs, s * bw * 0.42, 3.25, fz + 0.5, 0.18, 0.3, 1)); balc.setColorAt(nb++, wood.clone().multiplyScalar(0.6)); });
+          rail.setMatrixAt(nr, at(hs, 0, 3.7, fz + 1.15, bw, 0.95, 0.05)); rail.setColorAt(nr++, wood);
+          for (let k = 0; k < 8; k++) { pots.setMatrixAt(np, at(hs, -bw * 0.45 + (k / 7) * bw * 0.9, 4.72, fz + 1.12, 1, 0.8, 1)); pots.setColorAt(np++, potC[(rand() * potC.length) | 0]); }
+        }
       });
-      [walls, zocalo, roofs, doors].forEach((m) => { sh(m); root.add(m); });
+      [walls, zocalo, roofs, doors, frames, shutters, balc, rail, pots].forEach((m) => { sh(m); root.add(m); });
 
       // ---------- iglesia ----------
-      const white = std(0xf4efe4, 0.9), terra = std(0xa4472f, 0.75, 0, { flatShading: true });
+      const white = std(0xffffff, 0.9, 0, { map: rep(plasterTex, 2, 2), bumpMap: rep(plasterTex, 2, 2), bumpScale: 0.4 }), terra = std(0xd08868, 0.75, 0, { map: rep(tileTex, 5, 5), bumpMap: rep(tileTex, 5, 5), bumpScale: 1.2 });
       mesh(cube, white, 0, 0, -28, 14, 11, 24);
       mesh(roofG, terra, 0, 11, -28, 25, 2.2, 15.4 / 1.732, Math.PI / 2);
       mesh(cube, white, 0, 0, -16, 6.5, 22, 6.5);
       const tr = mesh(new THREE.ConeGeometry(4.8, 7, 4), terra, 0, 25.5, -16, 1, 1, 1); tr.rotation.y = Math.PI / 4;
-      mesh(cube, std(0x5a3b28, 0.7), 0, 0, -12.7, 2.6, 4.2, 0.2);
+      // portada: zócalo de piedra, puerta de madera con arco, cornisas, ventanas del campanario y cruz
+      const darkWood = std(0x4a2f1e, 0.7), stone = std(0xb8ad98, 0.9), dark = std(0x1c1c1e, 0.9);
+      mesh(cube, darkWood, 0, 0, -12.7, 2.6, 4.2, 0.2);
+      const halfDisc = (r) => new THREE.CircleGeometry(r, 16, 0, Math.PI); // medio círculo hacia arriba, mirando a +z
+      mesh(halfDisc(1.3), darkWood, 0, 4.2, -12.58, 1, 1, 1);
+      mesh(cube, stone, 0, 0, -16, 6.8, 1.2, 6.8);
+      mesh(cube, stone, 0, 0, -28, 14.3, 1.2, 24.3);
+      [11, 21.6].forEach((y) => mesh(cube, stone, 0, y, -16, 7, 0.4, 7));
+      // campanario: un vano con arco en cada cara
+      [[0, 1, 0], [0, -1, Math.PI], [1, 0, Math.PI / 2], [-1, 0, -Math.PI / 2]].forEach(([sx, sz, ry]) => {
+        mesh(cube, dark, sx * 3.32, 17, -16 + sz * 3.32, 1.4, 2.8, 0.1, ry);
+        mesh(halfDisc(0.7), dark, sx * 3.38, 19.8, -16 + sz * 3.38, 1, 1, 1, ry);
+      });
+      // reloj de la torre
+      const clockTex = canvasTex(64, 64, (x, w, h) => { x.fillStyle = '#f6f1e2'; x.beginPath(); x.arc(32, 32, 30, 0, 6.3); x.fill(); x.strokeStyle = '#222'; x.lineWidth = 3; x.stroke(); for (let k = 0; k < 12; k++) { const a = (k / 12) * 6.283; x.fillStyle = '#222'; x.fillRect(32 + Math.cos(a) * 24 - 1.5, 32 + Math.sin(a) * 24 - 1.5, 3, 3); } x.lineWidth = 2.5; x.beginPath(); x.moveTo(32, 32); x.lineTo(32, 14); x.moveTo(32, 32); x.lineTo(44, 36); x.stroke(); });
+      const clock = new THREE.Mesh(new THREE.CircleGeometry(1.3, 24), new THREE.MeshStandardMaterial({ map: clockTex, roughness: 0.6 })); clock.position.set(0, 13.8, -12.7); root.add(clock);
+      [[0, 30.2, 0.18, 2.6], [0, 30.6, 1.3, 0.18]].forEach(([x, y, w, h]) => mesh(cube, std(0xd8c58a, 0.4, 0.7), x, y - h / 2, -16, w, h, 0.18));
+      // ventanas altas de la nave
+      for (let k = 0; k < 4; k++) [-7.06, 7.06].forEach((x) => mesh(cube, dark, x, 5, -36 + k * 5, 0.12, 3, 1.2));
 
       // ---------- puesto de salud con paneles que aparecen con la energía ----------
       mesh(cube, white, 26, 0, -13, 12, 5, 9);
@@ -2592,17 +2710,17 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       });
       const flowerM = new THREE.MeshStandardMaterial({ map: flowerTex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.8 });
       if (grassM.onBeforeCompile) flowerM.onBeforeCompile = grassM.onBeforeCompile;
-      const NFL = Math.round(3000 * QK), flowers = new THREE.InstancedMesh(tuft, flowerM, NFL);
+      const NFL = Math.round(5500 * QK), flowers = new THREE.InstancedMesh(tuft, flowerM, NFL);
       // más blancas y amarillas que moradas o rojas, y tonos suaves (como un prado andino, no confeti)
       const PETALS = [0xf0ead8, 0xf3eedf, 0xe8d36a, 0xe2c650, 0xd9cf8a, 0xb49ad0, 0x9c86c4, 0xd98a8a].map((h) => C(h));
       let nfl = 0, flx = 0, flz = 0, flc = 0;
-      for (let tries = 0; nfl < NFL && tries < 40000; tries++) {
+      for (let tries = 0; nfl < NFL && tries < 80000; tries++) {
         // crecen en manchas: casi siempre cerca de la mancha anterior, a veces empieza una nueva
         let x, z;
         if (nfl && rand() < 0.88) { x = flx + (rand() - 0.5) * 9; z = flz + (rand() - 0.5) * 9; }
         else { z = -360 + rand() * 800; x = riverX(z) + (rand() < 0.5 ? -1 : 1) * (17 + Math.pow(rand(), 1.4) * 220); flx = x; flz = z; flc = (rand() * PETALS.length) | 0; }
         const h = height(x, z);
-        if (h < 1.4 || h > 60 || slope(x, z) > 0.55 || inPad(x, z, 0.7)) { flx = x + 40; continue; }
+        if (h < 1.4 || h > 130 || slope(x, z) > 0.55 || inPad(x, z, 0.7)) { flx = x + 40; continue; }
         if (village && Math.hypot(x - village.x, z - village.z) < 55) continue;
         const s = 0.15 + rand() * 0.14;
         dummy.position.set(x, h - 0.05, z); dummy.rotation.set(0, rand() * 6.28, 0); dummy.scale.set(s, s * (0.9 + rand() * 0.4), s); dummy.updateMatrix();
@@ -3961,25 +4079,62 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       }
       // páramo del oso: frailejones (tronco peludo y roseta plateada) y macollas doradas de paja
       {
-        const p = HAB.paramo, NFr = LITE ? 18 : 40, NPa = LITE ? 90 : 220;
+        // un valle entero de frailejones: densos alrededor del claro del oso y cada vez más ralos hacia afuera
+        const p = HAB.paramo, NFr = LITE ? 180 : 620, NPa = LITE ? 160 : 520, NFl = LITE ? 500 : 1600;
         const trunkG = new THREE.CylinderGeometry(0.12, 0.17, 1, 7); trunkG.translate(0, 0.5, 0);
         const rosG = (CV.plantGeo && CV.plantGeo.rosette) || new THREE.IcosahedronGeometry(1, 1);
         const pajaG = (CV.plantGeo && CV.plantGeo.tuft) || new THREE.ConeGeometry(0.38, 1, 7, 1, true);
-        const trunks = new THREE.InstancedMesh(trunkG, new THREE.MeshStandardMaterial({ color: 0x4a3f33, roughness: 1 }), NFr);
-        const roses = new THREE.InstancedMesh(rosG, new THREE.MeshStandardMaterial({ color: 0xa3ad8f, roughness: 0.7, side: THREE.DoubleSide }), NFr);
+        const trunks = new THREE.InstancedMesh(trunkG, new THREE.MeshStandardMaterial({ color: new THREE.Color(0x4f4134).convertSRGBToLinear(), roughness: 1 }), NFr);
+        const roses = new THREE.InstancedMesh(rosG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7, side: THREE.DoubleSide }), NFr);
         const paja = new THREE.InstancedMesh(pajaG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95, side: THREE.DoubleSide }), NPa);
-        const dm = new THREE.Object3D();
-        for (let i = 0; i < NFr; i++) {
-          const a = rand() * 6.283, r = 6 + Math.sqrt(rand()) * p.r * 1.6, x = p.x + Math.cos(a) * r, z = p.z + Math.sin(a) * r, y = height(x, z), H = 0.6 + rand() * 1.6, s = 0.45 + rand() * 0.3;
-          dm.position.set(x, y - 0.05, z); dm.rotation.set(0, rand() * 6, 0); dm.scale.set(1, H, 1); dm.updateMatrix(); trunks.setMatrixAt(i, dm.matrix);
-          dm.position.set(x, y + H, z); dm.scale.set(s, s, s); dm.updateMatrix(); roses.setMatrixAt(i, dm.matrix);
+        // el frailejón florece: varas que salen de la roseta con cabezuelas amarillas como margaritas
+        const NSt = NFr * 3;
+        const stG = new THREE.CylinderGeometry(0.012, 0.02, 1, 4); stG.translate(0, 0.5, 0);
+        const headG = new THREE.CylinderGeometry(0.11, 0.04, 0.05, 10);
+        const stalks = new THREE.InstancedMesh(stG, new THREE.MeshStandardMaterial({ color: 0x8c8f6a, roughness: 0.9 }), NSt);
+        const heads = new THREE.InstancedMesh(headG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, emissive: 0x3a2a00, emissiveIntensity: 0.25 }), NSt);
+        // flores del páramo a ras de suelo: lupinos morados, chites rojizos, árnicas amarillas y florecitas blancas
+        const flG = new THREE.IcosahedronGeometry(0.11, 0);
+        const flowers = new THREE.InstancedMesh(flG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.65 }), NFl);
+        const FLC = [0x7b5cc4, 0x8f6bd8, 0xf2c335, 0xe8b02a, 0xf1ece0, 0xc8553f, 0xd9a2c6];
+        const flat = (x, z) => Math.abs(height(x + 2, z) - height(x - 2, z)) + Math.abs(height(x, z + 2) - height(x, z - 2)) < 2.6;
+        const dm = new THREE.Object3D(), col = new THREE.Color();
+        let nf = 0, ns = 0;
+        for (let t = 0; nf < NFr && t < NFr * 8; t++) {
+          const a = rand() * 6.283, r = 7 + Math.pow(rand(), 0.8) * p.r * 3.4, x = p.x + Math.cos(a) * r, z = p.z + Math.sin(a) * r, y = height(x, z);
+          if (y < p.min - 8 || !flat(x, z)) continue;
+          // grupos: los viejos son altos y los jóvenes, rosetas casi a ras del suelo
+          const old = rand() < 0.35, H = old ? 1.6 + rand() * 1.6 : 0.15 + rand() * 1.1, s = old ? 0.6 + rand() * 0.3 : 0.4 + rand() * 0.35;
+          dm.position.set(x, y - 0.05, z); dm.rotation.set((rand() - 0.5) * 0.08, rand() * 6, (rand() - 0.5) * 0.08); dm.scale.set(1.4 + H * 0.15, H, 1.4 + H * 0.15); dm.updateMatrix(); trunks.setMatrixAt(nf, dm.matrix);
+          dm.position.set(x, y + H, z); dm.rotation.set(0, rand() * 6, 0); dm.scale.set(s, s, s); dm.updateMatrix(); roses.setMatrixAt(nf, dm.matrix);
+          roses.setColorAt(nf, col.set(rand() < 0.5 ? 0x8d936c : 0x9aa184).convertSRGBToLinear().multiplyScalar(0.75 + rand() * 0.4));
+          nf++;
+          if (H > 0.5 && rand() < 0.65) for (let k = 0, m = 2 + (rand() * 3 | 0); k < m && ns < NSt; k++, ns++) {
+            const b = rand() * 6.283, lean = 0.25 + rand() * 0.25, L = 0.55 + rand() * 0.45;
+            dm.position.set(x, y + H + 0.15 * s, z); dm.rotation.set(Math.sin(b) * lean, 0, Math.cos(b) * lean); dm.scale.set(1, L, 1); dm.updateMatrix(); stalks.setMatrixAt(ns, dm.matrix);
+            const tip = new THREE.Vector3(0, L, 0).applyEuler(dm.rotation);
+            dm.position.set(x + tip.x, y + H + 0.15 * s + tip.y, z + tip.z); dm.scale.set(1, 1, 1); dm.updateMatrix(); heads.setMatrixAt(ns, dm.matrix);
+            heads.setColorAt(ns, col.setHSL(0.13 + rand() * 0.02, 0.85, 0.5 + rand() * 0.08));
+          }
         }
+        trunks.count = roses.count = nf; stalks.count = heads.count = ns;
         for (let i = 0; i < NPa; i++) {
-          const a = rand() * 6.283, r = Math.sqrt(rand()) * p.r * 2.2, x = p.x + Math.cos(a) * r, z = p.z + Math.sin(a) * r, s = 0.6 + rand() * 0.7;
+          const a = rand() * 6.283, r = Math.sqrt(rand()) * p.r * 3.4, x = p.x + Math.cos(a) * r, z = p.z + Math.sin(a) * r, s = 0.6 + rand() * 0.7;
           dm.position.set(x, height(x, z) - 0.05, z); dm.rotation.set((rand() - 0.5) * 0.2, rand() * 6, (rand() - 0.5) * 0.2); dm.scale.set(s, s * (0.7 + rand() * 0.6), s); dm.updateMatrix(); paja.setMatrixAt(i, dm.matrix);
-          paja.setColorAt(i, new THREE.Color().setHSL(0.13, 0.35 + rand() * 0.15, 0.45 + rand() * 0.15));
+          paja.setColorAt(i, col.setHSL(0.13, 0.35 + rand() * 0.15, 0.45 + rand() * 0.15));
         }
-        [trunks, roses, paja].forEach((m) => { m.castShadow = !LITE; m.receiveShadow = true; scene.add(m); });
+        // las flores nacen en manchas de un mismo color, como en un páramo de verdad
+        for (let i = 0; i < NFl;) {
+          const a = rand() * 6.283, r = 4 + Math.sqrt(rand()) * p.r * 3.2, cx = p.x + Math.cos(a) * r, cz = p.z + Math.sin(a) * r, c = FLC[(rand() * FLC.length) | 0];
+          for (let k = 0, m = 8 + (rand() * 18 | 0); k < m && i < NFl; k++, i++) {
+            const x = cx + (rand() - 0.5) * 5, z = cz + (rand() - 0.5) * 5, s = 0.7 + rand() * 0.8;
+            dm.position.set(x, height(x, z) + 0.08 + rand() * 0.12, z); dm.rotation.set(0, rand() * 6, 0); dm.scale.set(s, s * 0.6, s); dm.updateMatrix(); flowers.setMatrixAt(i, dm.matrix);
+            flowers.setColorAt(i, col.set(c).convertSRGBToLinear().multiplyScalar(0.8 + rand() * 0.3));
+          }
+        }
+        [trunks, roses, paja, stalks, heads].forEach((m) => { m.castShadow = !LITE; m.receiveShadow = true; scene.add(m); });
+        flowers.receiveShadow = true; scene.add(flowers);
+        [trunks, roses, paja, stalks, heads, flowers].forEach((m) => (m.frustumCulled = false));
       }
       // árbol seco del páramo: tronco gris retorcido con una rama gruesa casi horizontal (la percha del puma)
       const snag = (() => {
@@ -6039,27 +6194,35 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     o = o || {};
     return new Promise((res) => {
       if (!A.on || !A.voice || !('speechSynthesis' in window)) return res(false);
-      const v = (o.narrator && chosen()) || pickVoice(o.gender, o.prefer); if (!v) return res(false);
+      // en iPhone y Android la lista de voces llega tarde (o nunca): se vuelve a pedir y, si sigue vacía,
+      // se habla igual con la voz en español que traiga el teléfono
+      if (!voices.length) loadVoices();
+      const v = (o.narrator && chosen()) || pickVoice(o.gender, o.prefer);
+      const nat = !!v && isNatural(v);
       let done = false, started = false;
       const end = (ok) => { if (done) return; done = true; duck(false); res(ok); };
       try {
         const wasBusy = synth().speaking || synth().pending;
         if (wasBusy) synth().cancel();
+        if (synth().paused) synth().resume();
         const u = new SpeechSynthesisUtterance(text);
         // voces neuronales: casi sin alterar, suenan como locución real; voces clásicas: un poco más de color
-        const k = isNatural(v) ? 0.3 : 1;
-        u.voice = v; u.lang = v.lang;
+        const k = nat ? 0.3 : 1;
+        if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'es-ES';
         u.pitch = 1 + ((o.pitch || 1) - 1) * k;
-        u.rate = (1 + ((o.rate || 1) - 1) * k) * (isNatural(v) ? 1 : 0.95);
+        u.rate = (1 + ((o.rate || 1) - 1) * k) * (nat ? 1 : 0.95);
         // la narradora habla con calma, como en un documental: un poco más lento y más grave
-        if (o.narrator) { u.rate = isNatural(v) ? 0.9 : 0.85; u.pitch = isNatural(v) ? 0.98 : 0.94; }
+        if (o.narrator) { u.rate = nat ? 0.9 : 0.85; u.pitch = nat ? 0.98 : 0.94; }
         u.onstart = () => { started = true; };
         u.onend = () => end(true); u.onerror = () => end(false);
+        A.utt = u; // Safari y Chrome pierden el aviso de fin si la frase no queda guardada
         duck(true);
-        // Chrome a veces ignora un speak() justo después de cancel(): se espera un instante
-        setTimeout(() => { if (!done) synth().speak(u); }, wasBusy ? 90 : 0);
+        // Chrome y Safari a veces ignoran un speak() justo después de cancel(): se espera un instante
+        if (wasBusy) setTimeout(() => { if (!done) synth().speak(u); }, 160);
+        else synth().speak(u);
         // si la voz nunca arranca, los subtítulos siguen con su tiempo de lectura
-        setTimeout(() => { if (!started && !synth().speaking) end(false); }, 2500);
+        // (los celulares tardan más en encender su motor de voz la primera vez)
+        setTimeout(() => { if (!started && !synth().speaking) end(false); }, 6000);
         setTimeout(() => end(true), Math.max(5000, text.length * 110));
       } catch (e) { end(false); }
     });
@@ -6523,7 +6686,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       AU.narratorVoice = cfg.voiceName;
       const v = AU.voiceInfo(ST.narrator), el = $('#vHint'); if (!el) return;
       const any = AU.listVoices().some((x) => x.natural);
-      el.textContent = !v ? 'Este navegador no tiene voces en español: la historia se verá con subtítulos.'
+      el.textContent = !v ? 'Se usará la voz del dispositivo. Si no se escucha, suban el volumen y quiten el modo silencio del celular.'
         : v.natural ? `Narradora: ${v.name}.` : any ? `Narradora: ${v.name}. Elijan una voz «natural» para que suene más humana.` : `Narradora: ${v.name}. Para voces humanas de narradora (Salomé, Dalia, Gonzalo…), abran el juego en Microsoft Edge.`;
     };
     hint(); setTimeout(hint, 1200);
@@ -6576,7 +6739,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   function start(cfg) {
     AU.init(); AU.voice = !!cfg.voice; AU.narratorVoice = cfg.voiceName || ''; AU.theme(false);
     // iPhone y algunos Android solo permiten la voz si la primera frase nace de un toque: se "despierta" aquí
-    try { if (cfg.voice && 'speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u); } } catch (e) {}
+    // (iPhone descarta una frase vacía, así que se dice una palabra en silencio)
+    try { if (cfg.voice && 'speechSynthesis' in window) { const u = new SpeechSynthesisUtterance('Hola'); u.lang = 'es-ES'; u.volume = 0; window.speechSynthesis.speak(u); } } catch (e) {}
     S.cfg = cfg; S.mode = cfg.mode || 'equipos';
     S.teams = S.mode === 'equipos'
       ? Array.from({ length: cfg.n }, (_, i) => ({ name: cfg.names[i] || D.teams[i].name, color: D.teams[i].color, score: 0 }))
