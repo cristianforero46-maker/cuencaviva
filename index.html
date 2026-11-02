@@ -471,6 +471,8 @@ body.fade #fade{opacity:1}
 @keyframes buzz{20%{transform:translateY(-12px) scale(1.06)}60%{transform:translateY(-4px)}}
 @keyframes rise{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-36px)}}
 @media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+.sound-test{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sound-test .btn{font-size:14px;padding:8px 14px}
 /* donaciones: botón con corazón que late y ventana con el QR */
 .donate-cta{appearance:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:12px;margin-top:14px;padding:12px 22px 12px 14px;border-radius:999px;
   background:linear-gradient(120deg,#ff5f6d,#ffc25a);color:#2a0d06;font-family:var(--display);text-align:left;
@@ -6148,13 +6150,44 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   const A = { ctx: null, on: true, voice: true, master: null, bus: null, amb: null, mood: 0 };
 
   function init() {
-    if (A.ctx) { if (A.ctx.state === 'suspended') A.ctx.resume(); return; }
+    unlock();
+    if (A.ctx) return;
     try { A.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { A.ctx = null; return; }
     const c = A.ctx;
     A.master = c.createGain(); A.master.gain.value = A.on ? 1 : 0; A.master.connect(c.destination);
     A.bus = c.createGain(); A.bus.gain.value = 1; A.bus.connect(A.master);
     buildAmbience();
+    unlock();
   }
+
+  // ---------- desbloqueo del sonido en celulares ----------
+  // iPhone: el sonido web se silencia con el interruptor de silencio salvo que la página "reproduzca" algo de verdad;
+  // un audio silencioso en bucle (y audioSession = playback en Safari 17+) lo pasa a modo reproducción, como un video.
+  // iPhone y Android: el sonido queda "suspendido" o "interrumpido" al bloquear la pantalla o cambiar de app;
+  // cada toque lo reanuda.
+  let silent = null;
+  function silentWav() {
+    const n = 4410, b = new ArrayBuffer(44 + n * 2), v = new DataView(b), w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, 44100, true); v.setUint32(28, 88200, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
+    return URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
+  }
+  function unlock() {
+    try { if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback'; } catch (e) {}
+    try {
+      if (!silent) { silent = document.createElement('audio'); silent.src = silentWav(); silent.loop = true; silent.setAttribute('playsinline', ''); silent.setAttribute('x-webkit-airplay', 'deny'); }
+      if (silent.paused) { const p = silent.play(); if (p && p.catch) p.catch(() => {}); }
+    } catch (e) {}
+    if (A.ctx && A.ctx.state !== 'running') { try { const p = A.ctx.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) {} }
+    // la voz de Chrome a veces queda en pausa tras cambiar de pestaña
+    try { if ('speechSynthesis' in window && window.speechSynthesis.paused) window.speechSynthesis.resume(); } catch (e) {}
+  }
+  ['pointerdown', 'touchend', 'keydown'].forEach((ev) => document.addEventListener(ev, () => { if (A.ctx || silent) unlock(); }, { capture: true, passive: true }));
+  document.addEventListener('visibilitychange', () => {
+    // en segundo plano se detiene el audio silencioso (ahorra batería); al volver, el próximo toque lo reanuda
+    if (document.hidden) { if (silent) silent.pause(); return; }
+    if (A.ctx && A.ctx.state !== 'running') { try { A.ctx.resume(); } catch (e) {} }
+  });
 
   function noiseBuf() {
     const c = A.ctx, b = c.createBuffer(1, c.sampleRate * 2, c.sampleRate), d = b.getChannelData(0);
@@ -6296,33 +6329,43 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       // en iPhone y Android la lista de voces llega tarde (o nunca): se vuelve a pedir y, si sigue vacía,
       // se habla igual con la voz en español que traiga el teléfono
       if (!voices.length) loadVoices();
-      const v = (o.narrator && chosen()) || pickVoice(o.gender, o.prefer);
-      const nat = !!v && isNatural(v);
-      let done = false, started = false;
+      // si una voz ya falló en este equipo (p. ej. una voz "mejorada" de iPhone que no está descargada), se usa la del sistema
+      const v = A.plainVoice ? null : (o.narrator && chosen()) || pickVoice(o.gender, o.prefer);
+      let done = false;
       const end = (ok) => { if (done) return; done = true; duck(false); res(ok); };
-      try {
-        const wasBusy = synth().speaking || synth().pending;
-        if (wasBusy) synth().cancel();
-        if (synth().paused) synth().resume();
-        const u = new SpeechSynthesisUtterance(text);
+      const make = (voice) => {
+        const nat = !!voice && isNatural(voice), u = new SpeechSynthesisUtterance(text);
         // voces neuronales: casi sin alterar, suenan como locución real; voces clásicas: un poco más de color
         const k = nat ? 0.3 : 1;
-        if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'es-ES';
+        if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = (v && v.lang) || 'es-ES';
         u.pitch = 1 + ((o.pitch || 1) - 1) * k;
         u.rate = (1 + ((o.rate || 1) - 1) * k) * (nat ? 1 : 0.95);
         // la narradora habla con calma, como en un documental: un poco más lento y más grave
         if (o.narrator) { u.rate = nat ? 0.9 : 0.85; u.pitch = nat ? 0.98 : 0.94; }
+        return u;
+      };
+      // un intento con la voz elegida; si no arranca o da error, otro con la voz por defecto del teléfono
+      const attempt = (voice) => {
+        let started = false, dead = false; // dead: este intento se abandonó; sus avisos de error/fin ya no cuentan
+        const u = make(voice), fallback = () => { if (done || started || dead) return; dead = true; A.plainVoice = true; try { synth().cancel(); } catch (e) {} setTimeout(() => { if (!done) attempt(null); }, 160); };
         u.onstart = () => { started = true; };
-        u.onend = () => end(true); u.onerror = () => end(false);
+        u.onend = () => { if (!dead) end(true); };
+        u.onerror = (e) => { if (dead) return; const why = e && e.error; if (why === 'interrupted' || why === 'canceled') return end(false); if (voice && !started) fallback(); else end(false); };
         A.utt = u; // Safari y Chrome pierden el aviso de fin si la frase no queda guardada
+        synth().speak(u);
+        // los celulares tardan en encender su motor de voz la primera vez; si aun así no arranca, se cambia de voz
+        // o, si ya era la del sistema, los subtítulos siguen con su tiempo de lectura
+        setTimeout(() => { if (done || started || synth().speaking) return; if (voice) fallback(); else end(false); }, voice ? 3500 : 6000);
+      };
+      try {
+        const wasBusy = synth().speaking || synth().pending;
+        if (wasBusy) synth().cancel();
+        if (synth().paused) synth().resume();
         duck(true);
         // Chrome y Safari a veces ignoran un speak() justo después de cancel(): se espera un instante
-        if (wasBusy) setTimeout(() => { if (!done) synth().speak(u); }, 160);
-        else synth().speak(u);
-        // si la voz nunca arranca, los subtítulos siguen con su tiempo de lectura
-        // (los celulares tardan más en encender su motor de voz la primera vez)
-        setTimeout(() => { if (!started && !synth().speaking) end(false); }, 6000);
-        setTimeout(() => end(true), Math.max(5000, text.length * 110));
+        if (wasBusy) setTimeout(() => { if (!done) attempt(v); }, 160);
+        else attempt(v);
+        setTimeout(() => end(true), Math.max(5000, text.length * 110) + 4000);
       } catch (e) { end(false); }
     });
   }
@@ -6377,6 +6420,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     get voice() { return A.voice; },
     set voice(v) { A.voice = !!v; if (!A.voice) hush(); },
     hasVoice() { loadVoices(); return !!pickVoice(); },
+    // estado del sonido para la prueba de la portada: así se sabe qué falla en cada celular
+    diag() { loadVoices(); return { ctx: A.ctx ? A.ctx.state : 'none', speech: 'speechSynthesis' in window, es: voices.filter((v) => /^es/i.test(v.lang)).length, all: voices.length, plain: !!A.plainVoice }; },
     voiceInfo(o) { loadVoices(); const v = (o && o.narrator && chosen()) || pickVoice(o && o.gender, o && o.prefer); return v ? { name: v.name.replace(/\s*-\s*Spanish.*$/i, ''), natural: isNatural(v) || /google/i.test(v.name) } : null; },
   };
 })();
@@ -6788,6 +6833,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         <label class="field" for="voiceSel" id="voiceBox">Voz de la narradora (las «natural» son las más humanas)
           <span class="voice-row"><select id="voiceSel"></select><button type="button" class="btn ghost" id="voiceTest">Escuchar</button></span></label>
         <p class="voice-hint" id="vHint"></p>
+        <p class="voice-hint sound-test"><button type="button" class="btn ghost" id="soundTest">🔊 Probar sonido</button><span id="soundInfo"></span></p>
         <fieldset><legend>Gráficos · ${S.has3d && CV.Q ? `este equipo usa 3D ${({ alta: 'alto', media: 'medio', ligera: 'ligero', segura: 'seguro' })[CV.Q.level] || ''}` : CV.why3d === 'webgl' ? 'este navegador no permite 3D (pruebe Chrome o Safari actualizados)' : 'jugando sin 3D'}</legend>${seg('quality', [[0, 'Automático'], [1, 'Alta'], [2, 'Ligera'], [3, 'Sin 3D']])}</fieldset>
         <label class="field" for="pres">Presentado por (opcional)<input id="pres" maxlength="80" placeholder="Ej.: Programa de Ingeniería Ambiental" value="${esc(cfg.presenter)}"></label>
         <button class="btn" type="submit">Comenzar la historia</button>
@@ -6834,6 +6880,17 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     };
     hint(); setTimeout(hint, 1200);
     $('#voiceSel').onchange = (e) => { cfg.voiceName = e.target.value; AU.narratorVoice = cfg.voiceName; hint(); };
+    // prueba completa: un acorde (sonido del juego) y una frase (voz); muestra qué funciona en este equipo
+    $('#soundTest').onclick = () => {
+      AU.init(); AU.sfx.rise();
+      const was = AU.voice, info = $('#soundInfo'); AU.voice = true; AU.narratorVoice = cfg.voiceName;
+      info.textContent = ' Escuchen: primero unas notas y luego una voz…';
+      AU.speak('Hola. Así suena la narración de Cuenca Viva.', ST.narrator).then((ok) => {
+        AU.voice = was; const d = AU.diag();
+        info.textContent = ` Sonido: ${d.ctx === 'running' ? 'activo' : 'bloqueado (' + d.ctx + ')'} · Voz: ${ok ? 'funciona' : 'no arrancó'} · ${d.es} voces en español${d.plain ? ' · usando la voz del sistema' : ''}.` +
+          (ok && d.ctx === 'running' ? ' Si no escucharon nada, suban el volumen y quiten el modo silencio.' : ' Envíen este mensaje al desarrollador.');
+      });
+    };
     $('#voiceTest').onclick = () => {
       AU.narratorVoice = cfg.voiceName; const was = AU.voice; AU.voice = true;
       AU.speak('En lo alto del páramo, donde nace el agua… vuelve a caminar un viejo guardián.', ST.narrator).then(() => { AU.voice = was; });
