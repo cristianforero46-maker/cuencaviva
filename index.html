@@ -5730,88 +5730,123 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   ];
 
   const Q = (lv, q, opts, a, dato) => ({ lv, type: 'quiz', q, opts, a, dato });
+  // QC: pregunta de cálculo; da al menos 60 segundos para resolverla, sin importar la dificultad
+  const QC = (lv, q, opts, a, dato) => ({ lv, type: 'quiz', q, opts, a, dato, calc: true });
   const TF = (lv, q, a, dato) => ({ lv, type: 'tf', q, a, dato });
   const E = (lv, q, min, max, step, unit, a, tol, dato) => ({ lv, type: 'estimate', q, min, max, step, unit, a, tol, dato });
   const O = (lv, q, steps, dato) => ({ lv, type: 'order', q, steps, dato });
   const SORT = (lv, q, bins, items, noun, dato) => ({ lv, type: 'sort', q, bins, items, noun, dato });
 
-  // ---------- calidad del aire ----------
+  // ---------- calidad del aire (según las clases del profesor, 2026) ----------
+  // Los cálculos usan cifras propias: no repiten los ejercicios de los talleres ni los datos del parcial.
   const aire = [
-    Q(1, '¿Qué es el material particulado (PM)?', ['Polvo, hollín y gotitas diminutas suspendidas en el aire', 'Un gas sin olor que sale de los árboles', 'Vapor de agua limpio', 'Oxígeno concentrado'], 0, 'Sale de motores, chimeneas, quemas y polvo de las vías. Se clasifica según su tamaño.'),
-    TF(1, 'Si no se ve humo, el aire está limpio.', false, 'Muchos contaminantes son invisibles, como el monóxido de carbono y buena parte de las partículas finas.'),
-    Q(1, '¿Qué significa ICA?', ['Índice de Calidad del Aire', 'Instituto de Control Ambiental', 'Indicador de Clima Andino', 'Inventario de Carros y Automotores'], 0, 'El ICA traduce las mediciones a una escala de colores que cualquier persona puede entender.'),
-    Q(1, 'En la escala del ICA, ¿qué indica el color verde?', ['Calidad del aire buena', 'Peligro extremo', 'Daño a grupos sensibles', 'Estación sin datos'], 0, 'La escala va de verde a marrón: buena, aceptable, dañina para grupos sensibles, dañina, muy dañina y peligrosa.'),
-    TF(1, 'El ozono que se forma cerca del suelo es un contaminante.', true, 'En lo alto de la atmósfera el ozono nos protege; cerca del suelo irrita los pulmones y daña los cultivos.'),
-    Q(1, '¿Qué gas sin color ni olor sale cuando la combustión es incompleta?', ['Monóxido de carbono (CO)', 'Oxígeno (O₂)', 'Nitrógeno (N₂)', 'Helio (He)'], 0, 'Por eso es tan peligroso encender estufas o calentadores en lugares cerrados y sin ventilación.'),
-    Q(1, 'En las grandes ciudades colombianas, ¿qué fuente aporta mucho material particulado?', ['El transporte a diésel, sobre todo camiones y buses', 'Los árboles de los parques', 'La lluvia', 'Los paneles solares'], 0, 'Por eso los inventarios de emisiones miran con atención el transporte de carga y pasajeros.'),
-    TF(1, 'Cocinar con leña dentro de la casa, sin chimenea, afecta la salud.', true, 'El humo dentro de la vivienda es un riesgo serio, sobre todo para mujeres, niños y adultos mayores.'),
+    Q(1, '¿Qué es la contaminación atmosférica?', ['Sustancias o formas de energía en la atmósfera que implican riesgo, daño o molestia grave', 'Solo el humo negro de las chimeneas', 'Cualquier cambio de temperatura del aire', 'La falta de lluvia en una ciudad'], 0, 'También afecta a bienes y al ambiente, no solo a las personas.'),
+    TF(1, 'La contaminación del aire siempre se puede ver o se huele.', false, 'El PM2.5 es invisible y el ozono no siempre tiene olor: el daño ocurre incluso sin que lo percibamos.'),
+    Q(1, '¿Cuáles son los dos gases más abundantes del aire?', ['Nitrógeno y oxígeno', 'Oxígeno y CO₂', 'Hidrógeno y helio', 'Nitrógeno y ozono'], 0, 'Son 78 % de nitrógeno y 21 % de oxígeno. El CO₂ es apenas cerca del 0,04 %.'),
+    Q(1, '¿Qué significa ICA?', ['Índice de Calidad del Aire', 'Instituto de Control Ambiental', 'Indicador de Clima Andino', 'Inventario de Carros y Automotores'], 0, 'Traduce las concentraciones de contaminantes a una escala de colores.'),
+    Q(1, 'En el ICA, ¿qué color indica una calidad del aire buena?', ['Verde', 'Naranja', 'Rojo', 'Marrón'], 0, 'Corresponde al rango de 0 a 50.'),
+    Q(1, 'Si el viento dispersa los contaminantes, ¿qué hace la lluvia?', ['Los deposita', 'Los fabrica', 'Los calienta', 'Los vuelve invisibles'], 0, 'El viento dispersa, el sol transforma, la lluvia deposita y la estabilidad atrapa.'),
+    Q(1, '¿Cuál es una fuente natural de contaminación del aire?', ['Polvo, sal marina e incendios', 'Tráfico vehicular', 'Calderas industriales', 'Hornos de ladrillo'], 0, 'Las fuentes antropogénicas son las humanas: tráfico, industria y combustión.'),
+    TF(1, 'El ozono de la estratósfera nos protege de la radiación UV-B.', true, 'Una misma molécula puede ser buena o mala: depende de la altura a la que esté.'),
+    TF(1, 'Una ciudad con pocas industrias nunca puede tener mala calidad del aire.', false, 'El tráfico, la quema de biomasa y el clima también cuentan: un día sin viento puede ser muy peligroso.'),
+    Q(1, '¿A dónde puede llegar el PM2.5 dentro del cuerpo?', ['Hasta los alvéolos y al torrente sanguíneo', 'Solo a la nariz', 'Solo a la garganta', 'A ningún lado: no entra'], 0, 'El PM10 llega hasta los bronquios; el PM2.5 va más profundo.'),
+    Q(1, '¿Cuántos litros de aire inhala más o menos un adulto al día?', ['Entre 10.000 y 11.000', 'Unos 100', 'Unos 1.000', 'Más de 1.000.000'], 0, 'El aire no se filtra antes de entrar al cuerpo y la exposición es continua e involuntaria.'),
+    Q(1, '¿De qué proceso sale el monóxido de carbono?', ['De la combustión incompleta', 'De la fotosíntesis', 'De la evaporación del agua', 'De la respiración de las plantas'], 0, 'El CO no tiene color ni olor.'),
 
-    Q(2, 'En la escala del ICA, ¿qué significa el color naranja?', ['Dañina para grupos sensibles', 'Calidad buena', 'Calidad peligrosa', 'Calidad aceptable'], 0, 'Niños, adultos mayores y personas con asma o enfermedades del corazón deben reducir el esfuerzo al aire libre.'),
-    Q(2, '¿Qué partículas se agrupan bajo el nombre PM10?', ['Las de diámetro menor a 10 micras', 'Las de más de 10 milímetros', 'Las que pesan 10 gramos', 'Las medidas durante 10 días'], 0, 'Una micra es la milésima parte de un milímetro.'),
-    Q(2, '¿Qué es una inversión térmica?', ['Una capa de aire cálido sobre aire frío, que atrapa la contaminación', 'Un cambio brusco de la dirección del viento', 'Una lluvia con el agua muy caliente', 'El paso del invierno al verano'], 0, 'Lo normal es que el aire se enfríe al subir. Si ocurre lo contrario, los contaminantes no se dispersan.'),
-    TF(2, 'El PM2.5 entra más profundo en el sistema respiratorio que el PM10.', true, 'Por su tamaño llega hasta los alvéolos, y una parte puede pasar a la sangre.'),
-    Q(2, '¿Cuál de estos es un contaminante secundario?', ['Ozono troposférico', 'Monóxido de carbono', 'Hollín', 'Plomo'], 0, 'No sale directo de un tubo de escape: se forma en el aire por reacciones químicas con ayuda del sol.'),
-    Q(2, '¿Qué entidad consolida la información de calidad del aire de Colombia en el SISAIRE?', ['El IDEAM', 'La DIAN', 'El ICBF', 'La Registraduría'], 0, 'SISAIRE reúne los datos de las redes de monitoreo que operan las autoridades ambientales del país.'),
-    SORT(2, 'Clasifica cada contaminante según cómo llega al aire.', [{ id: '', name: 'Primario', desc: 'Sale directamente de la fuente' }, { id: 'verde', name: 'Secundario', desc: 'Se forma en la atmósfera por reacciones' }],
-      [['Monóxido de carbono', 0], ['Hollín', 0], ['Dióxido de azufre emitido', 0], ['Ozono troposférico', 1], ['Ácido sulfúrico de la lluvia ácida', 1], ['Peroxiacetilnitrato (PAN)', 1]], 'contaminantes en el grupo correcto', 'Controlar un contaminante secundario obliga a reducir sus precursores, no el contaminante mismo.'),
-    TF(2, 'Se considera lluvia ácida la que tiene un pH menor a 5,6.', true, 'La lluvia natural ya es algo ácida por el CO₂ disuelto. Los óxidos de azufre y de nitrógeno la acidifican más.'),
+    Q(2, '¿En qué capa de la atmósfera se genera y acumula casi toda la contaminación?', ['Tropósfera', 'Estratósfera', 'Mesósfera', 'Termósfera'], 0, 'Va de 0 a unos 12 km, y ahí ocurre la mezcla turbulenta que dispersa o atrapa los contaminantes.'),
+    Q(2, '¿Qué es una inversión térmica?', ['Una capa cálida sobre aire frío que bloquea la dispersión vertical', 'Un cambio brusco de viento', 'Una lluvia muy caliente', 'Aire frío subiendo muy rápido'], 0, 'La capa cálida funciona como una tapa: provoca episodios críticos, sobre todo en mañanas frías.'),
+    Q(2, '¿Qué ingredientes forman el ozono troposférico?', ['NOx + COV + luz solar', 'CO₂ + agua + sombra', 'Oxígeno + frío + viento', 'Hollín + lluvia + noche'], 0, 'Es un contaminante secundario y el ingrediente clave del smog fotoquímico.'),
+    Q(2, '¿Cuál NO es un contaminante criterio?', ['Vapor de agua', 'Plomo', 'Dióxido de azufre', 'Monóxido de carbono'], 0, 'Son PM10, PM2.5, O₃, NO₂, SO₂, CO y Pb: regulados por su frecuencia y sus efectos adversos.'),
+    Q(2, 'En el ICA, ¿qué indica el color naranja?', ['Dañina para grupos sensibles', 'Calidad buena', 'Calidad peligrosa', 'Estación sin datos'], 0, 'Corresponde al rango de 101 a 150.'),
+    Q(2, '¿Qué entidad administra el SISAIRE?', ['El IDEAM', 'El DANE', 'La DIAN', 'El ICBF'], 0, 'SISAIRE consolida las mediciones de calidad del aire de Colombia.'),
+    Q(2, '¿Qué norma les dice a los ingenieros CÓMO medir la calidad del aire?', ['Resolución 650 de 2010', 'Resolución 2254 de 2017', 'Decreto 1076 de 2015', 'Protocolo de Montreal'], 0, 'La Resolución 650 adopta el protocolo de monitoreo. La 2254 dice CUÁNTO es aceptable.'),
+    Q(2, '¿Dónde se ubica una estación de línea de base?', ['En zonas rurales o parques naturales', 'Junto a una termoeléctrica', 'En el centro de la ciudad', 'Dentro de una fábrica'], 0, 'Sirve como referencia de aire limpio. Las estaciones estratégicas e industriales miden otras exposiciones.'),
+    SORT(2, 'Clasifica cada contaminante según cómo llega al aire.', [{ id: '', name: 'Primario', desc: 'Se emite directamente' }, { id: 'verde', name: 'Secundario', desc: 'Se forma en la atmósfera' }],
+      [['CO', 0], ['NOx', 0], ['SO₂', 0], ['PM10', 0], ['Ozono troposférico', 1], ['Smog fotoquímico', 1]], 'contaminantes en el grupo correcto', 'Muchos contaminantes no se emiten directamente: se forman en el aire.'),
+    Q(2, '¿Qué gases generan la lluvia ácida?', ['SO₂ y NOx', 'O₂ y N₂', 'Helio y argón', 'Metano y neón'], 0, 'Al reaccionar con agua forman ácido sulfúrico y ácido nítrico.'),
+    Q(2, '¿Por qué suele subir el ozono cerca del mediodía?', ['Porque necesita radiación solar para formarse', 'Porque hay más viento', 'Porque baja el tráfico', 'Porque llueve más'], 0, 'Se le llama el problema del mediodía: los precursores de la mañana reaccionan con el sol.'),
+    Q(2, '¿Qué mide una estación que usa gravimetría?', ['Material particulado, pesando filtros antes y después', 'Ozono por luz ultravioleta', 'La velocidad del viento', 'El ruido ambiental'], 0, 'También existe el monitoreo continuo con equipos láser.'),
 
-    Q(3, '¿Qué norma fija hoy los niveles de calidad del aire en Colombia?', ['Resolución 2254 de 2017', 'Resolución 2184 de 2019', 'Ley 99 de 1993', 'Decreto 1594 de 1984'], 0, 'La expidió el Ministerio de Ambiente y también define los niveles de prevención, alerta y emergencia.'),
-    E(3, 'Según la Resolución 2254 de 2017, ¿cuál es el nivel máximo de PM2.5 en 24 horas?', 0, 100, 1, 'µg/m³', 37, 20, 'Son 37 µg/m³ en 24 horas y 25 µg/m³ como promedio anual, con metas más exigentes hacia 2030.'),
-    Q(3, '¿Cuál es el valor guía anual de PM2.5 de la OMS (2021)?', ['5 µg/m³', '25 µg/m³', '50 µg/m³', '100 µg/m³'], 0, 'La OMS lo bajó de 10 a 5 µg/m³ en 2021. La mayoría de la población mundial respira un aire por encima de ese valor.'),
-    Q(3, '¿Qué equipo separa las partículas gruesas usando fuerza centrífuga?', ['Ciclón', 'Lavador de gases', 'Catalizador', 'Chimenea'], 0, 'Es sencillo y económico, pero retiene mal las partículas finas: suele usarse como limpieza previa.'),
-    Q(3, '¿Qué hace el catalizador de tres vías de un carro a gasolina?', ['Convierte CO, hidrocarburos y NOx en gases menos dañinos', 'Aumenta la potencia del motor', 'Filtra el aire que entra al motor', 'Enfría el tubo de escape'], 0, 'Los transforma principalmente en CO₂, agua y nitrógeno.'),
-    Q(3, '¿Por qué es tan peligroso respirar monóxido de carbono?', ['Se une a la hemoglobina y bloquea el transporte de oxígeno', 'Quema la piel', 'Congela los pulmones', 'Solo produce mal olor'], 0, 'La hemoglobina lo atrapa con una afinidad unas 200 veces mayor que la del oxígeno.'),
-    O(3, 'Ordena cómo se forma el ozono en el aire de una ciudad.', ['Emisión: los vehículos liberan NOx y compuestos orgánicos volátiles', 'Luz solar: rompe el NO₂ y libera oxígeno atómico', 'Reacción: el oxígeno atómico se une al O₂ y forma O₃', 'Acumulación: los compuestos orgánicos evitan que el ozono se consuma'], 'Por eso el ozono suele subir en las horas de más sol, no en la hora pico de la mañana.'),
-    TF(3, 'En el Valle de Aburrá, los episodios críticos suelen darse en los periodos de febrero-marzo y octubre-noviembre.', true, 'En esas transiciones de temporada, la atmósfera del valle es más estable y la contaminación se dispersa peor.'),
+    Q(3, '¿Qué técnica se usa para medir ozono?', ['Fotometría UV', 'Gravimetría', 'Fluorescencia UV', 'Quimioluminiscencia'], 0, 'La fluorescencia UV se usa para SO₂ y la quimioluminiscencia para NOx.'),
+    Q(3, '¿Qué técnica se usa para medir NO₂?', ['Quimioluminiscencia', 'Gravimetría', 'Fotometría UV', 'Fluorescencia UV'], 0, 'Cada contaminante tiene su método de medición.'),
+    Q(3, '¿Qué técnica se usa para medir SO₂?', ['Fluorescencia UV', 'Quimioluminiscencia', 'Gravimetría', 'Sonometría'], 0, 'El SO₂ viene de termoeléctricas y de combustibles fósiles con azufre.'),
+    Q(3, '¿Cuál es el valor guía anual de PM2.5 de la OMS (2021)?', ['5 µg/m³', '15 µg/m³', '25 µg/m³', '50 µg/m³'], 0, 'En Colombia, el límite anual es de 25 µg/m³.'),
+    Q(3, '¿Cuál es el límite anual de PM10 en Colombia?', ['50 µg/m³', '5 µg/m³', '15 µg/m³', '150 µg/m³'], 0, 'La guía de la OMS es de 15 µg/m³.'),
+    Q(3, '¿Cuántas veces más se une el CO a la hemoglobina que el oxígeno?', ['Unas 250 veces', 'El doble', 'Unas 5 veces', 'Unas 10.000 veces'], 0, 'Por eso reduce el transporte de oxígeno y puede causar hipoxia cerebral.'),
+    Q(3, '¿Cuánto se enfría una masa de aire seco que asciende?', ['Cerca de 1 °C por cada 100 m', 'Cerca de 10 °C por cada 100 m', 'Cerca de 1 °C por cada kilómetro', 'No se enfría'], 0, 'Al subir, la presión baja, el aire se expande y gasta energía interna: enfriamiento adiabático.'),
+    Q(3, '¿Qué ocurre con el calor latente cuando el vapor se condensa en una nube?', ['Se libera y hace subir más el aire', 'Se absorbe y enfría la nube', 'Desaparece', 'Se vuelve ozono'], 0, 'Esa energía calienta el aire y alimenta la tormenta.'),
+    Q(3, 'Según la ley de Boyle, ¿qué le pasa al gas de una chimenea al subir?', ['Se expande porque la presión baja', 'Se comprime porque la presión baja', 'Conserva su volumen', 'Aumenta su masa'], 0, 'Si la temperatura no cambia, presión y volumen son inversamente proporcionales.'),
+    Q(3, '¿Cuál es la fórmula de emisiones del AP-42?', ['E = A × EF × (1 − ER/100)', 'E = A + EF + ER', 'E = A / (EF × ER)', 'E = EF × ER / 100'], 0, 'A es la actividad, EF el factor de emisión y ER la eficiencia de control.'),
+    Q(3, 'Si un multiciclón tiene una eficiencia del 85 %, ¿qué fracción de las emisiones escapa?', ['15 %', '85 %', '50 %', '0 %'], 0, 'La fracción de escape es 1 − ER/100.'),
+    Q(3, '¿Qué se incluye en un plan de gestión de la calidad del aire?', ['Diagnóstico, metas, acciones y seguimiento', 'Solo un mapa de la ciudad', 'Solo sanciones a los conductores', 'Solo sembrar árboles'], 0, 'Incluye inventarios de emisiones, líneas base e indicadores de cumplimiento.'),
 
-    E(4, 'A 25 °C y 1 atm, ¿a cuántos µg/m³ equivale 1 ppm de CO (masa molar 28 g/mol)?', 500, 2000, 5, 'µg/m³', 1145, 250, 'µg/m³ = ppm × masa molar × 1000 / 24,45. Con el CO da cerca de 1.145 µg/m³.'),
-    Q(4, '¿A qué condiciones de referencia se reportan las concentraciones de la Resolución 2254 de 2017?', ['25 °C y 760 mm Hg', '0 °C y 560 mm Hg', '20 °C y 1.000 mm Hg', '15 °C y 700 mm Hg'], 0, 'Así se pueden comparar mediciones de ciudades a distinta altura, como Barranquilla y Bogotá.'),
-    Q(4, '¿Qué técnica de referencia se usa para medir óxidos de nitrógeno en una estación automática?', ['Quimioluminiscencia', 'Gravimetría', 'Titulación', 'Termometría'], 0, 'El NO reacciona con ozono y emite luz proporcional a su concentración.'),
-    Q(4, '¿Qué principio usan los analizadores automáticos de SO₂?', ['Fluorescencia ultravioleta', 'Atenuación beta', 'Absorción infrarroja no dispersiva', 'Conductividad térmica'], 0, 'La atenuación beta se usa para partículas, y la absorción infrarroja no dispersiva, para el CO.'),
-    Q(4, 'En las clases de estabilidad de Pasquill, ¿qué describe la clase F?', ['Atmósfera estable, con muy poca dispersión', 'Atmósfera muy inestable', 'Condición neutra con mucho viento', 'Tormenta eléctrica'], 0, 'Las clases van de A (muy inestable) a F (estable), y suele darse en noches despejadas con poco viento.'),
-    Q(4, '¿Cuándo es inestable una capa de la atmósfera?', ['Cuando el aire se enfría con la altura más rápido que el gradiente adiabático seco', 'Cuando la temperatura aumenta con la altura', 'Cuando la temperatura no cambia con la altura', 'Cuando la humedad relativa es del 100 %'], 0, 'El gradiente adiabático seco es de unos 9,8 °C/km. Si el aire ambiente se enfría más rápido, las parcelas siguen subiendo y la mezcla es buena.'),
-    Q(4, 'En el modelo gaussiano de pluma, si se duplica la velocidad del viento, la concentración en el eje de la pluma...', ['Se reduce aproximadamente a la mitad', 'Se duplica', 'Se cuadruplica', 'No cambia'], 0, 'La concentración es inversamente proporcional a la velocidad del viento: Q / (2π u σy σz), sin contar el cambio en la sobreelevación.'),
-    Q(4, 'En la desulfuración húmeda con caliza, ¿qué subproducto puede aprovecharse?', ['Yeso', 'Carbón activado', 'Cloro', 'Plomo'], 0, 'El SO₂ reacciona con la caliza y, tras oxidarse, forma sulfato de calcio.'),
+    QC(4, 'Convierte 0,5 ppm de SO₂ a µg/m³ (PM = 64 g/mol, 25 °C y 1 atm).', ['Unos 1.309 µg/m³', 'Unos 130 µg/m³', 'Unos 13.090 µg/m³', 'Unos 382 µg/m³'], 0, '0,5 × 64 × 1000 / 24,45 ≈ 1.309 µg/m³.'),
+    QC(4, 'Convierte 200 µg/m³ de NO₂ a ppm (PM = 46 g/mol, 25 °C y 1 atm).', ['Unos 0,106 ppm', 'Unos 0,377 ppm', 'Unos 1,06 ppm', 'Unos 0,011 ppm'], 0, '200 × 24,45 / (46 × 1000) ≈ 0,106 ppm.'),
+    QC(4, 'Un sensor mide 100 µg/m³ a 25 °C y 0,8 atm. ¿Cuánto da corregido a 25 °C y 1 atm?', ['125 µg/m³', '80 µg/m³', '100 µg/m³', '180 µg/m³'], 0, 'C corregida = C medida × (1 atm / 0,8 atm) × (298 K / 298 K) = 125 µg/m³.'),
+    QC(4, 'Calcula el ICA de PM10 = 205 µg/m³ (rango 155–254, ICA 101–150).', ['Cerca de 126: naranja', 'Cerca de 205: morado', 'Cerca de 76: amarillo', 'Cerca de 150: rojo'], 0, 'I = (150 − 101) / (254 − 155) × (205 − 155) + 101 ≈ 126.'),
+    QC(4, 'Calcula el ICA de PM10 = 300 µg/m³ (rango 255–354, ICA 151–200).', ['Cerca de 173: rojo', 'Cerca de 300: morado', 'Cerca de 120: naranja', 'Cerca de 225: morado'], 0, 'I = (200 − 151) / (354 − 255) × (300 − 255) + 151 ≈ 173.'),
+    Q(4, 'Si cada contaminante tiene su propio ICA, ¿cuál define el ICA global?', ['El contaminante con el ICA más alto', 'El promedio de todos', 'El de menor valor', 'Siempre el CO'], 0, 'El contaminante más crítico determina la clasificación del aire.'),
+    QC(4, 'Modelo de caja: E = 10 kg/s, u = 2 m/s, W = 10 km y H = 500 m. ¿Qué concentración da en estado estacionario?', ['1 mg/m³', '10 mg/m³', '0,1 mg/m³', '100 mg/m³'], 0, 'C = E / (u·W·H) = 10 / (2 × 10.000 × 500) = 0,000001 kg/m³ = 1 mg/m³.'),
+    Q(4, 'En el modelo de caja, ¿qué pasa si la altura de mezcla baja a la mitad?', ['La concentración se duplica', 'La concentración baja a la mitad', 'No cambia', 'Se cuadruplica'], 0, 'Poco viento o techo bajo significan concentración alta.'),
+    QC(4, 'AP-42: A = 100.000 L, EF = 2 kg PM/10³ L, ER = 90 %. ¿Cuánto se emite?', ['20 kg PM', '200 kg PM', '2 kg PM', '180 kg PM'], 0, '100 × 2 = 200 kg sin control; 200 × 0,10 = 20 kg.'),
+    QC(4, 'Se condensan 2 kg de agua (L = 2.260.000 J/kg). ¿Cuánto calor se libera?', ['4,52 MJ', '1,13 MJ', '2,26 MJ', '45,2 MJ'], 0, 'Q = m × L = 2 × 2.260.000 J = 4,52 MJ.'),
+    QC(4, 'Aire a 30 °C sube 1.000 m por una montaña y baja 1.000 m por el otro lado, seco. ¿Con qué temperatura llega abajo?', ['30 °C', '20 °C', '10 °C', '40 °C'], 0, 'En este caso seco se enfría 10 °C al subir y se calienta 10 °C al bajar.'),
+    QC(4, 'Una central con Q = 10 m³/s, h = 50 m y η = 0,9: ¿qué potencia útil da?', ['4.410 kW', '490 kW', '4.900 kW', '44.100 kW'], 0, 'Pt = 9,8 × Q × h = 4.900 kW; P = 0,9 × 4.900 = 4.410 kW.'),
   ];
 
-  // ---------- climatología ----------
+  // ---------- climatología (según las clases del profesor, 2026) ----------
   const clima = [
-    Q(1, '¿Cuál es la diferencia entre tiempo y clima?', ['El tiempo es lo que pasa hoy; el clima es el comportamiento promedio de muchos años', 'Son exactamente lo mismo', 'El clima solo existe en las ciudades', 'El tiempo se mide en años y el clima en horas'], 0, 'Un día frío no cambia el clima de una región: es solo el tiempo de ese día.'),
-    Q(1, '¿Qué instrumento mide la lluvia?', ['Pluviómetro', 'Termómetro', 'Barómetro', 'Veleta'], 0, 'Mide los milímetros de lluvia: 1 mm equivale a 1 litro por metro cuadrado.'),
-    TF(1, 'En Colombia hay cuatro estaciones: primavera, verano, otoño e invierno.', false, 'Por estar cerca del ecuador, Colombia tiene temporadas secas y lluviosas, y la temperatura depende sobre todo de la altura.'),
-    Q(1, '¿Qué mide un anemómetro?', ['La velocidad del viento', 'La temperatura', 'La presión', 'La lluvia'], 0, 'La veleta indica de dónde viene el viento; el anemómetro, qué tan rápido va.'),
-    TF(1, 'Sin el efecto invernadero natural, la Tierra sería mucho más fría.', true, 'El problema no es el efecto natural, sino el aumento que causan nuestras emisiones.'),
-    Q(1, 'Al subir una montaña, ¿qué pasa normalmente con la temperatura?', ['Baja', 'Sube', 'No cambia', 'Primero se duplica'], 0, 'Por eso en un mismo día se puede pasar del calor del valle al frío del páramo.'),
-    Q(1, '¿Qué entidad colombiana entrega información del tiempo y del clima?', ['El IDEAM', 'El SENA', 'El DANE', 'La Aerocivil'], 0, 'Opera redes de estaciones hidrológicas y meteorológicas en todo el país.'),
-    Q(1, '¿Cómo se forman las nubes?', ['El vapor de agua sube, se enfría y se condensa', 'El humo se acumula en el cielo', 'El viento arrastra agua del mar en forma de olas', 'El sol fabrica agua'], 0, 'El vapor se condensa sobre partículas diminutas y forma gotitas o cristales de hielo.'),
+    Q(1, '¿Cuál es la diferencia entre clima y tiempo?', ['El clima es lo que esperamos; el tiempo es lo que obtenemos', 'Son exactamente lo mismo', 'El tiempo dura siglos y el clima horas', 'El clima solo existe en las montañas'], 0, 'El clima es un promedio esperable, sobre el cual el tiempo varía día a día.'),
+    TF(1, 'La radiación solar necesita aire para viajar.', false, 'Es energía electromagnética: viaja en forma de ondas y no necesita medio.'),
+    Q(1, '¿Dónde llega más concentrada la energía del Sol?', ['Donde los rayos caen más perpendiculares', 'En los polos', 'Donde caen muy inclinados', 'Llega igual a todas partes'], 0, 'Es como una lámpara: de frente calienta más; inclinada, la luz se dispersa.'),
+    Q(1, '¿Qué es el albedo?', ['La fracción de radiación que una superficie refleja', 'Un tipo de nube', 'La temperatura del océano', 'Un viento del Pacífico'], 0, 'Menor albedo significa más absorción y más calentamiento.'),
+    Q(1, '¿Qué superficie refleja más radiación solar?', ['Nieve o hielo', 'Bosque', 'Océano', 'Desierto'], 0, 'Nieve: 0,6 a 0,9. Océano: 0,05 a 0,1.'),
+    TF(1, 'Colombia tiene primavera, verano, otoño e invierno.', false, 'Por estar en el trópico, lo que cambia fuertemente es el clima según la altitud y la lluvia.'),
+    Q(1, 'Al subir una montaña, ¿qué pasa con la temperatura?', ['Baja', 'Sube', 'No cambia', 'Se duplica'], 0, 'En promedio baja 0,6 °C por cada 100 m.'),
+    TF(1, 'Las nubes son vapor de agua, como el humo.', false, 'Son gotas de agua y cristales de hielo en suspensión.'),
+    Q(1, '¿Por qué una nube que pesa toneladas no se cae?', ['Por las corrientes ascendentes de aire caliente', 'Porque no pesa', 'Porque flota sobre el ozono', 'Por la atracción de la Luna'], 0, 'Un cúmulo promedio puede pesar más de 500 toneladas de agua.'),
+    TF(1, 'El cambio climático ocurre porque ahora llega más energía del Sol.', false, 'Los gases de efecto invernadero no cambian lo que llega, sino cuánta energía logra salir.'),
+    Q(1, '¿En qué capa de la atmósfera ocurre el clima?', ['Tropósfera', 'Termósfera', 'Exósfera', 'Mesósfera'], 0, 'Es la capa de 0 a unos 12 km donde vivimos.'),
+    Q(1, '¿Qué pasa con el aire cuando se calienta?', ['Se vuelve menos denso y asciende', 'Se vuelve más denso y baja', 'Desaparece', 'Se convierte en agua'], 0, 'Como burbujas en una olla: eso es la convección atmosférica.'),
 
-    Q(2, '¿Cuántos años se usan normalmente para calcular una normal climatológica?', ['30 años', '1 año', '5 años', '500 años'], 0, 'Es el periodo estándar de la Organización Meteorológica Mundial.'),
-    Q(2, '¿Qué es la ZCIT?', ['La franja donde convergen los vientos alisios de ambos hemisferios', 'Una zona de cultivo de la región Caribe', 'Un satélite del IDEAM', 'Una corriente fría del océano'], 0, 'La Zona de Convergencia Intertropical se mueve durante el año y marca las temporadas de lluvia en Colombia.'),
-    Q(2, 'Durante El Niño, ¿qué suele pasar en la región Andina y Caribe de Colombia?', ['Llueve menos de lo normal', 'Llueve mucho más de lo normal', 'Cae nieve en las ciudades', 'No cambia nada'], 0, 'Baja el nivel de los embalses y crece el riesgo de incendios forestales y de desabastecimiento.'),
-    Q(2, 'Durante La Niña, ¿qué suele pasar en gran parte de Colombia?', ['Aumentan las lluvias', 'Se seca el páramo', 'Desaparecen las nubes', 'Sube mucho la temperatura del Pacífico central'], 0, 'En La Niña de 2010-2011, las inundaciones afectaron a millones de personas en Colombia.'),
-    Q(2, '¿A partir de qué altura aproximada empieza el piso térmico de páramo en Colombia?', ['Unos 3.000 m', 'Unos 500 m', 'Unos 1.000 m', 'Unos 6.000 m'], 0, 'Los pisos térmicos son cálido, templado, frío y páramo, y el límite real cambia según la región.'),
-    E(2, 'En un pueblo a 1.000 m hace 24 °C. Con un gradiente de 0,6 °C cada 100 m, ¿qué temperatura esperas a 2.000 m?', 0, 30, 1, '°C', 18, 5, 'Son 1.000 m más arriba: 10 × 0,6 = 6 °C menos, es decir, 18 °C.'),
-    TF(2, 'Una humedad relativa del 100 % significa que el aire está saturado de vapor de agua.', true, 'A partir de ese punto, el vapor empieza a condensarse y pueden formarse niebla o nubes.'),
-    O(2, 'Ordena los pasos del ciclo del agua, empezando en el océano.', ['Evaporación: el sol convierte agua del mar en vapor', 'Condensación: el vapor se enfría y forma nubes', 'Precipitación: el agua cae como lluvia', 'Escorrentía: el agua corre por el suelo y los ríos hasta el mar'], 'El ciclo no tiene un inicio real: también participan la infiltración y la transpiración de las plantas.'),
+    Q(2, '¿En qué piso térmico está Bogotá?', ['Tierra fría', 'Tierra caliente', 'Tierra templada', 'Nieves perpetuas'], 0, 'La tierra fría va de 2.000 a 3.000 msnm, con 12 a 18 °C.'),
+    Q(2, '¿En qué piso térmico están Medellín y Cali?', ['Tierra templada', 'Tierra caliente', 'Tierra fría', 'Páramo'], 0, 'La tierra templada va de 1.000 a 2.000 msnm, con 18 a 24 °C.'),
+    QC(2, 'Con 28 °C al nivel del mar, ¿qué temperatura esperas a 1.500 msnm?', ['19 °C', '13 °C', '25 °C', '22 °C'], 0, 'T = 28 − 0,6 × 15 = 19 °C.'),
+    Q(2, '¿Qué aporta Caldas y qué aporta Lang al método Caldas-Lang?', ['Caldas: la altitud; Lang: la humedad según lluvia y temperatura', 'Caldas: el viento; Lang: las mareas', 'Ambos: la presión', 'Caldas: las nubes; Lang: los volcanes'], 0, 'La conclusión es que el clima depende de altura y lluvia.'),
+    Q(2, '¿Qué ocurre durante El Niño?', ['Se calientan las aguas del Pacífico central y oriental', 'Se congela el Pacífico', 'Se detiene la rotación', 'Se enfría el Atlántico norte'], 0, 'Este cambio está íntimamente ligado a la atmósfera y a los vientos del Pacífico.'),
+    Q(2, '¿Cada cuánto ocurre El Niño aproximadamente?', ['Cada 2 a 7 años', 'Todos los años', 'Cada 50 años', 'Cada siglo'], 0, 'Se alterna irregularmente con La Niña y con fases neutras.'),
+    TF(2, 'El Niño es causado por el cambio climático.', false, 'No lo causa, aunque puede generar algunos de los años más cálidos al liberar calor del océano.'),
+    Q(2, '¿Por qué la zona andina tiene dos temporadas lluviosas?', ['Por el paso de la ZCIT', 'Por las mareas', 'Por los volcanes', 'Por la nieve del Ruiz'], 0, 'En la ZCIT el aire asciende y se forman lluvias.'),
+    Q(2, '¿Qué lado de una montaña suele ser húmedo?', ['Barlovento', 'Sotavento', 'Los dos por igual', 'Ninguno'], 0, 'La tectónica levanta montañas, y las montañas redibujan lluvia, viento y temperatura.'),
+    Q(2, '¿Qué causa el efecto Coriolis?', ['La rotación de la Tierra', 'La Luna', 'La inclinación de las nubes', 'La sal del mar'], 0, 'Por eso el aire no se mueve en línea recta.'),
+    Q(2, 'Según la ley de Wien, ¿qué pasa si un cuerpo es más caliente?', ['Emite a menor longitud de onda', 'Emite a mayor longitud de onda', 'Deja de emitir', 'Emite solo sonido'], 0, 'El Sol emite en onda corta y la Tierra en onda larga, infrarroja.'),
+    Q(2, '¿Qué nube genera tormentas eléctricas y tiene forma de yunque?', ['Cumulonimbus', 'Cirrus', 'Stratus', 'Altostratus'], 0, 'Tiene gran turbulencia y puede traer granizo o tornados.'),
 
-    Q(3, '¿Cómo es el régimen de lluvias típico de la región Andina colombiana?', ['Bimodal: dos temporadas de lluvia al año', 'Sin lluvia durante todo el año', 'Una sola lluvia cada cinco años', 'Con nevadas estacionales en todos los valles'], 0, 'Las temporadas más lluviosas suelen ser abril-mayo y octubre-noviembre, cuando pasa la ZCIT.'),
-    Q(3, '¿Qué es la evapotranspiración?', ['El agua que vuelve a la atmósfera desde el suelo y las plantas', 'La lluvia que cae sobre el mar', 'El agua que se congela en los glaciares', 'El agua de los acuíferos profundos'], 0, 'Es un componente clave del balance hídrico de una cuenca.'),
-    Q(3, '¿Cuál de estas superficies tiene el albedo más alto?', ['Nieve fresca', 'Océano', 'Bosque oscuro', 'Asfalto'], 0, 'La nieve refleja la mayor parte de la luz solar. Al derretirse, la superficie oscura absorbe más calor.'),
-    E(3, '¿Cuántos grados calienta el efecto invernadero natural a la Tierra? (De unos -18 °C sin él a unos 15 °C con él.)', 0, 60, 1, '°C', 33, 15, 'La diferencia es de unos 33 °C, y gracias a ella existe agua líquida en casi todo el planeta.'),
-    Q(3, '¿Por qué llueve tanto en el Chocó?', ['La humedad del Pacífico entra con el viento y se eleva contra la cordillera', 'Hay una corriente de agua caliente bajo el suelo', 'Está en el hemisferio sur', 'Por el humo de las ciudades cercanas'], 0, 'Es una de las regiones más lluviosas del planeta. El chorro del Chocó le lleva humedad desde el Pacífico.'),
-    Q(3, '¿Qué nube se asocia con tormentas eléctricas y aguaceros intensos?', ['Cumulonimbo', 'Cirro', 'Estrato', 'Altostrato'], 0, 'Tiene gran desarrollo vertical y puede superar los 10 km de altura en el trópico.'),
-    TF(3, 'El efecto de Coriolis es máximo en el ecuador.', false, 'Es nulo en el ecuador y aumenta hacia los polos.'),
-    Q(3, '¿Qué variables combina la clasificación de Caldas-Lang?', ['Altura o temperatura, y la relación entre precipitación y temperatura', 'Viento y radiación solar', 'Presión y mareas', 'Población y tipo de suelo'], 0, 'Une los pisos térmicos de Caldas con el factor de Lang, y es muy usada en Colombia.'),
+    Q(3, 'Si se duplica la temperatura absoluta de un cuerpo, su energía emitida...', ['Se multiplica por 16', 'Se duplica', 'Se multiplica por 4', 'No cambia'], 0, 'Ley de Stefan-Boltzmann: E = σT⁴, y 2⁴ = 16.'),
+    Q(3, '¿Por qué se divide la constante solar entre 4?', ['La Tierra recibe como un disco y reparte sobre una esfera', 'Porque hay cuatro estaciones', 'Porque el albedo vale 4', 'Por los cuatro puntos cardinales'], 0, 'El área de la esfera es cuatro veces la del disco.'),
+    Q(3, '¿Cuánta energía promedio calienta realmente la Tierra, con albedo de 0,30?', ['Unos 238 W/m²', 'Unos 1.361 W/m²', 'Unos 340 W/m²', 'Unos 50 W/m²'], 0, 'S/4 × (1 − α) = 1361/4 × 0,7 ≈ 238 W/m².'),
+    Q(3, '¿Qué mide la emisividad?', ['Qué tan eficientemente un cuerpo emite frente a un cuerpo negro', 'Cuánta luz refleja', 'La humedad del aire', 'La velocidad del viento'], 0, 'Un cuerpo con ε = 0,8 emite el 80 % de lo que emitiría un cuerpo negro.'),
+    Q(3, 'Si un planeta absorbe más energía de la que emite, ¿qué pasa?', ['Su temperatura sube hasta un nuevo equilibrio', 'Su temperatura baja', 'Nada', 'Pierde la atmósfera'], 0, 'Equilibrio radiativo: energía absorbida = energía emitida.'),
+    Q(3, 'Venus tiene mucho albedo (≈0,75). ¿Por qué supera los 460 °C?', ['Por su efecto invernadero extremo de CO₂', 'Porque no tiene atmósfera', 'Por sus océanos', 'Por su baja gravedad'], 0, 'Albedo y atmósfera actúan juntos. Marte, con poca atmósfera, promedia cerca de −60 °C.'),
+    Q(3, '¿Qué representa el índice ONI?', ['El promedio de anomalías de tres meses consecutivos en Niño 3.4', 'La presión de Bogotá', 'La lluvia anual del Chocó', 'La altura de los glaciares'], 0, 'El Niño se declara con más de +0,5 °C sostenidos en el tiempo.'),
+    Q(3, '¿Qué vientos retienen las aguas cálidas hacia Asia y Australia en condiciones normales?', ['Los alisios del este', 'Los del oeste polar', 'Las brisas de montaña', 'El viento solar'], 0, 'Durante El Niño, esos vientos se debilitan y el agua cálida se desplaza.'),
+    Q(3, 'En Köppen, ¿qué exige el grupo A?', ['Todos los meses con T ≥ 18 °C', 'Un mes bajo cero', 'Menos de 100 mm al año', 'Vivir sobre 4.000 m'], 0, 'Incluye los climas ecuatorial, monzónico y de sabana.'),
+    Q(3, '¿Qué clima de Köppen corresponde a Bogotá y Pasto en la clase?', ['Cfb', 'Af', 'Aw', 'ET'], 0, 'Leticia y Quibdó son Af; Villavicencio y Valledupar, Aw; Sumapaz, ET.'),
+    Q(3, '¿Dónde desciende el aire de la célula de Hadley?', ['En zonas subtropicales, formando desiertos', 'En el ecuador', 'En los polos', 'Sobre los océanos polares'], 0, 'El aire sube en el ecuador y baja cerca de los 30°.'),
+    Q(3, '¿De qué están hechas las nubes altas como los cirrus?', ['Cristales de hielo', 'Gotas calientes', 'Humo', 'Polvo volcánico'], 0, 'Las nubes altas tienen la base a más de 6 km.'),
 
-    Q(4, '¿Cómo se define El Niño con el índice ONI de la NOAA?', ['Anomalía de +0,5 °C o más en Niño 3.4 durante al menos 5 trimestres móviles', 'Más de 100 mm de lluvia en Bogotá durante un mes', 'Anomalía de +3 °C en un solo día', 'Más de 3 huracanes en el Pacífico'], 0, 'La Niña se define de forma simétrica, con anomalías de -0,5 °C o menos.'),
-    Q(4, '¿Qué método recomienda la FAO para estimar la evapotranspiración de referencia?', ['Penman-Monteith', 'Polígonos de Thiessen', 'Método racional', 'Curva número'], 0, 'Está descrito en el Cuaderno 56 de la FAO y usa radiación, temperatura, humedad y viento.'),
-    Q(4, '¿Para qué se usan los polígonos de Thiessen?', ['Para estimar la lluvia media de una cuenca a partir de estaciones', 'Para clasificar nubes', 'Para medir la dirección del viento', 'Para calcular el albedo'], 0, 'Cada estación pesa según el área que le corresponde dentro de la cuenca.'),
-    Q(4, '¿En qué unidades se expresa el forzamiento radiativo?', ['W/m²', 'hPa', 'mm/h', 'ppm'], 0, 'Mide el cambio en el balance de energía del sistema climático.'),
-    E(4, 'Según el IPCC (AR5), ¿cuál es el potencial de calentamiento del metano a 100 años, frente al CO₂?', 1, 60, 1, 'veces', 28, 12, 'El AR5 da cerca de 28 veces, y el AR6 da valores parecidos. A 20 años, el efecto es mucho mayor.'),
-    E(4, '¿Cuánto vale aproximadamente la constante solar?', 1000, 1700, 10, 'W/m²', 1360, 120, 'Es la radiación que llega al tope de la atmósfera, sobre una superficie perpendicular al Sol.'),
-    Q(4, 'Una creciente con periodo de retorno de 100 años tiene, en cualquier año, una probabilidad de ocurrir de...', ['1 %', '10 %', '50 %', '100 %'], 0, 'No significa que ocurra cada 100 años: puede repetirse en años seguidos.'),
-    Q(4, '¿Qué describe la celda de Hadley?', ['Aire que asciende cerca del ecuador y desciende cerca de los 30° de latitud', 'Una corriente marina fría', 'Una tormenta en el polo sur', 'La rotación de la Luna'], 0, 'Esa circulación explica los alisios y muchas de las zonas desérticas subtropicales.'),
+    QC(4, 'En Niño 3.4 se observa 27,0 °C y la referencia es 25,5 °C. ¿Cuál es la anomalía?', ['+1,5 °C', '−1,5 °C', '+52,5 °C', '+0,5 °C'], 0, 'Anomalía = observada − referencia.'),
+    QC(4, 'Anomalías mensuales de +0,6, +0,9 y +1,2 °C. ¿Qué ONI da y qué sugiere?', ['+0,9: condición cálida tipo El Niño', '+2,7: condición de La Niña', '−0,9: condición de La Niña', '0: condición neutra'], 0, 'ONI = (0,6 + 0,9 + 1,2) / 3 = 0,9.'),
+    QC(4, 'SOI simplificado: diferencia observada +2 hPa, media +6 hPa, s = 2 hPa.', ['−20: valor negativo, asociado a El Niño', '+20: asociado a La Niña', '0: neutro', '−4: sin relación'], 0, 'SOI = 10 × (2 − 6) / 2 = −20.'),
+    QC(4, 'Índice de Lang: P = 2.000 mm y T = 25 °C.', ['IH = 80: muy húmedo', 'IH = 20: árido', 'IH = 50: húmedo', 'IH = 125: excesivamente húmedo'], 0, 'IH = P / T = 2.000 / 25 = 80.'),
+    QC(4, 'Köppen: T media 20 °C, ajuste A = 140 y P = 400 mm al año. ¿Qué clima seco es?', ['BS, estepario', 'BW, desértico', 'No es clima B', 'Af, ecuatorial'], 0, 'Pth = 20 × 20 + 140 = 540. Como 270 ≤ 400 < 540, es BS.'),
+    QC(4, 'Aire a 28 °C con punto de rocío de 20 °C. ¿A qué altura empieza la condensación?', ['800 m', '200 m', '1.600 m', '2.000 m'], 0, '(28 − 20) °C × 100 m/°C = 800 m.'),
+    QC(4, 'Ese mismo aire (28 °C, condensación a 800 m) llega a 2.800 m. ¿Qué temperatura tiene?', ['8 °C', '0 °C', '12 °C', '20 °C'], 0, 'Baja a 20 °C hasta 800 m y luego 0,6 °C/100 m en 2.000 m: 20 − 12 = 8 °C.'),
+    QC(4, 'Aire seco a 300 K sube de 1000 a 800 hPa. Con R/cp = 0,286, ¿qué temperatura alcanza?', ['Cerca de 281 K', 'Cerca de 240 K', 'Cerca de 300 K', 'Cerca de 375 K'], 0, 'T₂ = 300 × (800/1000)^0,286 ≈ 281 K.'),
+    QC(4, '¿Cuántas veces más energía emite un cuerpo a 300 K que uno a 200 K?', ['Cerca de 5,1 veces', '1,5 veces', '2,25 veces', '16 veces'], 0, '(300 / 200)⁴ = 1,5⁴ ≈ 5,06.'),
+    QC(4, 'Con S = 1361 W/m² y albedo 0,25, ¿qué energía promedio se absorbe?', ['Unos 255 W/m²', 'Unos 238 W/m²', 'Unos 340 W/m²', 'Unos 1.021 W/m²'], 0, '1361 / 4 × 0,75 ≈ 255 W/m².'),
+    QC(4, 'Región de 100 km²: 60 km² con albedo 0,20 y 40 km² con 0,10. ¿Cuál es el albedo promedio?', ['0,16', '0,15', '0,30', '0,12'], 0, '(60 × 0,20 + 40 × 0,10) / 100 = 0,16.'),
+    Q(4, 'En Köppen, ¿qué significa Csa?', ['Templado con verano seco y cálido: mediterráneo', 'Tropical lluvioso', 'Polar de tundra', 'Continental con invierno seco'], 0, 'C: templado; s: verano seco; a: mes más cálido de 22 °C o más.'),
   ];
 
   // ---------- niños de 8 a 15 años ----------
@@ -5859,10 +5894,10 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
 
   D.subjects = {
     cuenca: { name: 'Historia de la cuenca', desc: 'La película completa: agua, aire, residuos, energía y biodiversidad.' },
-    aire: { name: 'Calidad del aire', desc: 'Solo preguntas de contaminantes, normas, monitoreo y control de emisiones.', cat: 'aire', start: 'Empezar la clase',
+    aire: { name: 'Calidad del aire', desc: 'Según la clase: contaminantes, ICA, normas, monitoreo, AP-42, modelo de caja y termodinámica.', cat: 'aire', start: 'Empezar la clase',
       views: ['aire', 'via', 'ladrillera', 'curtiembre', 'home'], kicker: 'Asignatura', title: 'Calidad del aire',
       intro: 'Hoy el reto es uno solo: entender lo que respiramos. Cada acierto limpia un poco el cielo del valle.', qs: aire },
-    clima: { name: 'Climatología', desc: 'Solo preguntas de tiempo, clima, lluvias, El Niño y cambio climático.', cat: 'clima', start: 'Empezar la clase',
+    clima: { name: 'Climatología', desc: 'Según la clase: balance de energía, albedo, ENSO, Köppen, Caldas-Lang, nubes y termodinámica.', cat: 'clima', start: 'Empezar la clase',
       views: ['energia', 'bio', 'home', 'agua', 'rio'], kicker: 'Asignatura', title: 'Climatología',
       intro: 'Del cielo depende el agua de la cuenca. Vamos a leer las nubes, las lluvias y el clima de los Andes.', qs: clima },
     explora: { name: 'Exploradores · 8 a 15 años', desc: 'Aventura para niños: láminas de animales, recreos y misiones para dibujar en el cuaderno.', cat: 'explora', kids: true, start: '¡A explorar!',
@@ -5895,6 +5930,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       'Inventa un animal nuevo que viva en tu cuenca y ponle nombre.',
       'Dibuja tres cosas que puedes hacer en casa para ahorrar agua.',
       'Dibuja una rana dorada en su charco, con lluvia alrededor.',
+      'Reto AirGuardian: elige un animal y dibuja un refugio que lo proteja del aire contaminado.',
     ],
     // recreo salvaje: unos segundos de movimiento para que nadie se aburra
     breaks: [
@@ -7457,7 +7493,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       <h2 class="question">${esc(it.q)}</h2>
       <div id="chBody"></div><div id="chFoot"></div>
     </div>`;
-    const mult = it.type === 'sort' || it.type === 'order' ? 1.6 : it.type === 'estimate' ? 1.2 : 1;
+    const mult = it.calc ? Math.max(1, 60 / S.time) : it.type === 'sort' || it.type === 'order' ? 1.6 : it.type === 'estimate' ? 1.2 : 1;
     S.tTotal = S.tLeft = Math.round(S.time * mult);
     S.ctl = CV.ch[it.type]($('#chBody'), it, { finish: onFinish, miss: onMiss, hint: S.level.hint });
     startTimer(onTimeout);
