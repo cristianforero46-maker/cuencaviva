@@ -506,6 +506,23 @@ body.fade #fade{opacity:1}
 .album em{font-style:normal;font-size:22px;line-height:1}
 .diploma{margin:0 0 18px;padding:18px;border-radius:16px;border:2px dashed #ffd166;background:rgba(255,209,102,.1);text-align:center;font-size:17px;line-height:1.45}
 .diploma b{display:block;font-family:var(--display);font-size:24px;color:#ffd166}
+/* explorar el valle a pie */
+.explore{position:fixed;inset:0;z-index:9;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.explore:active{cursor:grabbing}
+.ex-top{position:absolute;left:14px;right:14px;top:max(12px,env(safe-area-inset-top));display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ex-top .btn{font-size:14px;padding:8px 14px;background:var(--glass);color:var(--mist);box-shadow:none}
+.ex-group{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--glass);border:1px solid var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.ex-group button{border:0;background:transparent;color:var(--mist);padding:6px 11px;border-radius:999px;font:600 13.5px var(--body);cursor:pointer}
+.ex-group button:hover{background:var(--glass-2)}
+.ex-group button[aria-pressed="true"]{background:var(--mist);color:var(--ink)}
+.ex-info{position:absolute;left:14px;bottom:60px;width:min(340px,calc(100vw - 28px));padding:12px 14px;border-radius:14px;background:var(--glass);border:1px solid var(--line);color:var(--mist);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);pointer-events:none}
+.ex-info b{display:block;font-family:var(--display);font-size:17px}
+.ex-info i{display:block;font-size:12.5px;color:var(--lichen);margin-bottom:4px}
+.ex-info span{font-size:13.5px;line-height:1.35}
+.ex-hint{position:absolute;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);width:max-content;max-width:calc(100vw - 28px);margin:0;padding:6px 12px;border-radius:999px;background:var(--glass);color:var(--mist);font-size:13px;text-align:center;pointer-events:none}
+.ex-joy{display:none;position:absolute;left:26px;bottom:74px;width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid var(--line);place-items:center;pointer-events:none}
+.ex-joy i{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.55)}
+@media (pointer:coarse){.ex-joy{display:grid}.ex-info{bottom:auto;top:128px}}
 /* crédito del autor con enlaces */
 .author{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:12px 0 0;font-size:14px;color:var(--mist-2)}
 .author b{color:var(--mist)}
@@ -1316,7 +1333,7 @@ body.fade #fade{opacity:1}
   const target = { agua: 1, aire: 1, residuos: 1, energia: 1, bio: 1 };
   const cur = Object.assign({}, target);
   let renderer, scene, camera, sky, sun, hemi, water, terrain, terr, props, village, nature, pmrem, envRT, sunDir, shake = 0, baseP = null;
-  let extras = [], shot = null, fovGoal = 50;
+  let extras = [], shot = null, fovGoal = 50, walk = null;
   let clouds = null, cloudU = null, sunVis = 0, lapse = false, lapseA = 0, baseSun = null, sunV = null;
   let last = 0, clock = 0, envA = -1, envT = -9, orbit = false, orbitA = 0;
   const ptr = { x: 0, y: 0 };
@@ -1449,9 +1466,9 @@ body.fade #fade{opacity:1}
     try { nature = CV.nature ? CV.nature.build({ scene, world: W }) : null; } catch (e) { console.error(e); nature = null; }
     compile();
     const ctx = { scene, world: W, renderer, camera, target };
-    const msgs = { river: 'Abriendo las quebradas…', industry: 'Encendiendo las industrias…', fauna: 'Llamando a los animales…', wildlife: 'Despertando al oso, al jaguar y al cóndor…', actions: 'Despertando a la gente del valle…' };
+    const msgs = { river: 'Abriendo las quebradas…', industry: 'Encendiendo las industrias…', fauna: 'Llamando a los animales…', weather: 'Trayendo las nubes…', wildlife: 'Despertando al oso, al jaguar y al cóndor…', actions: 'Despertando a la gente del valle…' };
     extras = [];
-    for (const k of ['river', 'industry', 'fauna', 'wildlife', 'actions']) {
+    for (const k of ['river', 'industry', 'fauna', 'wildlife', 'actions', 'weather']) {
       await step(msgs[k]);
       if (CV.abort3d) return false;
       try { if (CV[k]) extras.push(CV[k].build(ctx)); } catch (e) { console.error(e); }
@@ -1668,7 +1685,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     const dayK = smooth(-0.04, 0.15, sunDir.y);
     CV.sunHeight = sunDir.y; // el pueblo enciende sus faroles al anochecer
     hemi.intensity = (pmrem ? 0.6 : 1.1) * (0.12 + 0.88 * dayK);
-    if (cloudU) { cloudU.uDirty.value = 1 - a; cloudU.uCover.value = lerp(0.36, 0.53, a); cloudU.uDay.value = dayK; }
+    if (cloudU) { cloudU.uDirty.value = 1 - a; cloudU.uCover.value = lerp(0.36, 0.53, a) - (CV.rainK || 0) * 0.22; cloudU.uDay.value = dayK; }
     scene.fog.color.copy(pal.fogDirty).lerp(pal.fogClean, a);
     // la neblina toma la luz del momento: dorada con el sol bajo y casi negra de noche (si no, brilla gris en la oscuridad)
     const lowSun = 1 - smooth(0.02, 0.32, sunDir.y);
@@ -1676,7 +1693,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (SAFE) scene.fog.density = lerp(0.0026, 0.00085, a);
     else { scene.fog.near = lerp(24, 8.5, a); scene.fog.far = 0.95 * (1 - smooth(0.05, 0.85, a)); }
     renderer.toneMappingExposure = lerp(0.48, 0.52, a);
-    sun.intensity = lerp(1.8, 3.2, a) * dayK;
+    sun.intensity = lerp(1.8, 3.2, a) * dayK * (1 - (CV.rainK || 0) * 0.5); // con lluvia el sol se apaga
     sun.color.copy(pal.sunDirty).lerp(pal.sunClean, a);
     if (water && water.material.uniforms) {
       const u = water.material.uniforms, ww = smooth(0.1, 0.7, w);
@@ -1806,7 +1823,14 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     visuals();
     updateEnv(false);
 
-    if (orbit) {
+    if (walk) {
+      // explorar a pie: la cámara son los ojos del visitante
+      walk.step(dt);
+      const cp = Math.cos(walk.pitch);
+      goalP.set(walk.x, walk.y, walk.z);
+      goalT.set(walk.x + Math.sin(walk.yaw) * cp * 10, walk.y + Math.sin(walk.pitch) * 10, walk.z + Math.cos(walk.yaw) * cp * 10);
+      camP.copy(goalP); camT.copy(goalT);
+    } else if (orbit) {
       orbitA += dt * 0.05;
       goalP.set(Math.sin(orbitA) * 230, 170 + Math.sin(orbitA * 0.7) * 25, -100 + Math.cos(orbitA) * 430);
       goalT.set(0, 40, -150);
@@ -1829,7 +1853,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     const cf = 1 - Math.exp(-dt * (shot ? 3.5 : 0.8));
     camP.lerp(goalP, cf); camT.lerp(goalT, cf);
     // en los primeros planos de animales la cámara va quieta, como un teleobjetivo de documental
-    const calm = shot && shot.calm ? 0.06 : 1;
+    const calm = walk ? 0 : shot && shot.calm ? 0.06 : 1;
     camera.position.set(
       camP.x + (Math.sin(clock * 0.13) * 1.2 + ptr.x * 3) * calm,
       camP.y + (Math.sin(clock * 0.17) * 0.8 - ptr.y * 1.5) * calm,
@@ -1851,7 +1875,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     // en los planos de fauna la cámara puede acercarse mucho (plano cercano) y el fondo se desenfoca como con un lente de cine
     const near = calm < 1 ? 0.25 : 1, far = calm < 1 ? 12000 : 20000;
     if (camera.near !== near) { camera.near = near; camera.far = far; camera.updateProjectionMatrix(); }
-    dofK += ((calm < 1 && dof ? shot.dof || 0 : 0) - dofK) * Math.min(1, dt * 1.4);
+    dofK += ((shot && calm < 1 && dof ? shot.dof || 0 : 0) - dofK) * Math.min(1, dt * 1.4);
     // en calidad alta todo pasa por el acabado de cine; en las demás, solo los planos con desenfoque
     if (dof && (dofK > 0.02 || Q.level === 'alta')) renderDof(shot && shot.focus ? camera.position.distanceTo(shot.focus()) : camera.position.distanceTo(camT));
     else renderer.render(scene, camera);
@@ -1962,6 +1986,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     focus,
     shot: playShot,
     shake(s) { shake = Math.max(shake, s || 0.5); },
+    // explorar a pie: recibe el estado del visitante; null vuelve a la cámara de cine
+    explore(w) { walk = w || null; if (w) { orbit = false; shot = null; baseP = null; fovGoal = 62; } else fovGoal = 50; },
     orbit(on) { orbit = !!on; if (on) { shot = null; orbitA = Math.atan2(camP.x, camP.z + 100); } },
     // lapso de tiempo: el sol da vueltas (días y noches pasan rápido) para la película del futuro
     timelapse(on) { lapse = !!on; if (!on && baseSun) { lapseA = 0; setSun(baseSun); updateEnv(true); } },
@@ -5258,6 +5284,106 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   };
 })();
 </script>
+<script>/* Cuenca Viva · clima que responde a la cuenca
+   Lluvia: en una cuenca con agua sana caen chubascos; si el agua se degrada llueve poco (sequía)
+   y si el aire está sucio la lluvia se ve turbia, como lluvia ácida.
+   Neblina: el páramo sano se cubre de niebla; un aire sucio deja bruma parda sobre el valle.
+   La lluvia corre en la tarjeta gráfica (un solo dibujo), y no cuesta nada mientras no llueve. */
+(function () {
+  const CV = window.CV;
+  let forceT = 0, forceV = 0;
+
+  function mistTexture() {
+    const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
+    for (let i = 0; i < 26; i++) {
+      const px = 28 + Math.random() * 72, py = 28 + Math.random() * 72, r = 16 + Math.random() * 26;
+      const g = x.createRadialGradient(px, py, 0, px, py, r); g.addColorStop(0, 'rgba(255,255,255,.2)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+    }
+    const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+  }
+
+  CV.weather = {
+    // forzar el clima unos segundos: 0 = sequía, 1 = aguacero (lo usan los eventos de la historia)
+    force(v, secs) { forceV = v; forceT = secs; },
+    build(ctx) {
+      const { scene, camera, world: W } = ctx, { rand, smooth, height, riverX, lerp } = W, Q = CV.Q || { level: 'alta', k: 1 };
+      if (Q.level === 'segura') return { update() {} };
+      const N = Q.level === 'alta' ? 2600 : Q.level === 'media' ? 1700 : 700, R = 34, H = 44;
+      const pos = new Float32Array(N * 6), end = new Float32Array(N * 2);
+      for (let i = 0; i < N; i++) {
+        const x = rand() * R * 2, y = rand() * H, z = rand() * R * 2;
+        pos.set([x, y, z, x, y, z], i * 6); end[i * 2 + 1] = 1;
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute('aEnd', new THREE.BufferAttribute(end, 1));
+      const U = { uTime: { value: 0 }, uCam: { value: new THREE.Vector3() }, uOp: { value: 0 }, uCol: { value: new THREE.Color() } };
+      const mat = new THREE.ShaderMaterial({
+        uniforms: U, transparent: true, depthWrite: false, fog: false,
+        vertexShader: `uniform float uTime; uniform vec3 uCam; attribute float aEnd; varying float vA;
+          void main() {
+            const float R = ${R.toFixed(1)}, H = ${H.toFixed(1)}, F = 34.0;
+            vec2 wind = vec2(-0.14, 0.07);
+            float fall = uTime * F;
+            float y = mod(position.y - fall, H) - H * 0.4;
+            vec2 q = mod(position.xz + wind * fall - uCam.xz + R, R * 2.0) - R;
+            vec3 w = vec3(q.x + uCam.x, y + uCam.y, q.y + uCam.z);
+            w += vec3(wind.x, 1.0, wind.y) * aEnd * 1.15;
+            vA = (1.0 - smoothstep(R * 0.6, R, length(q))) * (0.55 + 0.45 * aEnd);
+            gl_Position = projectionMatrix * viewMatrix * vec4(w, 1.0);
+          }`,
+        fragmentShader: `uniform float uOp; uniform vec3 uCol; varying float vA; void main() { gl_FragColor = vec4(uCol, uOp * vA); }`,
+      });
+      const rain = new THREE.LineSegments(geo, mat); rain.frustumCulled = false; rain.visible = false; rain.renderOrder = 5; scene.add(rain);
+
+      // neblina: bancos suaves y fijos en el páramo y a lo largo del río
+      const tex = mistTexture(), mists = [], nM = Q.lite ? 8 : 16, P = W.zones.paramo || W.zones.bosque;
+      for (let i = 0; i < nM; i++) {
+        const high = i % 2 === 0, m = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0, depthWrite: false, fog: false, color: 0xffffff });
+        const sp = new THREE.Sprite(m); let x, z, y;
+        if (high) { const a = rand() * 6.283, r = 20 + rand() * 90; x = P.x + Math.cos(a) * r; z = P.z + Math.sin(a) * r; y = height(x, z) + 7 + rand() * 7; }
+        else { z = -300 + rand() * 600; x = riverX(z) + (rand() - 0.5) * 120; y = Math.max(height(x, z), 1) + 9 + rand() * 7; }
+        const s = high ? 70 + rand() * 50 : 90 + rand() * 80;
+        sp.scale.set(s, s * 0.34, 1); sp.position.set(x, y, z); sp.visible = false; scene.add(sp);
+        mists.push({ sp, m, high, x, z, ph: rand() * 6.28 });
+      }
+
+      const acid = new THREE.Color(0x9c9466), clean = new THREE.Color(0xc4d7e6), brown = new THREE.Color(0xa08a6a), white = new THREE.Color(0xf1f4f2);
+      let k = 0, tMist = 0;
+      return {
+        update(dt, t, v) {
+          // chubascos que van y vienen; cuanto más sana el agua, más llueve
+          const cyc = Math.sin(t * 0.09) + Math.sin(t * 0.037 + 1.3);
+          let want = smooth(0.2, 0.9, cyc) * smooth(0.22, 0.6, v.agua);
+          if (forceT > 0) { forceT -= dt; want = forceV; }
+          k += (want - k) * Math.min(1, dt * 0.45);
+          CV.rainK = k;
+          if (CV.audio && CV.audio.setRain) CV.audio.setRain(k);
+          rain.visible = k > 0.015;
+          if (rain.visible) {
+            U.uTime.value = (U.uTime.value + dt) % 600; U.uCam.value.copy(camera.position);
+            U.uOp.value = Math.min(0.75, k * 0.75);
+            U.uCol.value.copy(acid).lerp(clean, smooth(0.25, 0.65, v.aire));
+          }
+          if ((tMist += dt) < 0.1) return;
+          tMist = 0;
+          const pa = 0.07 + 0.42 * smooth(0.3, 0.9, v.bio) + 0.16 * k, va = 0.05 + 0.3 * k + 0.26 * (1 - v.aire);
+          for (const q of mists) {
+            const op = q.high ? pa : va;
+            q.sp.visible = op > 0.03;
+            if (!q.sp.visible) continue;
+            q.m.opacity = op * (0.75 + 0.25 * Math.sin(t * 0.2 + q.ph));
+            if (!q.high) q.m.color.copy(brown).lerp(white, smooth(0.3, 0.8, v.aire));
+            q.sp.position.x = q.x + Math.sin(t * 0.03 + q.ph) * 14;
+            q.sp.position.z = q.z + Math.cos(t * 0.025 + q.ph) * 10;
+          }
+        },
+      };
+    },
+  };
+})();
+</script>
 <script>/* Cuenca Viva · lo que hace la gente del valle
    Acciones con impacto ambiental que se ven en la escena y que cambian cuando la cuenca mejora:
    buses y camiones con humo negro (→ bus eléctrico), ganado en las laderas taladas (→ bosque),
@@ -6501,6 +6627,9 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     amb.wind = c.createGain(); amb.wind.gain.value = 0.02;
     const lfo = c.createOscillator(), lg = c.createGain(); lfo.frequency.value = 0.07; lg.gain.value = 0.015; lfo.connect(lg); lg.connect(amb.wind.gain); lfo.start();
     loopNoise().connect(filt('lowpass', 380)).connect(amb.wind); amb.wind.connect(A.bus);
+    // lluvia: ruido agudo y suave que sube con el aguacero
+    amb.rain = c.createGain(); amb.rain.gain.value = 0;
+    loopNoise().connect(filt('highpass', 1800)).connect(filt('lowpass', 7000)).connect(amb.rain); amb.rain.connect(A.bus);
     // zumbido industrial y retumbo de maquinaria
     amb.hum = c.createGain(); amb.hum.gain.value = 0;
     const hl = filt('lowpass', 260); hl.connect(amb.hum); amb.hum.connect(A.bus);
@@ -6693,6 +6822,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
 
   CV.audio = {
     init, setMood, speak, hush, sfx, theme, listVoices,
+    setRain(k) { if (A.amb && A.amb.rain) A.amb.rain.gain.setTargetAtTime(k * 0.05, A.ctx.currentTime, 0.8); },
     set narratorVoice(n) { A.narratorVoice = n || ''; },
     get narratorVoice() { return A.narratorVoice || ''; },
     get on() { return A.on; },
@@ -6926,6 +7056,122 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   CV.donar = { open, close, button, author, key: KEY };
 })();
 </script>
+<script>/* Cuenca Viva · explorar el valle
+   Recorrer la cuenca a pie, sin preguntas. Computador: W A S D o flechas, Mayús para correr y arrastrar para mirar.
+   Celular: palanca a la izquierda y arrastrar a la derecha. Muestra el animal más cercano y qué hace por la cuenca. */
+(function () {
+  const CV = window.CV;
+  const esc = (s) => CV.ch.util.esc(s);
+  let root = null, st = null, done = null, keys = {}, joy = null, look = null, infoT = 0;
+  const STATES = [['Sana', 1], ['Regular', 0.55], ['Contaminada', 0.15]];
+
+  function places() {
+    const W = CV.world, z = W.zones, pv = W.pads.find((p) => p.id === 'pueblo');
+    const list = [['Pradera', z.fauna], ['Bosque', z.bosque], ['Río', z.rio]];
+    if (pv) list.push(['Pueblo', pv]);
+    if (z.paramo) list.push(['Páramo', z.paramo]);
+    return list;
+  }
+  // llega a 34 m del lugar, por el lado más parejo (sin caer al río ni quedar contra una ladera), y mira hacia él
+  function go(p) {
+    const W = CV.world, h0 = W.height(p.x, p.z);
+    let a = 0, bd = 1e9;
+    for (let i = 0; i < 16; i++) {
+      const t = (i / 16) * 6.283, h = W.height(p.x + Math.sin(t) * 34, p.z + Math.cos(t) * 34), d = Math.abs(h - h0) + (h < 1.5 ? 100 : 0);
+      if (d < bd) { bd = d; a = t; }
+    }
+    st.x = p.x + Math.sin(a) * 34; st.z = p.z + Math.cos(a) * 34; st.yaw = a + Math.PI; st.y = undefined;
+    st.pitch = Math.atan2(h0 + 1 - W.height(st.x, st.z) - 2.3, 34);
+  }
+
+  function step(dt) {
+    const W = CV.world;
+    let f = (keys.w || keys.arrowup ? 1 : 0) - (keys.s || keys.arrowdown ? 1 : 0), s = (keys.d || keys.arrowright ? 1 : 0) - (keys.a || keys.arrowleft ? 1 : 0);
+    if (joy) { f = -joy.y; s = joy.x; }
+    const run = keys.shift || (joy && Math.hypot(joy.x, joy.y) > 0.9), v = (run ? 18 : 8) * dt;
+    const sy = Math.sin(st.yaw), cy = Math.cos(st.yaw);
+    st.x = Math.max(-740, Math.min(740, st.x + (sy * f - cy * s) * v));
+    st.z = Math.max(-720, Math.min(720, st.z + (cy * f + sy * s) * v));
+    const g = Math.max(W.height(st.x, st.z), 0.5) + 2.3;
+    st.y = st.y === undefined ? g : st.y + (g - st.y) * Math.min(1, dt * 7);
+    if ((infoT += dt) > 0.5) { infoT = 0; nearest(); }
+  }
+
+  // la especie más cercana: nombre y su papel en la cuenca
+  function nearest() {
+    const box = root && root.querySelector('#exInfo'); if (!box) return;
+    const SP = CV.species, inds = (CV.wildlife && CV.wildlife.inds) || [];
+    let best = null, bd = 34;
+    for (const a of inds) {
+      const s = SP.byId[a.spec.sid || a.id]; if (!s || !a.g.visible) continue;
+      const d = Math.hypot(a.g.position.x - st.x, a.g.position.z - st.z);
+      if (d < bd) { bd = d; best = s; }
+    }
+    box.hidden = !best;
+    if (best && box.dataset.id !== best.id) { box.dataset.id = best.id; box.innerHTML = `<b>${esc(best.name)}</b><i>${esc(best.sci)}</i><span>${esc(best.rol)}</span>`; }
+  }
+
+  const onKey = (e) => {
+    const k = e.key.toLowerCase();
+    if (e.type === 'keydown' && k === 'escape') return exit();
+    if (['w', 'a', 's', 'd', 'shift', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) { keys[k] = e.type === 'keydown'; e.preventDefault(); }
+  };
+
+  function exit() {
+    if (!root) return;
+    removeEventListener('keydown', onKey); removeEventListener('keyup', onKey);
+    root.remove(); root = null; keys = {}; joy = null; look = null;
+    CV.scene.explore(null);
+    if (done) done();
+  }
+
+  function open(o) {
+    done = o.exit;
+    root = document.createElement('section'); root.className = 'explore'; root.setAttribute('aria-label', 'Explorar el valle');
+    root.innerHTML = `<div class="ex-top">
+        <button class="btn ghost" id="exOut" type="button">← Salir</button>
+        <div class="ex-group" id="exPlaces" role="group" aria-label="Ir a un lugar">${places().map(([n], i) => `<button type="button" data-p="${i}">${n}</button>`).join('')}</div>
+        <div class="ex-group" id="exState" role="group" aria-label="Estado de la cuenca">${STATES.map(([n], i) => `<button type="button" data-s="${i}" aria-pressed="${i === 0}">${n}</button>`).join('')}</div>
+      </div>
+      <div class="ex-info" id="exInfo" hidden></div>
+      <p class="ex-hint" id="exHint">Muévanse con W A S D o las flechas · Mayús corre · arrastren para mirar · Esc sale</p>
+      <div class="ex-joy" id="exJoy" aria-hidden="true"><i></i></div>`;
+    document.body.appendChild(root);
+    const pl = places(), knob = root.querySelector('#exJoy i');
+    st = { x: 0, z: 0, yaw: 0, pitch: 0, step };
+    go(pl[0][1]);
+    CV.scene.explore(st);
+    if (matchMedia('(pointer:coarse)').matches) root.querySelector('#exHint').textContent = 'Muévanse con la palanca · arrastren a la derecha para mirar';
+    root.querySelector('#exOut').onclick = exit;
+    root.querySelector('#exPlaces').onclick = (e) => { const b = e.target.closest('button'); if (b) go(pl[+b.dataset.p][1]); };
+    root.querySelector('#exState').onclick = (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      root.querySelectorAll('#exState button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+      o.setState(STATES[+b.dataset.s][1]);
+    };
+    addEventListener('keydown', onKey); addEventListener('keyup', onKey);
+    root.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('button')) return;
+      const coarse = e.pointerType === 'touch';
+      if (coarse && e.clientX < innerWidth * 0.42 && !joy) { const r = root.querySelector('#exJoy').getBoundingClientRect(); joy = { id: e.pointerId, cx: r.left + r.width / 2, cy: r.top + r.height / 2, x: 0, y: 0 }; }
+      else look = { id: e.pointerId, x: e.clientX, y: e.clientY };
+      try { root.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    root.addEventListener('pointermove', (e) => {
+      if (joy && e.pointerId === joy.id) {
+        const dx = (e.clientX - joy.cx) / 50, dy = (e.clientY - joy.cy) / 50, m = Math.max(1, Math.hypot(dx, dy));
+        joy.x = dx / m; joy.y = dy / m; knob.style.transform = `translate(${joy.x * 34}px,${joy.y * 34}px)`;
+      } else if (look && e.pointerId === look.id) {
+        st.yaw -= (e.clientX - look.x) * 0.004; st.pitch = Math.max(-1.2, Math.min(1.2, st.pitch - (e.clientY - look.y) * 0.003));
+        look.x = e.clientX; look.y = e.clientY;
+      }
+    });
+    const up = (e) => { if (joy && e.pointerId === joy.id) { joy = null; knob.style.transform = ''; } if (look && e.pointerId === look.id) look = null; };
+    root.addEventListener('pointerup', up); root.addEventListener('pointercancel', up);
+  }
+  CV.explorar = { open, exit };
+})();
+</script>
 <script>/* Cuenca Viva · flujo del juego como película:
    portada → apertura narrada → capítulos (anécdota, reto, desenlace) → eventos → epílogo y resultados */
 (function () {
@@ -6949,6 +7195,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   const KIDS = () => !!(S.sub && S.sub.kids);
   const rondas = (n) => `${n} ${n === 1 ? 'ronda' : 'rondas'}`;
   const REVEAL_VIEW = { agua: 'agua', aire: 'aire', residuos: 'residuos', energia: 'energia', bio: 'fauna' };
+  const EVENT_RAIN = { 'Fenómeno de El Niño': 0, 'Incendio forestal': 0, 'Minga de siembra': 0.8 };
   const EVENT_VIEW = { 'Vertimiento ilegal': 'curtiembre', 'Incendio forestal': 'bosque', 'Minga de siembra': 'fauna', 'Día sin carro': 'aire', 'Fenómeno de El Niño': 'energia' };
 
   // ---------- valores de la cuenca ----------
@@ -7129,6 +7376,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         <label class="field" for="pres">Presentado por (opcional)<input id="pres" maxlength="80" placeholder="Ej.: Programa de Ingeniería Ambiental" value="${esc(cfg.presenter)}"></label>
         <button class="btn" type="submit">Comenzar la historia</button>
         <button class="btn ghost fauna-open" type="button" id="faunaOpen"><svg class="ico"><use href="#i-paw"/></svg> Conocer la fauna de la cuenca</button>
+        ${S.has3d ? `<button class="btn ghost fauna-open" type="button" id="exploreOpen">🧭 Explorar el valle a pie</button>` : ''}
         <details><summary>Cómo se juega</summary><ul>
           <li>En el valle viven 23 especies emblemáticas de los Andes: el oso de anteojos, el cóndor, el jaguar, la danta, los monos… Cada una vuelve cuando la cuenca le da lo que necesita y se va cuando se degrada. Con la tecla F ven qué hace cada especie por el ecosistema.</li>
           <li>Asignaturas: la historia completa de la cuenca, o solo Calidad del aire, solo Climatología, o Exploradores para niños de 8 a 15 años.</li>
@@ -7138,6 +7386,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           <li>Si un equipo falla una pregunta, los demás pueden robarla: el primero que presione su tecla (1 a 4) o toque su ficha responde.</li>
           <li>Responder rápido da puntos extra. Gana el equipo con más puntos.</li>
           <li>Meta común: si entre todos llevan la vida de la cuenca al 70 %, todos los equipos ganan el sello de Guardianes de la Cuenca.</li>
+          <li>Explorar el valle: recorran la cuenca a pie, sin preguntas. Cerca de un animal aparece qué hace por la cuenca, y pueden cambiar el estado del valle para ver cómo cambian la lluvia y la neblina.</li>
           <li>Teclas: Enter avanza el subtítulo, S salta la escena, H muestra solo el paisaje, A a D responden, P pausa.</li>
         </ul></details>
       </form>
@@ -7217,6 +7466,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       }
     }));
     $('#faunaOpen').onclick = () => openFauna(true);
+    if ($('#exploreOpen')) $('#exploreOpen').onclick = openExplore;
     $('#pres').oninput = (e) => { const v = e.target.value.trim(); $('#presLine').textContent = v ? 'Presentado por ' + v : ''; };
     $('#setup').onsubmit = (e) => {
       e.preventDefault();
@@ -7226,6 +7476,13 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       savePrefs(cfg);
       start(cfg);
     };
+  }
+
+  // recorrer el valle sin preguntas; los botones cambian el estado de la cuenca para ver qué pasa con el clima y la fauna
+  function openExplore() {
+    CN.scene(); CN.off(); clearLater(); setPhase('explore'); stage.innerHTML = ''; AU.init();
+    KEYS.forEach((k) => Sc.set(k, 1, true));
+    CV.explorar.open({ setState: (v) => { KEYS.forEach((k) => Sc.set(k, v)); AU.setMood(v); }, exit: renderSetup });
   }
 
   function buildSeq(n) {
@@ -7645,6 +7902,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     Object.keys(ev.eff).forEach((k) => Sc.add(k, ev.eff[k]));
     const fx = faunaDelta(pre);
     if (ev.double) S.double = true;
+    // el clima acompaña la noticia: sequía con El Niño y el incendio, aguacero con la minga de siembra
+    if (CV.weather && EVENT_RAIN[ev.title] !== undefined) CV.weather.force(EVENT_RAIN[ev.title], 45);
     updateGauges(Object.keys(ev.eff)[0]); refresh(true);
     if (bad) { SFX.alarm(); Sc.shake(0.7); } else SFX.rise();
     CN.chips(`<span class="${bad ? 'res-bad' : 'res-ok'}">${bad ? 'Última hora' : 'Buenas noticias'}</span>`);
