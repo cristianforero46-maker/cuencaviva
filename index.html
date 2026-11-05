@@ -2036,7 +2036,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         return g;
       }
       const QK = CV.Q ? CV.Q.k : 1;
-      const NT = Math.round(4200 * Math.max(0.45, QK));
+      const NT = Math.round(7000 * Math.max(0.45, QK));
       const trunkG = new THREE.CylinderGeometry(0.32, 0.5, 1, 6); trunkG.translate(0, 0.5, 0);
       const trunks = new THREE.InstancedMesh(trunkG, std(0x4a3a2a, 0.95), NT);
       const leafTex = canvasTex(128, (x, s) => {
@@ -2055,7 +2055,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const Zf = W.zones.fauna, Zb = W.zones.bosque, camF = { x: Zf.x - 70, z: Zf.z + 62 };
       const segDist = (x, z, a, b) => { const vx = b.x - a.x, vz = b.z - a.z, t = Math.max(0, Math.min(1, ((x - a.x) * vx + (z - a.z) * vz) / (vx * vx + vz * vz))); return Math.hypot(x - a.x - vx * t, z - a.z - vz * t); };
       const meadow = (x, z) => Math.hypot(x - Zf.x, z - Zf.z) < Zf.r * 1.3 || segDist(x, z, camF, Zf) < 22 || Math.hypot(x - Zb.x, z - Zb.z) < Zb.r * 0.75;
-      for (let tries = 0; trees.length < NT && tries < 130000; tries++) {
+      for (let tries = 0; trees.length < NT && tries < 260000; tries++) {
         const x = (rand() * 2 - 1) * 760, z = (rand() * 2 - 1) * 720;
         const h = height(x, z), d = Math.abs(x - riverX(z));
         if (h < 5 || h > 104 || d < 30 || inPad(x, z, 1.05) || slope(x, z) > 0.95) continue;
@@ -2100,12 +2100,12 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         return g;
       }
       CV.plantGeo = { rosette: rosetteGeo(20), tuft: tuftGeo(16) };
-      const NF = Math.round(3600 * Math.max(0.45, QK));
+      const NF = Math.round(6500 * Math.max(0.45, QK));
       const fStemG = new THREE.CylinderGeometry(0.28, 0.36, 1, 6); fStemG.translate(0, 0.5, 0);
       const fStem = new THREE.InstancedMesh(fStemG, std(0x4f4134, 1), NF);
       const fRos = new THREE.InstancedMesh(CV.plantGeo.rosette, std(0xffffff, 0.72, 0, { side: THREE.DoubleSide }), NF);
       const fr = [];
-      for (let tries = 0; fr.length < NF && tries < 180000; tries++) {
+      for (let tries = 0; fr.length < NF && tries < 360000; tries++) {
         const x = (rand() * 2 - 1) * 780, z = (rand() * 2 - 1) * 760, h = height(x, z);
         if (h < 106 || slope(x, z) > 1.1) continue;
         // frailejonales: se agrupan en valles densos y dejan claros de pajonal entre ellos
@@ -2772,16 +2772,16 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           transformed.x += sway * 0.22 * uv.y; transformed.z += sway * 0.12 * uv.y;`);
       };
       const QK = CV.Q ? CV.Q.k : 1;
-      const NG = Math.round(38000 * QK), grass = new THREE.InstancedMesh(tuft, grassM, NG);
+      const NG = Math.round(72000 * QK), grass = new THREE.InstancedMesh(tuft, grassM, NG);
       // donde pasta y camina la fauna el pasto es bajito (pradera pastoreada): así los animales se ven enteros
       const zf = W.zones.fauna, zb = W.zones.bosque;
       const lawn = (x, z) => Math.hypot(x - zf.x, z - zf.z) < zf.r * 1.3 || Math.hypot(x - zb.x, z - zb.z) < zb.r * 0.85 ||
         (z > 118 && z < 215 && x - riverX(z) > 14 && x - riverX(z) < 52) || Math.hypot(x - (riverX(40) + 38), z - 40) < 26;
       let ng = 0;
-      for (let tries = 0; ng < NG && tries < 130000; tries++) {
-        const z = -360 + rand() * 800, x = riverX(z) + (rand() < 0.5 ? -1 : 1) * (17 + Math.pow(rand(), 1.6) * 230);
+      for (let tries = 0; ng < NG && tries < 300000; tries++) {
+        const z = -560 + rand() * 1240, x = riverX(z) + (rand() < 0.5 ? -1 : 1) * (17 + Math.pow(rand(), 1.25) * 400);
         const h = height(x, z);
-        if (h < 1.4 || h > 60 || slope(x, z) > 0.7 || inPad(x, z, 0.62)) continue;
+        if (h < 1.4 || h > 125 || slope(x, z) > 0.95 || inPad(x, z, 0.62)) continue;
         if (village && Math.hypot(x - village.x, z - village.z) < 50) continue;
         const s = 0.7 + rand() * 0.8, lo = lawn(x, z) ? 0.36 : 1;
         dummy.position.set(x, h - 0.1, z); dummy.rotation.set(0, rand() * 6.28, 0); dummy.scale.set(s, s * (0.8 + rand() * 0.5) * lo, s); dummy.updateMatrix();
@@ -2810,15 +2810,15 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       });
       const flowerM = new THREE.MeshStandardMaterial({ map: flowerTex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.8 });
       if (grassM.onBeforeCompile) flowerM.onBeforeCompile = grassM.onBeforeCompile;
-      const NFL = Math.round(5500 * QK), flowers = new THREE.InstancedMesh(tuft, flowerM, NFL);
+      const NFL = Math.round(10000 * QK), flowers = new THREE.InstancedMesh(tuft, flowerM, NFL);
       // más blancas y amarillas que moradas o rojas, y tonos suaves (como un prado andino, no confeti)
       const PETALS = [0xf0ead8, 0xf3eedf, 0xe8d36a, 0xe2c650, 0xd9cf8a, 0xb49ad0, 0x9c86c4, 0xd98a8a].map((h) => C(h));
       let nfl = 0, flx = 0, flz = 0, flc = 0;
-      for (let tries = 0; nfl < NFL && tries < 80000; tries++) {
+      for (let tries = 0; nfl < NFL && tries < 160000; tries++) {
         // crecen en manchas: casi siempre cerca de la mancha anterior, a veces empieza una nueva
         let x, z;
         if (nfl && rand() < 0.88) { x = flx + (rand() - 0.5) * 9; z = flz + (rand() - 0.5) * 9; }
-        else { z = -360 + rand() * 800; x = riverX(z) + (rand() < 0.5 ? -1 : 1) * (17 + Math.pow(rand(), 1.4) * 220); flx = x; flz = z; flc = (rand() * PETALS.length) | 0; }
+        else { z = -360 + rand() * 800; x = riverX(z) + (rand() < 0.5 ? -1 : 1) * (17 + Math.pow(rand(), 1.3) * 340); flx = x; flz = z; flc = (rand() * PETALS.length) | 0; }
         const h = height(x, z);
         if (h < 1.4 || h > 130 || slope(x, z) > 0.55 || inPad(x, z, 0.7)) { flx = x + 40; continue; }
         if (village && Math.hypot(x - village.x, z - village.z) < 55) continue;
@@ -2831,6 +2831,28 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       flowers.count = nfl; flowers.frustumCulled = false; scene.add(flowers);
       // las instancias se sembraron al azar: mostrar menos es quitar flores al azar
       ups.push((dt, t, v) => { flowers.count = Math.round(nfl * smooth(0.25, 0.85, v.bio * 0.7 + v.agua * 0.3)); flowerM.emissive.setScalar(glow * 0.6); });
+
+      // ---------- matorral ----------
+      // arbustos y bosque bajo que visten las laderas: muy livianos, por eso caben miles
+      const NB = Math.round(16000 * Math.max(0.35, QK)), bushG = new THREE.IcosahedronGeometry(1, 0);
+      const bushes = new THREE.InstancedMesh(bushG, std(0xffffff, 0.95, 0, { flatShading: true }), NB);
+      const bushC = [0x3f6a2c, 0x4d7a30, 0x34592a, 0x5c8236, 0x6d8a3c, 0x2f5228].map(C);
+      let nb = 0;
+      for (let tries = 0; nb < NB && tries < 260000; tries++) {
+        const z = -660 + rand() * 1340, x = riverX(z) + (rand() < 0.5 ? -1 : 1) * (24 + Math.pow(rand(), 0.9) * 560);
+        const h = height(x, z);
+        if (h < 2 || h > 150 || slope(x, z) > 1.5 || inPad(x, z, 0.9)) continue;
+        if (village && Math.hypot(x - village.x, z - village.z) < 62) continue;
+        if (lawn(x, z)) continue;
+        const s = 1.1 + rand() * 2.4;
+        dummy.position.set(x, h + s * 0.2, z); dummy.rotation.set(rand() * 3, rand() * 6.28, rand() * 3); dummy.scale.set(s, s * (0.55 + rand() * 0.4), s); dummy.updateMatrix();
+        bushes.setMatrixAt(nb, dummy.matrix);
+        bushes.setColorAt(nb, bushC[(rand() * bushC.length) | 0]);
+        nb++;
+      }
+      bushes.count = nb; bushes.frustumCulled = false; scene.add(bushes);
+      // también crecen y desaparecen con la biodiversidad
+      ups.push((dt, t, v) => { bushes.count = Math.round(nb * smooth(0.12, 0.72, v.bio)); });
 
       // ---------- piedras ----------
       const rockG = new THREE.IcosahedronGeometry(1, 2);
@@ -5416,7 +5438,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
    Todo responde a los indicadores: si la cuenca sana, el fuego y el gas se apagan. */
 (function () {
   const CV = window.CV;
-  let igniteT = 0;
+  let igniteT = 0, grow = 0; // grow: avance del incendio; 0 = un foco pequeño, 1 = todos los frentes ardiendo
 
   const softTex = () => {
     const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
@@ -5427,9 +5449,11 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     }
     const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
   };
-  const VERT = `uniform float uT, uF, uScale, uH, uSp, uSize, uWander; attribute vec4 aR; varying float vL;
+  const VERT = `uniform float uT, uF, uScale, uH, uSp, uSize, uWander; attribute vec4 aR; attribute float aLit; uniform float uG, uBurn; varying float vL;
     void main() {
-      float on = step(aR.x, uF), l = fract(uT * uSp * (0.5 + aR.z) + aR.x * 17.0);
+      // cada punto se enciende cuando el fuego llega hasta él; lo ya quemado se apaga, salvo focos que siguen ardiendo
+      float age = uG - aLit, burn = max(1.0 - smoothstep(uBurn * 0.6, uBurn, age), step(0.74, aR.y));
+      float on = step(aR.x, uF) * step(0.0, age) * burn * min(1.0, age * 14.0), l = fract(uT * uSp * (0.5 + aR.z) + aR.x * 17.0);
       vec3 p = position;
       p.y += l * uH * (0.45 + 0.55 * aR.y);
       p.x += sin(uT * 2.7 + aR.x * 40.0 + l * 4.0) * uWander * (0.4 + l) + l * l * uH * 0.35;
@@ -5457,35 +5481,44 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
 
   CV.crudo = {
     // incendio inmediato durante unos segundos (evento de la historia)
-    ignite(secs) { igniteT = secs; },
+    ignite(secs) { igniteT = secs; grow = Math.max(grow, 0.08); },
+    reset() { grow = 0; igniteT = 0; },
     build(ctx) {
       const { scene, world: W, renderer, camera } = ctx, { rand, smooth, height, riverX, pads } = W, Q = CV.Q || { level: 'alta', k: 1 };
       if (Q.level === 'segura') return { update() {} };
       const lite = Q.lite || Q.k < 0.5, sp = W.spots, Zb = W.zones.bosque, Pv = pads.find((p) => p.id === 'pueblo');
       // frentes de fuego: líneas largas sobre la ladera, no fogatas sueltas
       const fronts = [
-        { x: sp.tala.x, z: sp.tala.z, a: 0.7, L: 95 }, { x: Zb.x + 34, z: Zb.z - 28, a: 2.1, L: 80 }, { x: sp.ganado.x, z: sp.ganado.z, a: 1.3, L: 110 },
-        { x: sp.quema.x, z: sp.quema.z, a: 0.3, L: 70 }, { x: sp.vereda.x, z: sp.vereda.z, a: 2.6, L: 85 },
+        { x: Zb.x + 34, z: Zb.z - 28, a: 2.1, L: 80 }, { x: sp.tala.x, z: sp.tala.z, a: 0.7, L: 95 }, { x: sp.ganado.x, z: sp.ganado.z, a: 1.3, L: 110 },
+        { x: Zb.x - 70, z: Zb.z + 80, a: 0.3, L: 75 }, { x: sp.vereda.x, z: sp.vereda.z, a: 2.6, L: 85 },
       ];
       if (W.zones.paramo) fronts.push({ x: W.zones.paramo.x + 70, z: W.zones.paramo.z + 30, a: 1.0, L: 80 });
-      const U = { uT: { value: 0 }, uF: { value: 0 }, uScale: { value: 500 } };
+      // el fuego siempre queda lejos del pueblo: se ve en las montañas, nunca encima de las casas
+      fronts.forEach((f, i) => {
+        f.start = i * 0.16;
+        if (!Pv) return;
+        const dx = f.x - Pv.x, dz = f.z - Pv.z, d = Math.hypot(dx, dz), far = 260 + f.L / 2;
+        if (d < far) { f.x = Pv.x + (dx / (d || 1)) * far; f.z = Pv.z + (dz / (d || 1)) * far; }
+      });
+      const U = { uT: { value: 0 }, uF: { value: 0 }, uG: { value: 0 }, uScale: { value: 500 } };
       const layer = (n, frag, blend, o) => {
-        const pos = new Float32Array(n * 3), r = new Float32Array(n * 4);
+        const pos = new Float32Array(n * 3), r = new Float32Array(n * 4), lit = new Float32Array(n);
         for (let i = 0; i < n; i++) {
           const f = fronts[i % fronts.length], u = (rand() - 0.5) * f.L, j = (rand() - 0.5) * 12, x = f.x + Math.cos(f.a) * u - Math.sin(f.a) * j, z = f.z + Math.sin(f.a) * u + Math.cos(f.a) * j;
           pos.set([x, height(x, z), z], i * 3); r.set([rand(), rand(), rand(), rand()], i * 4);
+          lit[i] = f.start + (Math.abs(u) / (f.L / 2)) * 0.2 + rand() * 0.025; // arde desde el centro de cada frente hacia los lados
         }
         const g = new THREE.BufferGeometry();
-        g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('aR', new THREE.BufferAttribute(r, 4));
-        const m = new THREE.ShaderMaterial({ uniforms: Object.assign({}, U, { uH: { value: o.H }, uSp: { value: o.sp }, uSize: { value: o.size }, uWander: { value: o.w } }), vertexShader: VERT, fragmentShader: frag, transparent: true, depthWrite: false, blending: blend, fog: false });
+        g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setAttribute('aR', new THREE.BufferAttribute(r, 4)); g.setAttribute('aLit', new THREE.BufferAttribute(lit, 1));
+        const m = new THREE.ShaderMaterial({ uniforms: Object.assign({}, U, { uH: { value: o.H }, uSp: { value: o.sp }, uSize: { value: o.size }, uWander: { value: o.w }, uBurn: { value: o.burn } }), vertexShader: VERT, fragmentShader: frag, transparent: true, depthWrite: false, blending: blend, fog: false });
         const p = new THREE.Points(g, m); p.frustumCulled = false; p.visible = false; p.renderOrder = 4; scene.add(p);
         return p;
       };
       const k = lite ? 0.35 : 1;
       const layers = [
-        layer(Math.round(1500 * k), SMOKE, THREE.NormalBlending, { H: 130, sp: 0.09, size: 62, w: 16 }),
-        layer(Math.round(2400 * k), FLAME, THREE.AdditiveBlending, { H: 16, sp: 0.8, size: 3.6, w: 1.9 }),
-        layer(Math.round(700 * k), EMBER, THREE.AdditiveBlending, { H: 60, sp: 0.28, size: 1.1, w: 9 }),
+        layer(Math.round(1500 * k), SMOKE, THREE.NormalBlending, { H: 130, sp: 0.09, size: 62, w: 16, burn: 2.2 }),
+        layer(Math.round(2400 * k), FLAME, THREE.AdditiveBlending, { H: 16, sp: 0.8, size: 3.6, w: 1.9, burn: 0.75 }),
+        layer(Math.round(700 * k), EMBER, THREE.AdditiveBlending, { H: 60, sp: 0.28, size: 1.1, w: 9, burn: 0.9 }),
       ];
       // resplandor naranja que late sobre cada frente
       const tex = softTex(), glows = fronts.map((f) => {
@@ -5496,7 +5529,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const NS = lite ? 50 : 150, snag = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.08, 0.34, 1, 5), new THREE.MeshStandardMaterial({ color: 0x0c0a09, roughness: 1 }), NS);
       const dm = new THREE.Object3D();
       for (let i = 0; i < NS; i++) {
-        const f = fronts[i % fronts.length], u = (rand() - 0.5) * f.L * 1.1, j = (rand() - 0.5) * 34, x = f.x + Math.cos(f.a) * u - Math.sin(f.a) * j, z = f.z + Math.sin(f.a) * u + Math.cos(f.a) * j, H = 5 + rand() * 9;
+        const f = fronts[Math.floor((i / NS) * fronts.length)], u = (rand() - 0.5) * f.L * 1.1, j = (rand() - 0.5) * 34, x = f.x + Math.cos(f.a) * u - Math.sin(f.a) * j, z = f.z + Math.sin(f.a) * u + Math.cos(f.a) * j, H = 5 + rand() * 9;
         dm.position.set(x, height(x, z) + H / 2 - 0.4, z); dm.rotation.set((rand() - 0.5) * 0.3, rand() * 6, (rand() - 0.5) * 0.3); dm.scale.set(1 + rand(), H, 1 + rand()); dm.updateMatrix(); snag.setMatrixAt(i, dm.matrix);
       }
       snag.visible = false; snag.frustumCulled = false; scene.add(snag);
@@ -5522,15 +5555,18 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           const harsh = !!CV.harsh;
           if (igniteT > 0) igniteT -= dt;
           const F = harsh ? Math.max(igniteT > 0 ? 1 : 0, 1 - smooth(0.14, 0.4, v.bio)) : 0, G = harsh ? 1 - smooth(0.12, 0.42, v.aire) : 0, D = harsh ? 1 - smooth(0.12, 0.46, v.agua) : 0;
-          CV.gasK = G; CV.fireK = F;
-          if (CV.audio && CV.audio.setFire) CV.audio.setFire(F);
-          const on = F > 0.02;
+          // arranca despacio y cada vez corre más rápido; si la cuenca sana, se apaga poco a poco
+          grow = F > 0.05 ? Math.min(1.6, grow + dt * (0.008 + 0.022 * grow) * (igniteT > 0 ? 3 : 1)) : Math.max(0, grow - dt * 0.07);
+          const fire = F * Math.min(1, grow * 1.6 + 0.08);
+          CV.gasK = G; CV.fireK = fire;
+          if (CV.audio && CV.audio.setFire) CV.audio.setFire(fire);
+          const on = F > 0.02 || grow > 0.01;
           layers.forEach((p) => (p.visible = on));
           if (on) {
-            U.uT.value = (U.uT.value + dt) % 900; U.uF.value = F;
+            U.uT.value = (U.uT.value + dt) % 900; U.uF.value = Math.max(F, grow > 0.01 ? 0.25 : 0); U.uG.value = grow;
             U.uScale.value = renderer.domElement.height / (2 * Math.tan((camera.fov * Math.PI) / 360));
           }
-          snag.visible = F > 0.12;
+          snag.visible = grow > 0.05; snag.count = Math.round(NS * Math.min(1, grow));
           fish.visible = D > 0.05;
           if (fish.visible) {
             fish.count = Math.round(NF * D);
@@ -5542,7 +5578,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           }
           if ((tick += dt) < 0.08) return;
           tick = 0;
-          glows.forEach((s, i) => { s.visible = on; if (on) s.material.opacity = F * (0.1 + 0.05 * Math.sin(t * 7 + i * 2) + 0.03 * Math.sin(t * 13 + i)); });
+          glows.forEach((s, i) => { s.visible = on && grow > fronts[i].start; if (s.visible) s.material.opacity = F * smooth(fronts[i].start, fronts[i].start + 0.25, grow) * (0.1 + 0.05 * Math.sin(t * 7 + i * 2) + 0.03 * Math.sin(t * 13 + i)); });
           for (const q of gas) {
             q.s.visible = G > 0.03;
             if (!q.s.visible) continue;
@@ -7694,7 +7730,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   // recorrer el valle sin preguntas; los botones cambian el estado de la cuenca para ver qué pasa con el clima y la fauna
   function openExplore(cfg) {
     CN.scene(); CN.off(); clearLater(); setPhase('explore'); stage.innerHTML = ''; AU.init();
-    CV.harsh = !!cfg.fuerte;
+    CV.harsh = !!cfg.fuerte; if (CV.crudo) CV.crudo.reset();
     KEYS.forEach((k) => Sc.set(k, 1, true));
     CV.explorar.open({ setState: (v) => { KEYS.forEach((k) => Sc.set(k, v)); AU.setMood(v); }, exit: renderSetup });
   }
@@ -7730,7 +7766,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     try { if (cfg.voice && 'speechSynthesis' in window) { const u = new SpeechSynthesisUtterance('Hola'); u.lang = 'es-ES'; u.volume = 0; window.speechSynthesis.speak(u); } } catch (e) {}
     S.cfg = cfg; S.mode = cfg.mode || 'equipos';
     S.level = D.levels[cfg.level === undefined ? 1 : cfg.level]; S.sub = cfg.subject && cfg.subject !== 'cuenca' ? D.subjects[cfg.subject] : null;
-    CV.harsh = !!cfg.fuerte && !KIDS(); S.hurt = 0;
+    CV.harsh = !!cfg.fuerte && !KIDS(); S.hurt = 0; if (CV.crudo) CV.crudo.reset();
     S.teams = S.mode === 'equipos'
       ? Array.from({ length: cfg.n }, (_, i) => ({ name: cfg.names[i] || D.teams[i].name, color: D.teams[i].color, score: 0 }))
       : [{ name: cfg.player || 'Jugador', color: '#ffc25a', score: 0 }];
