@@ -473,6 +473,39 @@ body.fade #fade{opacity:1}
 @media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
 .sound-test{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sound-test .btn{font-size:14px;padding:8px 14px}
+/* asignaturas, dificultad y modo Exploradores */
+.setup{grid-template-columns:minmax(0,1fr)}
+.setup fieldset{min-width:0}
+.voice-row{min-width:0;max-width:100%}
+.voice-row select{min-width:0;width:0;flex:1 1 0}
+.modes.subjects{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:480px){.modes.subjects{grid-template-columns:minmax(0,1fr)}.seg[data-k="level"]{flex-wrap:wrap}.seg[data-k="level"] button{flex:1 1 45%}}
+.modes.subjects button[data-s="explora"]{border-color:rgba(255,209,102,.55)}
+.modes.subjects button[data-s="explora"][aria-pressed="true"]{border-color:#ffd166;background:rgba(255,209,102,.16);box-shadow:inset 0 0 0 1px #ffd166}
+.lvl-hint{margin:8px 0 0}
+.seg[data-k="level"] button{padding:10px 4px;font-size:14px}
+.notebook.card{width:min(620px,100%);background:repeating-linear-gradient(#fdf9ec 0 33px,#bfd8ee 33px 34px);color:#24324a;-webkit-backdrop-filter:none;backdrop-filter:none;border:0;border-left:30px solid #e8604c;box-shadow:0 24px 60px rgba(0,0,0,.45);font-family:'Comic Sans MS','Chalkboard SE','Trebuchet MS',var(--display);text-align:center;animation:nbIn .45s cubic-bezier(.2,1.4,.4,1)}
+.notebook h2{font-size:clamp(24px,5vw,34px);margin:0 0 6px;color:#c9402e;line-height:1.15}
+.notebook .nb-team{margin:0 0 10px;font-weight:700;color:#24324a}
+.notebook .nb-big{font-size:clamp(46px,11vw,70px);line-height:1.1;margin:0;animation:nbWiggle 1.6s ease-in-out infinite}
+.notebook .nb-task{font-size:clamp(20px,4.4vw,27px);line-height:1.3;font-weight:700;margin:8px 0 14px}
+.notebook .timer b{color:#24324a}
+.notebook .btn{font-family:inherit}
+.notebook .actions{justify-content:center;flex-wrap:wrap}
+.notebook .btn.ghost{color:#24324a;border-color:#24324a}
+@keyframes nbIn{from{transform:scale(.8) rotate(-3deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes nbWiggle{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+.break-card.card{width:min(620px,100%);text-align:center;background:linear-gradient(135deg,#1f7a4d,#2b6cb0);animation:nbIn .45s cubic-bezier(.2,1.4,.4,1)}
+.break-card h2{font-family:var(--display);font-size:clamp(26px,6vw,38px);margin:0 0 8px;color:#fff}
+.break-card p{font-size:clamp(19px,4vw,24px);line-height:1.35;color:#fff}
+.break-card .nb-big{font-size:clamp(46px,11vw,70px);margin:0;animation:nbWiggle 1.2s ease-in-out infinite}
+.break-card .actions{justify-content:center}
+.album{list-style:none;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0 0 16px}
+.album li{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:12px;background:#fff;color:#24324a;font-size:13.5px;font-weight:600;transform:rotate(-1.5deg)}
+.album li:nth-child(even){transform:rotate(1.5deg)}
+.album em{font-style:normal;font-size:22px;line-height:1}
+.diploma{margin:0 0 18px;padding:18px;border-radius:16px;border:2px dashed #ffd166;background:rgba(255,209,102,.1);text-align:center;font-size:17px;line-height:1.45}
+.diploma b{display:block;font-family:var(--display);font-size:24px;color:#ffd166}
 /* crédito del autor con enlaces */
 .author{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:12px 0 0;font-size:14px;color:var(--mist-2)}
 .author b{color:var(--mist)}
@@ -561,6 +594,8 @@ body.fade #fade{opacity:1}
   <p class="loader-stuck">Este visor solo muestra la página: no puede ejecutar el juego. Pasa con la vista previa del iPhone/iPad, de WhatsApp, del correo o de Drive.<br><br><b>En computador o Android:</b> descarguen el archivo y ábranlo con Chrome, Edge, Firefox o Safari.<br><b>En iPhone, iPad o televisor:</b> abran el juego en Safari o en el navegador del televisor con esta dirección:<br><a href="https://cristianforero46-maker.github.io/cuencaviva/" style="color:#9fe3b0">cristianforero46-maker.github.io/cuencaviva</a></p></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-clima" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.2 11 3.5 3.5 0 0 0 7 18zM8 21l1-2M12 21l1-2M16 21l1-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-explora" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 8.5l-2 5-5 2 2-5z" fill="currentColor"/></symbol>
   <symbol id="i-paw" viewBox="0 0 24 24"><path d="M12 13.4c-2.6 0-5 2.7-5 4.7 0 1.6 1.4 2.4 3 2.1 1-.2 1.4-.6 2-.6s1 .4 2 .6c1.6.3 3-.5 3-2.1 0-2-2.4-4.7-5-4.7z"/><ellipse cx="5.8" cy="10.2" rx="1.6" ry="2.1"/><ellipse cx="9.5" cy="6.3" rx="1.6" ry="2.2"/><ellipse cx="14.5" cy="6.3" rx="1.6" ry="2.2"/><ellipse cx="18.2" cy="10.2" rx="1.6" ry="2.1"/></symbol>
   <symbol id="i-agua" viewBox="0 0 24 24"><path d="M12 3c3.3 4.3 6 7.6 6 11a6 6 0 0 1-12 0c0-3.4 2.7-6.7 6-11z"/></symbol>
   <symbol id="i-aire" viewBox="0 0 24 24"><path d="M3 9h11a3 3 0 1 0-3-3M3 13h15a3 3 0 1 1-3 3M3 17h7"/></symbol>
@@ -5677,6 +5712,203 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   CV.data = { cats, types, teams, challenges, events, fields };
 })();
 </script>
+<script>/* Cuenca Viva · dificultades y asignaturas
+   levels: lo que cambia con cada dificultad.
+   subjects: cada asignatura tiene su propio banco de preguntas con nivel lv (1 fácil, 2 media, 3 difícil, 4 extra difícil).
+   Para agregar una asignatura: copiar un bloque de subjects y escribir sus preguntas con Q, TF, E, O o SORT.
+   explora (niños de 8 a 15 años) además usa missions (dibujar en el cuaderno), breaks (recreo salvaje) y stickers. */
+(function () {
+  const D = window.CV.data;
+
+  // time: segundos por reto · pts: multiplica el puntaje · hint: tapa una opción incorrecta · noSteal: sin segunda oportunidad
+  // gain: cuánto sana la cuenca un acierto · fail: qué le pasa si fallan · lives: vidas en supervivencia · draw: segundos para dibujar
+  D.levels = [
+    { name: 'Fácil', time: 45, pts: 0.8, hint: true, gain: 1.15, fail: 0.06, lives: 5, draw: 90, desc: '45 segundos, una opción incorrecta tapada y puntaje menor.' },
+    { name: 'Media', time: 30, pts: 1, gain: 1, fail: 0.04, lives: 3, draw: 75, desc: '30 segundos y puntaje normal.' },
+    { name: 'Difícil', time: 20, pts: 1.3, gain: 0.9, fail: 0, lives: 2, draw: 60, desc: '20 segundos. Equivocarse ya no ayuda a la cuenca. Más puntos.' },
+    { name: 'Extra difícil', time: 12, pts: 1.7, noSteal: true, gain: 0.8, fail: -0.05, lives: 1, draw: 45, desc: '12 segundos, sin robo de preguntas y cada error daña la cuenca. Máximo puntaje.' },
+  ];
+
+  const Q = (lv, q, opts, a, dato) => ({ lv, type: 'quiz', q, opts, a, dato });
+  const TF = (lv, q, a, dato) => ({ lv, type: 'tf', q, a, dato });
+  const E = (lv, q, min, max, step, unit, a, tol, dato) => ({ lv, type: 'estimate', q, min, max, step, unit, a, tol, dato });
+  const O = (lv, q, steps, dato) => ({ lv, type: 'order', q, steps, dato });
+  const SORT = (lv, q, bins, items, noun, dato) => ({ lv, type: 'sort', q, bins, items, noun, dato });
+
+  // ---------- calidad del aire ----------
+  const aire = [
+    Q(1, '¿Qué es el material particulado (PM)?', ['Polvo, hollín y gotitas diminutas suspendidas en el aire', 'Un gas sin olor que sale de los árboles', 'Vapor de agua limpio', 'Oxígeno concentrado'], 0, 'Sale de motores, chimeneas, quemas y polvo de las vías. Se clasifica según su tamaño.'),
+    TF(1, 'Si no se ve humo, el aire está limpio.', false, 'Muchos contaminantes son invisibles, como el monóxido de carbono y buena parte de las partículas finas.'),
+    Q(1, '¿Qué significa ICA?', ['Índice de Calidad del Aire', 'Instituto de Control Ambiental', 'Indicador de Clima Andino', 'Inventario de Carros y Automotores'], 0, 'El ICA traduce las mediciones a una escala de colores que cualquier persona puede entender.'),
+    Q(1, 'En la escala del ICA, ¿qué indica el color verde?', ['Calidad del aire buena', 'Peligro extremo', 'Daño a grupos sensibles', 'Estación sin datos'], 0, 'La escala va de verde a marrón: buena, aceptable, dañina para grupos sensibles, dañina, muy dañina y peligrosa.'),
+    TF(1, 'El ozono que se forma cerca del suelo es un contaminante.', true, 'En lo alto de la atmósfera el ozono nos protege; cerca del suelo irrita los pulmones y daña los cultivos.'),
+    Q(1, '¿Qué gas sin color ni olor sale cuando la combustión es incompleta?', ['Monóxido de carbono (CO)', 'Oxígeno (O₂)', 'Nitrógeno (N₂)', 'Helio (He)'], 0, 'Por eso es tan peligroso encender estufas o calentadores en lugares cerrados y sin ventilación.'),
+    Q(1, 'En las grandes ciudades colombianas, ¿qué fuente aporta mucho material particulado?', ['El transporte a diésel, sobre todo camiones y buses', 'Los árboles de los parques', 'La lluvia', 'Los paneles solares'], 0, 'Por eso los inventarios de emisiones miran con atención el transporte de carga y pasajeros.'),
+    TF(1, 'Cocinar con leña dentro de la casa, sin chimenea, afecta la salud.', true, 'El humo dentro de la vivienda es un riesgo serio, sobre todo para mujeres, niños y adultos mayores.'),
+
+    Q(2, 'En la escala del ICA, ¿qué significa el color naranja?', ['Dañina para grupos sensibles', 'Calidad buena', 'Calidad peligrosa', 'Calidad aceptable'], 0, 'Niños, adultos mayores y personas con asma o enfermedades del corazón deben reducir el esfuerzo al aire libre.'),
+    Q(2, '¿Qué partículas se agrupan bajo el nombre PM10?', ['Las de diámetro menor a 10 micras', 'Las de más de 10 milímetros', 'Las que pesan 10 gramos', 'Las medidas durante 10 días'], 0, 'Una micra es la milésima parte de un milímetro.'),
+    Q(2, '¿Qué es una inversión térmica?', ['Una capa de aire cálido sobre aire frío, que atrapa la contaminación', 'Un cambio brusco de la dirección del viento', 'Una lluvia con el agua muy caliente', 'El paso del invierno al verano'], 0, 'Lo normal es que el aire se enfríe al subir. Si ocurre lo contrario, los contaminantes no se dispersan.'),
+    TF(2, 'El PM2.5 entra más profundo en el sistema respiratorio que el PM10.', true, 'Por su tamaño llega hasta los alvéolos, y una parte puede pasar a la sangre.'),
+    Q(2, '¿Cuál de estos es un contaminante secundario?', ['Ozono troposférico', 'Monóxido de carbono', 'Hollín', 'Plomo'], 0, 'No sale directo de un tubo de escape: se forma en el aire por reacciones químicas con ayuda del sol.'),
+    Q(2, '¿Qué entidad consolida la información de calidad del aire de Colombia en el SISAIRE?', ['El IDEAM', 'La DIAN', 'El ICBF', 'La Registraduría'], 0, 'SISAIRE reúne los datos de las redes de monitoreo que operan las autoridades ambientales del país.'),
+    SORT(2, 'Clasifica cada contaminante según cómo llega al aire.', [{ id: '', name: 'Primario', desc: 'Sale directamente de la fuente' }, { id: 'verde', name: 'Secundario', desc: 'Se forma en la atmósfera por reacciones' }],
+      [['Monóxido de carbono', 0], ['Hollín', 0], ['Dióxido de azufre emitido', 0], ['Ozono troposférico', 1], ['Ácido sulfúrico de la lluvia ácida', 1], ['Peroxiacetilnitrato (PAN)', 1]], 'contaminantes en el grupo correcto', 'Controlar un contaminante secundario obliga a reducir sus precursores, no el contaminante mismo.'),
+    TF(2, 'Se considera lluvia ácida la que tiene un pH menor a 5,6.', true, 'La lluvia natural ya es algo ácida por el CO₂ disuelto. Los óxidos de azufre y de nitrógeno la acidifican más.'),
+
+    Q(3, '¿Qué norma fija hoy los niveles de calidad del aire en Colombia?', ['Resolución 2254 de 2017', 'Resolución 2184 de 2019', 'Ley 99 de 1993', 'Decreto 1594 de 1984'], 0, 'La expidió el Ministerio de Ambiente y también define los niveles de prevención, alerta y emergencia.'),
+    E(3, 'Según la Resolución 2254 de 2017, ¿cuál es el nivel máximo de PM2.5 en 24 horas?', 0, 100, 1, 'µg/m³', 37, 20, 'Son 37 µg/m³ en 24 horas y 25 µg/m³ como promedio anual, con metas más exigentes hacia 2030.'),
+    Q(3, '¿Cuál es el valor guía anual de PM2.5 de la OMS (2021)?', ['5 µg/m³', '25 µg/m³', '50 µg/m³', '100 µg/m³'], 0, 'La OMS lo bajó de 10 a 5 µg/m³ en 2021. La mayoría de la población mundial respira un aire por encima de ese valor.'),
+    Q(3, '¿Qué equipo separa las partículas gruesas usando fuerza centrífuga?', ['Ciclón', 'Lavador de gases', 'Catalizador', 'Chimenea'], 0, 'Es sencillo y económico, pero retiene mal las partículas finas: suele usarse como limpieza previa.'),
+    Q(3, '¿Qué hace el catalizador de tres vías de un carro a gasolina?', ['Convierte CO, hidrocarburos y NOx en gases menos dañinos', 'Aumenta la potencia del motor', 'Filtra el aire que entra al motor', 'Enfría el tubo de escape'], 0, 'Los transforma principalmente en CO₂, agua y nitrógeno.'),
+    Q(3, '¿Por qué es tan peligroso respirar monóxido de carbono?', ['Se une a la hemoglobina y bloquea el transporte de oxígeno', 'Quema la piel', 'Congela los pulmones', 'Solo produce mal olor'], 0, 'La hemoglobina lo atrapa con una afinidad unas 200 veces mayor que la del oxígeno.'),
+    O(3, 'Ordena cómo se forma el ozono en el aire de una ciudad.', ['Emisión: los vehículos liberan NOx y compuestos orgánicos volátiles', 'Luz solar: rompe el NO₂ y libera oxígeno atómico', 'Reacción: el oxígeno atómico se une al O₂ y forma O₃', 'Acumulación: los compuestos orgánicos evitan que el ozono se consuma'], 'Por eso el ozono suele subir en las horas de más sol, no en la hora pico de la mañana.'),
+    TF(3, 'En el Valle de Aburrá, los episodios críticos suelen darse en los periodos de febrero-marzo y octubre-noviembre.', true, 'En esas transiciones de temporada, la atmósfera del valle es más estable y la contaminación se dispersa peor.'),
+
+    E(4, 'A 25 °C y 1 atm, ¿a cuántos µg/m³ equivale 1 ppm de CO (masa molar 28 g/mol)?', 500, 2000, 5, 'µg/m³', 1145, 250, 'µg/m³ = ppm × masa molar × 1000 / 24,45. Con el CO da cerca de 1.145 µg/m³.'),
+    Q(4, '¿A qué condiciones de referencia se reportan las concentraciones de la Resolución 2254 de 2017?', ['25 °C y 760 mm Hg', '0 °C y 560 mm Hg', '20 °C y 1.000 mm Hg', '15 °C y 700 mm Hg'], 0, 'Así se pueden comparar mediciones de ciudades a distinta altura, como Barranquilla y Bogotá.'),
+    Q(4, '¿Qué técnica de referencia se usa para medir óxidos de nitrógeno en una estación automática?', ['Quimioluminiscencia', 'Gravimetría', 'Titulación', 'Termometría'], 0, 'El NO reacciona con ozono y emite luz proporcional a su concentración.'),
+    Q(4, '¿Qué principio usan los analizadores automáticos de SO₂?', ['Fluorescencia ultravioleta', 'Atenuación beta', 'Absorción infrarroja no dispersiva', 'Conductividad térmica'], 0, 'La atenuación beta se usa para partículas, y la absorción infrarroja no dispersiva, para el CO.'),
+    Q(4, 'En las clases de estabilidad de Pasquill, ¿qué describe la clase F?', ['Atmósfera estable, con muy poca dispersión', 'Atmósfera muy inestable', 'Condición neutra con mucho viento', 'Tormenta eléctrica'], 0, 'Las clases van de A (muy inestable) a F (estable), y suele darse en noches despejadas con poco viento.'),
+    Q(4, '¿Cuándo es inestable una capa de la atmósfera?', ['Cuando el aire se enfría con la altura más rápido que el gradiente adiabático seco', 'Cuando la temperatura aumenta con la altura', 'Cuando la temperatura no cambia con la altura', 'Cuando la humedad relativa es del 100 %'], 0, 'El gradiente adiabático seco es de unos 9,8 °C/km. Si el aire ambiente se enfría más rápido, las parcelas siguen subiendo y la mezcla es buena.'),
+    Q(4, 'En el modelo gaussiano de pluma, si se duplica la velocidad del viento, la concentración en el eje de la pluma...', ['Se reduce aproximadamente a la mitad', 'Se duplica', 'Se cuadruplica', 'No cambia'], 0, 'La concentración es inversamente proporcional a la velocidad del viento: Q / (2π u σy σz), sin contar el cambio en la sobreelevación.'),
+    Q(4, 'En la desulfuración húmeda con caliza, ¿qué subproducto puede aprovecharse?', ['Yeso', 'Carbón activado', 'Cloro', 'Plomo'], 0, 'El SO₂ reacciona con la caliza y, tras oxidarse, forma sulfato de calcio.'),
+  ];
+
+  // ---------- climatología ----------
+  const clima = [
+    Q(1, '¿Cuál es la diferencia entre tiempo y clima?', ['El tiempo es lo que pasa hoy; el clima es el comportamiento promedio de muchos años', 'Son exactamente lo mismo', 'El clima solo existe en las ciudades', 'El tiempo se mide en años y el clima en horas'], 0, 'Un día frío no cambia el clima de una región: es solo el tiempo de ese día.'),
+    Q(1, '¿Qué instrumento mide la lluvia?', ['Pluviómetro', 'Termómetro', 'Barómetro', 'Veleta'], 0, 'Mide los milímetros de lluvia: 1 mm equivale a 1 litro por metro cuadrado.'),
+    TF(1, 'En Colombia hay cuatro estaciones: primavera, verano, otoño e invierno.', false, 'Por estar cerca del ecuador, Colombia tiene temporadas secas y lluviosas, y la temperatura depende sobre todo de la altura.'),
+    Q(1, '¿Qué mide un anemómetro?', ['La velocidad del viento', 'La temperatura', 'La presión', 'La lluvia'], 0, 'La veleta indica de dónde viene el viento; el anemómetro, qué tan rápido va.'),
+    TF(1, 'Sin el efecto invernadero natural, la Tierra sería mucho más fría.', true, 'El problema no es el efecto natural, sino el aumento que causan nuestras emisiones.'),
+    Q(1, 'Al subir una montaña, ¿qué pasa normalmente con la temperatura?', ['Baja', 'Sube', 'No cambia', 'Primero se duplica'], 0, 'Por eso en un mismo día se puede pasar del calor del valle al frío del páramo.'),
+    Q(1, '¿Qué entidad colombiana entrega información del tiempo y del clima?', ['El IDEAM', 'El SENA', 'El DANE', 'La Aerocivil'], 0, 'Opera redes de estaciones hidrológicas y meteorológicas en todo el país.'),
+    Q(1, '¿Cómo se forman las nubes?', ['El vapor de agua sube, se enfría y se condensa', 'El humo se acumula en el cielo', 'El viento arrastra agua del mar en forma de olas', 'El sol fabrica agua'], 0, 'El vapor se condensa sobre partículas diminutas y forma gotitas o cristales de hielo.'),
+
+    Q(2, '¿Cuántos años se usan normalmente para calcular una normal climatológica?', ['30 años', '1 año', '5 años', '500 años'], 0, 'Es el periodo estándar de la Organización Meteorológica Mundial.'),
+    Q(2, '¿Qué es la ZCIT?', ['La franja donde convergen los vientos alisios de ambos hemisferios', 'Una zona de cultivo de la región Caribe', 'Un satélite del IDEAM', 'Una corriente fría del océano'], 0, 'La Zona de Convergencia Intertropical se mueve durante el año y marca las temporadas de lluvia en Colombia.'),
+    Q(2, 'Durante El Niño, ¿qué suele pasar en la región Andina y Caribe de Colombia?', ['Llueve menos de lo normal', 'Llueve mucho más de lo normal', 'Cae nieve en las ciudades', 'No cambia nada'], 0, 'Baja el nivel de los embalses y crece el riesgo de incendios forestales y de desabastecimiento.'),
+    Q(2, 'Durante La Niña, ¿qué suele pasar en gran parte de Colombia?', ['Aumentan las lluvias', 'Se seca el páramo', 'Desaparecen las nubes', 'Sube mucho la temperatura del Pacífico central'], 0, 'En La Niña de 2010-2011, las inundaciones afectaron a millones de personas en Colombia.'),
+    Q(2, '¿A partir de qué altura aproximada empieza el piso térmico de páramo en Colombia?', ['Unos 3.000 m', 'Unos 500 m', 'Unos 1.000 m', 'Unos 6.000 m'], 0, 'Los pisos térmicos son cálido, templado, frío y páramo, y el límite real cambia según la región.'),
+    E(2, 'En un pueblo a 1.000 m hace 24 °C. Con un gradiente de 0,6 °C cada 100 m, ¿qué temperatura esperas a 2.000 m?', 0, 30, 1, '°C', 18, 5, 'Son 1.000 m más arriba: 10 × 0,6 = 6 °C menos, es decir, 18 °C.'),
+    TF(2, 'Una humedad relativa del 100 % significa que el aire está saturado de vapor de agua.', true, 'A partir de ese punto, el vapor empieza a condensarse y pueden formarse niebla o nubes.'),
+    O(2, 'Ordena los pasos del ciclo del agua, empezando en el océano.', ['Evaporación: el sol convierte agua del mar en vapor', 'Condensación: el vapor se enfría y forma nubes', 'Precipitación: el agua cae como lluvia', 'Escorrentía: el agua corre por el suelo y los ríos hasta el mar'], 'El ciclo no tiene un inicio real: también participan la infiltración y la transpiración de las plantas.'),
+
+    Q(3, '¿Cómo es el régimen de lluvias típico de la región Andina colombiana?', ['Bimodal: dos temporadas de lluvia al año', 'Sin lluvia durante todo el año', 'Una sola lluvia cada cinco años', 'Con nevadas estacionales en todos los valles'], 0, 'Las temporadas más lluviosas suelen ser abril-mayo y octubre-noviembre, cuando pasa la ZCIT.'),
+    Q(3, '¿Qué es la evapotranspiración?', ['El agua que vuelve a la atmósfera desde el suelo y las plantas', 'La lluvia que cae sobre el mar', 'El agua que se congela en los glaciares', 'El agua de los acuíferos profundos'], 0, 'Es un componente clave del balance hídrico de una cuenca.'),
+    Q(3, '¿Cuál de estas superficies tiene el albedo más alto?', ['Nieve fresca', 'Océano', 'Bosque oscuro', 'Asfalto'], 0, 'La nieve refleja la mayor parte de la luz solar. Al derretirse, la superficie oscura absorbe más calor.'),
+    E(3, '¿Cuántos grados calienta el efecto invernadero natural a la Tierra? (De unos -18 °C sin él a unos 15 °C con él.)', 0, 60, 1, '°C', 33, 15, 'La diferencia es de unos 33 °C, y gracias a ella existe agua líquida en casi todo el planeta.'),
+    Q(3, '¿Por qué llueve tanto en el Chocó?', ['La humedad del Pacífico entra con el viento y se eleva contra la cordillera', 'Hay una corriente de agua caliente bajo el suelo', 'Está en el hemisferio sur', 'Por el humo de las ciudades cercanas'], 0, 'Es una de las regiones más lluviosas del planeta. El chorro del Chocó le lleva humedad desde el Pacífico.'),
+    Q(3, '¿Qué nube se asocia con tormentas eléctricas y aguaceros intensos?', ['Cumulonimbo', 'Cirro', 'Estrato', 'Altostrato'], 0, 'Tiene gran desarrollo vertical y puede superar los 10 km de altura en el trópico.'),
+    TF(3, 'El efecto de Coriolis es máximo en el ecuador.', false, 'Es nulo en el ecuador y aumenta hacia los polos.'),
+    Q(3, '¿Qué variables combina la clasificación de Caldas-Lang?', ['Altura o temperatura, y la relación entre precipitación y temperatura', 'Viento y radiación solar', 'Presión y mareas', 'Población y tipo de suelo'], 0, 'Une los pisos térmicos de Caldas con el factor de Lang, y es muy usada en Colombia.'),
+
+    Q(4, '¿Cómo se define El Niño con el índice ONI de la NOAA?', ['Anomalía de +0,5 °C o más en Niño 3.4 durante al menos 5 trimestres móviles', 'Más de 100 mm de lluvia en Bogotá durante un mes', 'Anomalía de +3 °C en un solo día', 'Más de 3 huracanes en el Pacífico'], 0, 'La Niña se define de forma simétrica, con anomalías de -0,5 °C o menos.'),
+    Q(4, '¿Qué método recomienda la FAO para estimar la evapotranspiración de referencia?', ['Penman-Monteith', 'Polígonos de Thiessen', 'Método racional', 'Curva número'], 0, 'Está descrito en el Cuaderno 56 de la FAO y usa radiación, temperatura, humedad y viento.'),
+    Q(4, '¿Para qué se usan los polígonos de Thiessen?', ['Para estimar la lluvia media de una cuenca a partir de estaciones', 'Para clasificar nubes', 'Para medir la dirección del viento', 'Para calcular el albedo'], 0, 'Cada estación pesa según el área que le corresponde dentro de la cuenca.'),
+    Q(4, '¿En qué unidades se expresa el forzamiento radiativo?', ['W/m²', 'hPa', 'mm/h', 'ppm'], 0, 'Mide el cambio en el balance de energía del sistema climático.'),
+    E(4, 'Según el IPCC (AR5), ¿cuál es el potencial de calentamiento del metano a 100 años, frente al CO₂?', 1, 60, 1, 'veces', 28, 12, 'El AR5 da cerca de 28 veces, y el AR6 da valores parecidos. A 20 años, el efecto es mucho mayor.'),
+    E(4, '¿Cuánto vale aproximadamente la constante solar?', 1000, 1700, 10, 'W/m²', 1360, 120, 'Es la radiación que llega al tope de la atmósfera, sobre una superficie perpendicular al Sol.'),
+    Q(4, 'Una creciente con periodo de retorno de 100 años tiene, en cualquier año, una probabilidad de ocurrir de...', ['1 %', '10 %', '50 %', '100 %'], 0, 'No significa que ocurra cada 100 años: puede repetirse en años seguidos.'),
+    Q(4, '¿Qué describe la celda de Hadley?', ['Aire que asciende cerca del ecuador y desciende cerca de los 30° de latitud', 'Una corriente marina fría', 'Una tormenta en el polo sur', 'La rotación de la Luna'], 0, 'Esa circulación explica los alisios y muchas de las zonas desérticas subtropicales.'),
+  ];
+
+  // ---------- niños de 8 a 15 años ----------
+  const explora = [
+    Q(1, '🌿 ¿Qué planta del páramo guarda agua como una esponja?', ['El frailejón', 'El cactus de escritorio', 'La palma de coco', 'La rosa'], 0, 'Sus hojas peludas atrapan la humedad de la niebla. ¡Por eso cuidarlo es cuidar el agua!'),
+    TF(1, '💧 Muchos ríos de Colombia nacen en los páramos.', true, 'Los páramos son como fábricas de agua en lo alto de las montañas.'),
+    Q(1, '🍌 ¿En qué caneca va la cáscara de banano?', ['Verde', 'Blanca', 'Negra', 'En el río'], 0, 'La verde es para lo orgánico, que puede convertirse en abono.'),
+    Q(1, '🐻 ¿Qué animal parece tener anteojos dibujados en la cara?', ['El oso de anteojos', 'El cóndor', 'La danta', 'La rana'], 0, 'Es el único oso de Suramérica. Cada uno tiene manchas diferentes, ¡como una huella digital!'),
+    TF(1, '💡 Apagar la luz al salir de un cuarto ayuda al planeta.', true, 'Ahorrar energía también ayuda a cuidar el agua y el aire.'),
+    Q(1, '🌳 ¿Qué gas nos regalan las plantas?', ['Oxígeno', 'Humo', 'Monóxido de carbono', 'Gasolina'], 0, 'Las plantas hacen fotosíntesis: toman CO₂ y luz, y liberan el oxígeno que respiramos.'),
+    Q(1, '🦅 ¿Qué ave gigante vuela sobre los Andes?', ['El cóndor', 'El colibrí', 'La gallina', 'El pingüino'], 0, 'Sus alas abiertas pueden medir más de 3 metros. ¡Es más ancho que una cama grande!'),
+    TF(1, '🚯 Botar basura al río no importa, porque el agua se la lleva.', false, 'La basura no desaparece: viaja río abajo, tapa los cauces y llega al mar.'),
+
+    Q(2, '🐒 ¿Para qué aúllan los monos aulladores?', ['Para decirles a otras tropas que ese es su territorio', 'Porque les duele la barriga', 'Para llamar la lluvia', 'Para asustar a las nubes'], 0, 'Su aullido se puede oír a kilómetros. ¡Tienen una caja de resonancia en la garganta!'),
+    Q(2, '🐝 ¿Qué trabajo importantísimo hacen las abejas?', ['Polinizar las flores', 'Limpiar los ríos', 'Fabricar nubes', 'Comerse la basura'], 0, 'Al llevar polen de flor en flor ayudan a que nazcan frutas y semillas.'),
+    Q(2, '🌍 De toda el agua de la Tierra, ¿cuánta es dulce?', ['Cerca del 3 %', 'El 50 %', 'El 90 %', 'Toda'], 0, 'Y la mayor parte de esa agua dulce está congelada o bajo tierra.'),
+    SORT(2, '♻️ ¡Lleva cada cosa a su caneca!', [{ id: 'blanca', name: 'Blanca', desc: 'Se puede reciclar, limpio y seco' }, { id: 'negra', name: 'Negra', desc: 'No se aprovecha' }, { id: 'verde', name: 'Verde', desc: 'Restos de comida y jardín' }],
+      [['Cuaderno viejo', 0], ['Botella limpia', 0], ['Papel higiénico', 1], ['Servilleta sucia', 1], ['Cáscara de naranja', 2], ['Hojas secas', 2]], 'cosas en la caneca correcta', 'Separar bien ayuda a los recicladores a recuperar mucho más material.'),
+    TF(2, '🦇 Los murciélagos ayudan al bosque.', true, 'Muchos polinizan flores, siembran semillas o se comen miles de insectos.'),
+    Q(2, '♻️ ¿Cuáles son las tres R?', ['Reducir, reutilizar y reciclar', 'Rayar, romper y regar', 'Reír, roncar y rodar', 'Río, roca y rana'], 0, 'La más poderosa es reducir: lo que no se usa, no se vuelve basura.'),
+    Q(2, '🌬️ ¿Cómo se llama la energía que se obtiene del viento?', ['Eólica', 'Solar', 'Fósil', 'Nuclear'], 0, 'Los molinos gigantes del valle convierten el viento en electricidad.'),
+    TF(2, '🐦 El colibrí puede volar hacia atrás.', true, 'Sus alas giran de una forma muy especial, y por eso puede quedarse quieto en el aire.'),
+
+    Q(3, '🏞️ ¿Qué es una cuenca?', ['El territorio donde toda el agua lluvia corre hacia un mismo río', 'Un plato grande para cocinar', 'Un pez de agua dulce', 'Una nube de lluvia'], 0, 'Tu casa, tu colegio y tu barrio están dentro de una cuenca. ¿Sabes cuál es la tuya?'),
+    TF(3, '🐆 El jaguar es el felino más grande de América.', true, 'Y tiene una de las mordidas más fuertes entre los felinos.'),
+    Q(3, '🧴 ¿Cuánto tarda en degradarse una botella plástica?', ['Cientos de años', 'Un fin de semana', 'Dos meses', 'Un año'], 0, 'Tus tataranietos podrían encontrar la botella que se bote hoy.'),
+    O(3, '🌧️ ¡Pon en orden el viaje de una gota de agua!', ['Se evapora: el sol la vuelve vapor', 'Forma una nube: el vapor se enfría', 'Llueve: la gota cae a la montaña', 'Corre por el río: vuelve hacia el mar'], 'El agua que bebes hoy pudo haber pasado por un dinosaurio.'),
+    Q(3, '🪓 ¿Qué pasa en una montaña si se talan todos sus árboles?', ['La lluvia arrastra el suelo y hay más derrumbes', 'Crecen más nubes', 'Hace más frío en todo el planeta', 'No pasa nada'], 0, 'Las raíces sostienen el suelo como una red. A esto se le llama erosión.'),
+    E(3, '🚿 Más o menos, ¿cuántos litros de agua gastas en una ducha de 10 minutos?', 0, 300, 10, 'litros', 100, 60, 'Una ducha común gasta cerca de 10 litros por minuto. ¡Cerrar la llave al enjabonarte ayuda mucho!'),
+    TF(3, '🦜 Colombia es uno de los países con más especies de aves del mundo.', true, 'Tiene más de 1.900 especies. ¡Es un paraíso para observar aves!'),
+    Q(3, '☀️ ¿Cuál de estas energías es renovable?', ['La del sol', 'La del carbón', 'La del petróleo', 'La del gas natural'], 0, 'Renovable significa que se recupera naturalmente y no se agota al usarla.'),
+
+    Q(4, '🌡️ ¿Qué pasa cuando hay demasiados gases de efecto invernadero?', ['Atrapan más calor y el planeta se calienta', 'El planeta se enfría rápidamente', 'Los mares se secan en un año', 'La Luna se acerca a la Tierra'], 0, 'Funcionan como una cobija: si la cobija se hace más gruesa, se atrapa más calor.'),
+    Q(4, '👣 ¿Qué es la huella de carbono?', ['Los gases de efecto invernadero que producimos con lo que hacemos', 'Una pisada con carbón', 'La marca de un dinosaurio', 'Un tipo de lápiz'], 0, 'Transporte, comida y energía hacen parte de tu huella.'),
+    Q(4, '😷 ¿A dónde pueden llegar las partículas PM2.5 del aire?', ['Hasta lo más profundo de los pulmones', 'Solo a la punta de la nariz', 'Solo a la ropa', 'No entran al cuerpo'], 0, 'Son unas 30 veces más delgadas que un cabello.'),
+    Q(4, '🐆 ¿Por qué es tan importante un gran depredador como el jaguar?', ['Mantiene en equilibrio a otras especies', 'Se come toda la basura', 'Produce la lluvia', 'Limpia el río con sus patas'], 0, 'Si desaparece, otras poblaciones pueden crecer demasiado y dañar el bosque.'),
+    TF(4, '🏔️ Colombia tiene una gran parte de los páramos del mundo.', true, 'Es el país con mayor extensión de páramos: cerca de la mitad de los que hay en el mundo.'),
+    Q(4, '🏭 ¿Qué es una PTAR?', ['Una planta que limpia el agua usada antes de devolverla al río', 'Una planta de jardín', 'Una fábrica de plástico', 'Un parque de diversiones'], 0, 'Se llama planta de tratamiento de aguas residuales, y la diseñan ingenieros ambientales.'),
+    Q(4, '🪱 ¿Qué se obtiene al hacer compost?', ['Abono natural para el suelo', 'Plástico nuevo', 'Gasolina', 'Agua potable'], 0, 'Microorganismos y lombrices convierten los restos orgánicos en tierra rica en nutrientes.'),
+    Q(4, '🐸 ¿Qué significa que una especie es endémica?', ['Que vive naturalmente solo en un lugar del mundo', 'Que está enferma', 'Que vive en todos los países', 'Que es muy grande'], 0, 'Si su hogar desaparece, no hay otro lugar del mundo donde pueda vivir.'),
+  ];
+
+  D.cats.clima = { name: 'Climatología', color: '#8fd3ff', view: 'energia' };
+  D.cats.explora = { name: 'Exploradores', color: '#ffd166', view: 'fauna' };
+
+  D.subjects = {
+    cuenca: { name: 'Historia de la cuenca', desc: 'La película completa: agua, aire, residuos, energía y biodiversidad.' },
+    aire: { name: 'Calidad del aire', desc: 'Solo preguntas de contaminantes, normas, monitoreo y control de emisiones.', cat: 'aire', start: 'Empezar la clase',
+      views: ['aire', 'via', 'ladrillera', 'curtiembre', 'home'], kicker: 'Asignatura', title: 'Calidad del aire',
+      intro: 'Hoy el reto es uno solo: entender lo que respiramos. Cada acierto limpia un poco el cielo del valle.', qs: aire },
+    clima: { name: 'Climatología', desc: 'Solo preguntas de tiempo, clima, lluvias, El Niño y cambio climático.', cat: 'clima', start: 'Empezar la clase',
+      views: ['energia', 'bio', 'home', 'agua', 'rio'], kicker: 'Asignatura', title: 'Climatología',
+      intro: 'Del cielo depende el agua de la cuenca. Vamos a leer las nubes, las lluvias y el clima de los Andes.', qs: clima },
+    explora: { name: 'Exploradores · 8 a 15 años', desc: 'Aventura para niños: láminas de animales, recreos y misiones para dibujar en el cuaderno.', cat: 'explora', kids: true, start: '¡A explorar!',
+      views: ['sp:oso:amplio', 'sp:colibri:retrato', 'fauna', 'sp:condor:amplio', 'rio', 'sp:aullador:amplio', 'bosque'], kicker: 'Exploradores de la cuenca', title: '¡Empieza la aventura!',
+      intro: '¡Hola! Soy Frailín, el frailejón más curioso del páramo. ¡Saquen su cuaderno y sus colores! Si aciertan, ganan una lámina de un animal. Si fallan, tienen una misión de dibujo. ¿Listos?', qs: explora },
+  };
+  Object.keys(D.subjects).forEach((k) => { const s = D.subjects[k]; s.id = k; (s.qs || []).forEach((q) => (q.cat = s.cat)); });
+
+  D.kids = {
+    guide: { name: 'Frailín', role: 'tu guía del páramo', color: '#b8e986', gender: 'f', pitch: 1.3, rate: 1.02 },
+    cheers: ['¡Eso es! ¡Son unos genios del páramo!', '¡Bien hecho, exploradores!', '¡Wow! ¡Hasta los osos están aplaudiendo!', '¡Correcto! ¡Esa respuesta merece un baile!', '¡Increíble! ¡El río ya está sonriendo!'],
+    oops: ['¡Uy, casi! Equivocarse también es aprender.', '¡No pasa nada! Los mejores exploradores también se pierden.', '¡Ups! Pero ahora ya lo saben para siempre.'],
+    // las misiones no castigan: dibujar repasa lo aprendido y recupera puntos
+    missions: [
+      'Dibuja un oso de anteojos abrazando un frailejón.',
+      'Dibuja el río de tu barrio: primero sucio y al lado, limpio.',
+      'Inventa un superhéroe que proteja el agua y dibújalo con su capa.',
+      'Dibuja tres cosas que van en la caneca blanca.',
+      'Dibuja un colibrí tomando néctar de una flor gigante.',
+      'Dibuja un páramo con frailejones, niebla y una laguna.',
+      'Inventa un robot que limpie el aire y dibújalo funcionando.',
+      'Dibuja tu casa con paneles solares y un molino de viento.',
+      'Dibuja un jaguar escondido en la selva. ¿Lo podrán encontrar?',
+      'Dibuja la cadena: sol, planta, conejo y puma.',
+      'Dibuja un árbol con raíces gigantes sosteniendo la montaña.',
+      'Dibuja el viaje de una gota de agua desde la nube hasta el mar.',
+      'Diseña un cartel que diga: ¡No botes basura al río!',
+      'Dibuja una abeja llevando polen de una flor a otra.',
+      'Dibuja un cóndor volando sobre tus montañas favoritas.',
+      'Inventa un animal nuevo que viva en tu cuenca y ponle nombre.',
+      'Dibuja tres cosas que puedes hacer en casa para ahorrar agua.',
+      'Dibuja una rana dorada en su charco, con lluvia alrededor.',
+    ],
+    // recreo salvaje: unos segundos de movimiento para que nadie se aburra
+    breaks: [
+      '¡Todos de pie! Muévanse como árboles con el viento durante 15 segundos.',
+      '¡Aúllen como monos aulladores! Empiecen bajito y terminen fuerte.',
+      '¡Vuelen como cóndores! Abran los brazos y den una vuelta completa.',
+      '¡Hagan la lluvia! Froten las manos, chasqueen los dedos y den palmadas.',
+      '¡Caminen como osos de anteojos hasta su puesto!',
+      '¡Salten como ranas tres veces!',
+    ],
+    stickers: [['🐻', 'Oso de anteojos'], ['🦅', 'Cóndor de los Andes'], ['🐆', 'Jaguar'], ['🐒', 'Mono aullador'], ['🐸', 'Rana dorada'], ['🦋', 'Mariposa'], ['🐝', 'Abeja'], ['🌿', 'Frailejón'], ['🦥', 'Perezoso'], ['🐢', 'Tortuga'], ['🦜', 'Guacamaya'], ['🦉', 'Búho'], ['🐟', 'Pez del río'], ['🦌', 'Venado'], ['🦇', 'Murciélago'], ['🌺', 'Orquídea']],
+  };
+})();
+</script>
 <script>/* Cuenca Viva · fauna emblemática de los Andes
    Quiénes son, qué hacen por la cuenca y qué necesitan para vivir. Cada especie aparece en el valle cuando
    los indicadores alcanzan lo que necesita (need) y se va cuando bajan. Funciona también sin 3D. */
@@ -6035,6 +6267,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       else { btns[i].classList.add('is-bad'); btns[i].disabled = true; ctx.miss(i); }
     };
     btns.forEach((b, i) => (b.onclick = () => pick(i)));
+    // dificultad fácil: se tapa una opción incorrecta (solo si hay más de dos)
+    if (ctx.hint && btns.length > 2) { const w = shuffle(btns.filter((_, i) => i !== correct))[0]; w.disabled = true; w.classList.add('is-dim'); }
     return {
       key(k) { const i = LET.indexOf(k.toUpperCase()); if (i >= 0 && i < btns.length) { pick(i); return true; } return false; },
       evaluate() { locked = true; return { success: false, frac: 0 }; },
@@ -6076,14 +6310,14 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const ok = items.filter((x) => x.placed === x.bin).length, n = items.length;
       bins.forEach((b, j) => b.querySelectorAll('.in span').forEach((s) => { const it = items.find((x) => x.i === +s.dataset.i); s.classList.add(it.bin === j ? 'ok' : 'bad'); }));
       check.disabled = true;
-      return { success: ok >= n - 2, frac: ok / n, summary: `${ok} de ${n} residuos en la caneca correcta` };
+      return { success: ok >= n - 2, frac: ok / n, summary: `${ok} de ${n} ${item.noun || 'residuos en la caneca correcta'}` };
     };
     check.onclick = () => { if (!locked) ctx.finish(evaluate()); };
     draw();
     return {
       key(k) {
         if (k === 'Enter' && !check.disabled) { check.click(); return true; }
-        const j = '123'.indexOf(k); if (j >= 0) { place(j); return true; }
+        const j = '123'.indexOf(k); if (j >= 0 && j < item.bins.length) { place(j); return true; }
         return false;
       },
       evaluate, unlock() {}, reveal() {},
@@ -6671,10 +6905,12 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
 
   const S = { phase: 'setup', teams: [], rounds: 15, time: 30, presenter: '', seq: [], round: 0, active: 0, ctl: null, item: null,
     timer: null, tLeft: 0, tTotal: 1, paused: false, stealer: -1, double: false, eventsAt: [], evDone: {}, evPool: [],
-    has3d: false, start: {}, catCount: {}, chap: {}, mode: 'equipos', lives: 3, survived: 0, cfg: null };
+    has3d: false, start: {}, catCount: {}, chap: {}, mode: 'equipos', lives: 3, maxLives: 3, survived: 0, cfg: null,
+    level: D.levels[1], sub: null, okCount: 0, breaks: [], missions: [], recess: [], stickers: [], lastSticker: null };
   const SURV = () => S.mode === 'supervivencia';
   const QUALITY = ['auto', 'alta', 'ligera', 'sin3d'];
-  const hearts = () => '♥'.repeat(Math.max(0, S.lives)) + '♡'.repeat(Math.max(0, 3 - S.lives));
+  const hearts = () => '♥'.repeat(Math.max(0, S.lives)) + '♡'.repeat(Math.max(0, S.maxLives - S.lives));
+  const KIDS = () => !!(S.sub && S.sub.kids);
   const rondas = (n) => `${n} ${n === 1 ? 'ronda' : 'rondas'}`;
   const REVEAL_VIEW = { agua: 'agua', aire: 'aire', residuos: 'residuos', energia: 'energia', bio: 'fauna' };
   const EVENT_VIEW = { 'Vertimiento ilegal': 'curtiembre', 'Incendio forestal': 'bosque', 'Minga de siembra': 'fauna', 'Día sin carro': 'aire', 'Fenómeno de El Niño': 'energia' };
@@ -6822,7 +7058,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     hud.hidden = true; teamsEl.hidden = true; pauseEl.hidden = true; S.paused = false;
     Sc.orbit(false); Sc.lapse(false); KEYS.forEach((k) => Sc.set(k, 1, true)); Sc.shot('paseo', null, true);
     const p = loadPrefs();
-    const cfg = { mode: p.mode || 'equipos', player: p.player || '', n: p.n || 4, rounds: p.rounds || 15, time: p.time || 30, voice: p.voice === 0 ? 0 : 1, voiceName: p.voiceName || '', names: (p.names || []).slice(0, 4), presenter: p.presenter || '', best: p.best || 0,
+    const cfg = { mode: p.mode || 'equipos', player: p.player || '', n: p.n || 4, rounds: p.rounds || 15, time: p.time || 30, voice: p.voice === 0 ? 0 : 1, voiceName: p.voiceName || '', level: p.level === undefined ? 1 : p.level, subject: D.subjects[p.subject] ? p.subject : 'cuenca', names: (p.names || []).slice(0, 4), presenter: p.presenter || '', best: p.best || 0,
       quality: Math.max(0, QUALITY.indexOf(CV.Q ? CV.Q.pref : 'auto')) };
     const seg = (k, opts) => `<div class="seg" data-k="${k}">${opts.map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${cfg[k] === v}">${l}</button>`).join('')}</div>`;
     stage.innerHTML = `<section class="title-screen">
@@ -6834,6 +7070,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         ${CV.donar ? CV.donar.button() + CV.donar.author() : ''}
       </div>
       <form class="card setup" id="setup" autocomplete="off">
+        <fieldset><legend>Asignatura</legend><div class="modes subjects" id="subjects">${Object.keys(D.subjects).map((k) => `<button type="button" data-s="${k}"><b>${esc(D.subjects[k].name)}</b><span>${esc(D.subjects[k].desc)}</span></button>`).join('')}</div></fieldset>
+        <fieldset id="lvlBox"><legend>Dificultad</legend>${seg('level', D.levels.map((l, i) => [i, l.name]))}<p class="voice-hint lvl-hint" id="lvlHint"></p></fieldset>
         <fieldset><legend>Modo de juego</legend><div class="modes" id="modes">
           <button type="button" data-m="equipos"><b>Por equipos</b><span>La historia completa. De 2 a 4 equipos compiten y se roban preguntas.</span></button>
           <button type="button" data-m="individual"><b>Individual</b><span>Una persona vive la historia y gana un rango de ingeniería.</span></button>
@@ -6846,10 +7084,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         <label class="field" id="playerBox" for="player">Nombre del jugador o del grupo<input id="player" maxlength="22" placeholder="Ej.: Valentina, o Grado 11B" value="${esc(cfg.player)}"></label>
         <p class="voice-hint" id="recLine">${cfg.best ? `Récord de supervivencia en este computador: ${rondas(cfg.best)}.` : ''}</p>
         <fieldset id="durBox"><legend>Duración</legend>${seg('rounds', [[10, 'Rápida · 10 capítulos'], [15, 'Completa · 15 capítulos']])}</fieldset>
-        <div class="setup-2">
-          <fieldset id="timeBox"><legend>Tiempo por reto</legend>${seg('time', [[20, '20 s'], [30, '30 s'], [45, '45 s']])}</fieldset>
-          <fieldset><legend>Narración por voz</legend>${seg('voice', [[1, 'Sí'], [0, 'No']])}</fieldset>
-        </div>
+        <fieldset><legend>Narración por voz</legend>${seg('voice', [[1, 'Sí'], [0, 'No']])}</fieldset>
         <label class="field" for="voiceSel" id="voiceBox">Voz de la narradora (las «natural» son las más humanas)
           <span class="voice-row"><select id="voiceSel"></select><button type="button" class="btn ghost" id="voiceTest">Escuchar</button></span></label>
         <p class="voice-hint" id="vHint"></p>
@@ -6860,6 +7095,9 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         <button class="btn ghost fauna-open" type="button" id="faunaOpen"><svg class="ico"><use href="#i-paw"/></svg> Conocer la fauna de la cuenca</button>
         <details><summary>Cómo se juega</summary><ul>
           <li>En el valle viven 23 especies emblemáticas de los Andes: el oso de anteojos, el cóndor, el jaguar, la danta, los monos… Cada una vuelve cuando la cuenca le da lo que necesita y se va cuando se degrada. Con la tecla F ven qué hace cada especie por el ecosistema.</li>
+          <li>Asignaturas: la historia completa de la cuenca, o solo Calidad del aire, solo Climatología, o Exploradores para niños de 8 a 15 años.</li>
+          <li>Dificultad: cambia el tiempo, los puntos, las ayudas y lo que le pasa a la cuenca cuando fallan. En Calidad del aire, Climatología y Exploradores también cambia qué tan difíciles son las preguntas.</li>
+          <li>Exploradores: cada acierto gana una lámina de un animal. Si fallan, reciben una misión de dibujo para el cuaderno que recupera puntos. Cada cuatro preguntas hay un recreo salvaje.</li>
           <li>Cada capítulo empieza con la historia de una persona del valle. Después, un equipo enfrenta un reto: pregunta, mito o realidad, clasificar residuos, ordenar un proceso o calcular.</li>
           <li>Si un equipo falla una pregunta, los demás pueden robarla: el primero que presione su tecla (1 a 4) o toque su ficha responde.</li>
           <li>Responder rápido da puntos extra. Gana el equipo con más puntos.</li>
@@ -6878,11 +7116,22 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       cfg.mode = m;
       $('#modes').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.m === m));
       $('#teamBox').hidden = m !== 'equipos'; $('#playerBox').hidden = m === 'equipos';
-      $('#durBox').hidden = $('#timeBox').hidden = m === 'supervivencia'; $('#recLine').hidden = m !== 'supervivencia';
-      $('#setup button[type=submit]').textContent = m === 'supervivencia' ? 'Empezar a sobrevivir' : 'Comenzar la historia';
+      $('#durBox').hidden = m === 'supervivencia'; $('#recLine').hidden = m !== 'supervivencia';
+      startLabel();
     };
+    const startLabel = () => { $('#setup button[type=submit]').textContent = cfg.mode === 'supervivencia' ? 'Empezar a sobrevivir' : D.subjects[cfg.subject].start || 'Comenzar la historia'; };
+    // la supervivencia usa la película de la cuenca: en las demás asignaturas no aplica
+    const setSubject = (k) => {
+      cfg.subject = k;
+      $('#subjects').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.s === k));
+      $('#modes [data-m="supervivencia"]').hidden = k !== 'cuenca';
+      if (k !== 'cuenca' && cfg.mode === 'supervivencia') setMode('equipos');
+      startLabel();
+    };
+    const lvlHint = () => { $('#lvlHint').textContent = D.levels[cfg.level].desc; };
+    $('#subjects').onclick = (e) => { const b = e.target.closest('button'); if (b) setSubject(b.dataset.s); };
     $('#modes').onclick = (e) => { const b = e.target.closest('button'); if (b) setMode(b.dataset.m); };
-    setMode(cfg.mode);
+    setMode(cfg.mode); setSubject(cfg.subject); lvlHint();
     // lista de voces en español, de la más humana a la más robótica; el profesor elige y la escucha antes de empezar
     const fillVoices = () => {
       const sel = $('#voiceSel'); if (!sel) return;
@@ -6923,6 +7172,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const k = sg.dataset.k; cfg[k] = +b.dataset.v;
       sg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
       if (k === 'n') drawInputs();
+      if (k === 'level') lvlHint();
       if (k === 'quality') {
         // la calidad se aplica al construir el valle: se guarda y se recarga la página
         const pref = QUALITY[cfg.quality];
@@ -6959,21 +7209,162 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     return seq;
   }
 
+  // preguntas de una asignatura: primero las del nivel elegido y, si faltan, las de los niveles más cercanos
+  function subjectSeq(sub, lv, n) {
+    const out = [];
+    for (let d = 0; d < 4 && out.length < n; d++) out.push(...U.shuffle(sub.qs.filter((q) => Math.abs(q.lv - lv) === d)));
+    return U.shuffle(out.slice(0, n));
+  }
+
   function start(cfg) {
     AU.init(); AU.voice = !!cfg.voice; AU.narratorVoice = cfg.voiceName || ''; AU.theme(false);
     // iPhone y algunos Android solo permiten la voz si la primera frase nace de un toque: se "despierta" aquí
     // (iPhone descarta una frase vacía, así que se dice una palabra en silencio)
     try { if (cfg.voice && 'speechSynthesis' in window) { const u = new SpeechSynthesisUtterance('Hola'); u.lang = 'es-ES'; u.volume = 0; window.speechSynthesis.speak(u); } } catch (e) {}
     S.cfg = cfg; S.mode = cfg.mode || 'equipos';
+    S.level = D.levels[cfg.level === undefined ? 1 : cfg.level]; S.sub = cfg.subject && cfg.subject !== 'cuenca' ? D.subjects[cfg.subject] : null;
     S.teams = S.mode === 'equipos'
       ? Array.from({ length: cfg.n }, (_, i) => ({ name: cfg.names[i] || D.teams[i].name, color: D.teams[i].color, score: 0 }))
       : [{ name: cfg.player || 'Jugador', color: '#ffc25a', score: 0 }];
-    Object.assign(S, { rounds: SURV() ? 999 : cfg.rounds, time: SURV() ? 25 : cfg.time, presenter: cfg.presenter, round: 0, active: 0, double: false,
-      evDone: {}, catCount: {}, chap: {}, lives: 3, survived: 0 });
-    S.seq = buildSeq(SURV() ? 60 : S.rounds);
-    S.eventsAt = SURV() ? [] : S.rounds >= 15 ? [5, 10] : [5];
+    S.teams.forEach((t) => { t.drawings = 0; t.album = []; });
+    Object.assign(S, { rounds: SURV() ? 999 : cfg.rounds, time: S.level.time * (KIDS() ? 1.3 : 1), presenter: cfg.presenter, round: 0, active: 0, double: false,
+      evDone: {}, catCount: {}, chap: {}, lives: S.level.lives, maxLives: S.level.lives, survived: 0, okCount: 0 });
+    S.seq = S.sub ? subjectSeq(S.sub, D.levels.indexOf(S.level) + 1, S.rounds) : buildSeq(SURV() ? 60 : S.rounds);
+    S.eventsAt = SURV() || S.sub ? [] : S.rounds >= 15 ? [5, 10] : [5];
     S.evPool = U.shuffle(D.events);
-    if (SURV()) survivalIntro(); else prologue();
+    S.breaks = KIDS() ? [4, 8, 12] : [];
+    if (KIDS()) { S.missions = U.shuffle(D.kids.missions); S.recess = U.shuffle(D.kids.breaks); S.stickers = U.shuffle(D.kids.stickers); }
+    if (SURV()) survivalIntro(); else if (S.sub) subIntro(); else prologue();
+  }
+
+  // ---------- asignaturas: clase corta, sin la película de los cinco personajes ----------
+  const guide = () => (KIDS() ? D.kids.guide : ST.narrator);
+  const pick = (a) => a[(Math.random() * a.length) | 0];
+  const subView = () => S.sub.views[S.round % S.sub.views.length];
+
+  async function subIntro() {
+    const g = CN.scene(); setPhase('prologue'); stage.innerHTML = '';
+    hud.hidden = true; teamsEl.hidden = true;
+    KEYS.forEach((k) => Sc.set(k, 0.25)); S.start = Object.assign({}, vals);
+    CN.on(); CN.chips(`<span style="color:${D.cats[S.sub.cat].color}">${esc(S.sub.name)}</span><span>${esc(S.level.name)}</span>`); UI.ticker(vals); skipBtn('Empezar ya');
+    if (!(await CN.cut(S.sub.views[0], null, g))) return;
+    if (!(await CN.chapter(S.sub.kicker, S.sub.title, g))) return;
+    if (!(await CN.say(guide(), S.sub.intro, g))) return;
+    hud.hidden = false; teamsEl.hidden = false;
+    buildGauges(); renderTeams(); refresh(true);
+    nextRound();
+  }
+
+  async function subBrief() {
+    const g = CN.scene(); setPhase('brief'); stage.innerHTML = '';
+    const it = S.item, t = S.teams[S.active], cat = D.cats[it.cat];
+    CN.on();
+    CN.chips(`<span>Pregunta ${S.round} de ${S.rounds}</span><span style="color:${cat.color}">${ICON(it.cat)} ${esc(S.sub.name)}</span><span>${esc(S.level.name)}</span>`);
+    skipBtn('Saltar escena');
+    if (!(await CN.cut(subView(), null, g))) return;
+    CN.hold(guide(), S.mode === 'individual' ? `${t.name}, es tu turno. Reto: ${D.types[it.type]}.` : `Turno de ${t.name}. Reto: ${D.types[it.type]}.`, g, true);
+    CN.actions(`<button class="btn" id="go" style="background:${t.color}">${KIDS() ? '¡Vamos!' : '¡Aceptamos el reto!'} <kbd>Enter</kbd></button>`);
+    $('#go').onclick = showChallenge;
+  }
+
+  async function subReveal(res, who, pts, before, after) {
+    const g = CN.scene(); setPhase('reveal'); stage.innerHTML = '';
+    const it = S.item, cat = D.cats[it.cat], t = S.teams[who], kids = KIDS(), sk = S.lastSticker;
+    // la misión es para el equipo que falló, aunque otro le haya robado la pregunta
+    const owes = kids && (!res.success || who !== S.active);
+    CN.on(); updateGauges(); refresh(true);
+    const head = res.success ? ['res-ok', '¡Correcto!'] : res.frac > 0 ? ['res-mid', 'Casi'] : ['res-bad', 'Esta vez no'];
+    CN.chips(`<span class="${head[0]}">${head[1]}</span><span>${pts > 0 ? `+${pts} · ${esc(t.name)}` : `Sin puntos · ${esc(t.name)}`}</span><span style="color:${cat.color}">Vida de la cuenca ${pct(before)} → ${pct(after)}</span>${sk ? `<span>${sk[0]} ${esc(sk[1])}</span>` : ''}`);
+    skipBtn('Saltar escena');
+    if (!(await CN.cut(subView(), null, g))) return;
+    const lines = [];
+    if (kids) lines.push(res.success ? pick(D.kids.cheers) : pick(D.kids.oops));
+    if (sk) lines.push(`${t.name} gana la lámina: ${sk[1]}.`);
+    if (!res.success || it.type === 'estimate') lines.push(answerLine(it, res));
+    lines.push((kids ? '¿Sabían que…? ' : 'Dato: ') + it.dato);
+    for (const l of lines) if (!(await CN.say(guide(), l, g))) return;
+    if (!(await faunaMoment(S.fx, g, true))) return;
+    if (owes) {
+      CN.actions(`<button class="btn" id="next">✏️ ¡A la misión! <kbd>Enter</kbd></button>`);
+      $('#next').onclick = () => notebookMission(S.active);
+      return;
+    }
+    const last = S.round >= S.rounds;
+    CN.actions(`<button class="btn" id="next">${last ? 'Ver resultados' : 'Siguiente pregunta'} <kbd>Enter</kbd></button>`);
+    $('#next').onclick = nextRound;
+  }
+
+  // misión de cuaderno: el equipo dibuja de verdad y recupera puntos; el profesor o la profesora confirma con el botón
+  function notebookMission(i) {
+    CN.scene(); CN.off(); setPhase('mission');
+    const t = S.teams[i], task = S.missions.shift() || pick(D.kids.missions);
+    Sc.orbit(true); renderTeams(i); SFX.buzz();
+    stage.innerHTML = `<div class="card notebook">
+      <p class="nb-big" aria-hidden="true">✏️</p>
+      <h2 id="nbTitle">¡Misión de cuaderno!</h2>
+      <p class="nb-team">${esc(t.name)}: saquen el cuaderno y los colores</p>
+      <p class="nb-task">${esc(task)}</p>
+      <div class="timer" id="timer"><div class="timer-bar"><i id="tBar"></i></div><b id="tNum"></b></div>
+      <div class="actions"><button class="btn ghost" id="noDraw">Saltar</button><button class="btn" id="next">¡Ya lo dibujamos! +30 <kbd>Enter</kbd></button></div>
+    </div>`;
+    AU.speak(`Misión de cuaderno. ${task}`, D.kids.guide);
+    S.tTotal = S.tLeft = S.level.draw;
+    startTimer(() => { const h = $('#nbTitle'); if (h) h.textContent = '¡Se acabó el tiempo! Muestren su dibujo'; SFX.alarm(); });
+    const done = (drew) => {
+      stopTimer(); AU.hush();
+      if (drew) { t.score += 30; t.drawings++; KEYS.forEach((k) => Sc.add(k, 0.02)); SFX.rise(); }
+      nextRound();
+    };
+    $('#next').onclick = () => done(true);
+    $('#noDraw').onclick = () => done(false);
+  }
+
+  // recreo salvaje: un momento de movimiento en el salón
+  function wildBreak() {
+    CN.scene(); CN.off(); setPhase('mission'); SFX.fanfare();
+    const task = S.recess.shift() || pick(D.kids.breaks);
+    Sc.orbit(true);
+    stage.innerHTML = `<div class="card break-card">
+      <p class="nb-big" aria-hidden="true">🐒</p>
+      <h2>¡Recreo salvaje!</h2>
+      <p>${esc(task)}</p>
+      <div class="timer" id="timer"><div class="timer-bar"><i id="tBar"></i></div><b id="tNum"></b></div>
+      <div class="actions"><button class="btn" id="next">¡Seguir explorando! <kbd>Enter</kbd></button></div>
+    </div>`;
+    AU.speak(`Recreo salvaje. ${task}`, D.kids.guide);
+    S.tTotal = S.tLeft = 20; startTimer(() => {});
+    $('#next').onclick = () => { AU.hush(); nextRound(); };
+  }
+
+  async function subFinish() {
+    const g = CN.scene(); setPhase('epilogue'); stage.innerHTML = '';
+    teamsEl.hidden = true; SFX.fanfare(); refresh(true);
+    const n = S.okCount;
+    CN.on(); CN.chips(`<span>${esc(S.sub.name)}</span><span>${n} de ${S.rounds} aciertos</span>`); skipBtn('Ver resultados');
+    if (!(await CN.cut('home', 'revelar', g))) return;
+    if (!(await CN.say(guide(), KIDS() ? `¡Terminó la aventura! Acertaron ${n} de ${S.rounds}. Ahora, ¡a mostrar los dibujos! El páramo está orgulloso de ustedes.` : `Terminó la clase de ${S.sub.name}. Acertaron ${n} de ${S.rounds} preguntas en dificultad ${S.level.name}.`, g))) return;
+    finalSubject();
+  }
+
+  function finalSubject() {
+    CN.scene(); CN.off(); setPhase('final'); hud.hidden = false; Sc.orbit(true);
+    const n = S.okCount, ratio = n / Math.max(1, S.rounds), rank = S.teams.slice().sort((a, b) => b.score - a.score), kids = KIDS();
+    const album = rank.map((t) => t.album.map((x) => `<li><em>${x[0]}</em>${esc(x[1])}</li>`).join('')).join('');
+    const draws = S.teams.reduce((a, t) => a + t.drawings, 0);
+    stage.innerHTML = `<div class="card final-card">
+      <p class="eyebrow">${esc(S.sub.name)} · ${esc(S.level.name)}</p>
+      <h2 class="final-pct"><span>${n}/${S.rounds}</span>${ratio >= 0.7 ? '¡Excelente resultado!' : ratio >= 0.4 ? 'Buen trabajo: sigan practicando.' : 'Hay mucho por repasar. ¡Inténtenlo de nuevo!'}</h2>
+      <p class="eyebrow">${S.mode === 'individual' ? 'Puntaje' : 'Puntaje por equipos'}</p>
+      <ol class="podium">${rank.map((t, k) => `<li style="--team:${t.color}"><em>${k + 1}.</em><i></i><span>${esc(t.name)}</span><b>${t.score}</b></li>`).join('')}</ol>
+      ${kids ? `<p class="eyebrow">Álbum de láminas</p>${album ? `<ul class="album">${album}</ul>` : '<p>Aún no ganaron láminas. ¡La próxima aventura será suya!</p>'}
+      <div class="diploma"><b>¡Exploradores de la Cuenca!</b>${esc(rank.map((t) => t.name).join(', '))}: ya saben cuidar el agua, el aire y la fauna.${draws ? ` Hicieron ${draws === 1 ? 'un dibujo' : draws + ' dibujos'} en sus cuadernos: ¡muéstrenlos al salón!` : ''}</div>` : ''}
+      ${S.presenter ? `<p class="presenter">Presentado por ${esc(S.presenter)}</p>` : ''}
+      ${CV.donar ? CV.donar.button('donate-final') + CV.donar.author('author-final') : ''}
+      <div class="actions"><button class="btn ghost" id="view">Ver el valle <kbd>H</kbd></button><button class="btn ghost" id="again">Volver al inicio</button><button class="btn" id="retry">Jugar otra vez</button></div>
+    </div>`;
+    $('#again').onclick = renderSetup;
+    $('#retry').onclick = () => start(S.cfg);
+    $('#view').onclick = () => toggleBare(true);
   }
 
   // ---------- supervivencia: arranque corto y dramático ----------
@@ -7019,14 +7410,16 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     CN.scene(); clearLater(); stopTimer();
     if (S.round >= S.rounds) return finish();
     if (S.eventsAt.includes(S.round) && !S.evDone[S.round]) { S.evDone[S.round] = true; return showEvent(); }
+    if (S.breaks.includes(S.round) && !S.evDone[S.round]) { S.evDone[S.round] = true; return wildBreak(); }
     S.item = S.seq[S.round % S.seq.length]; S.round++;
     S.active = (S.round - 1) % S.teams.length; S.stealer = -1;
-    if (SURV()) S.time = Math.max(12, 26 - Math.floor(S.round / 2));
+    if (SURV()) S.time = Math.max(6, Math.round(Math.max(12, 26 - Math.floor(S.round / 2)) * S.level.time / 30));
     $('#hudRound').textContent = SURV() ? `Ronda ${S.round} · ${hearts()}` : `Ronda ${pad(S.round)}/${S.rounds}`;
     renderTeams(); showBrief();
   }
 
   async function showBrief() {
+    if (S.sub) return subBrief();
     const g = CN.scene(); setPhase('brief'); stage.innerHTML = '';
     const it = S.item, cat = D.cats[it.cat], t = S.teams[S.active], per = ST.people[it.cat];
     CN.on();
@@ -7066,7 +7459,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     </div>`;
     const mult = it.type === 'sort' || it.type === 'order' ? 1.6 : it.type === 'estimate' ? 1.2 : 1;
     S.tTotal = S.tLeft = Math.round(S.time * mult);
-    S.ctl = CV.ch[it.type]($('#chBody'), it, { finish: onFinish, miss: onMiss });
+    S.ctl = CV.ch[it.type]($('#chBody'), it, { finish: onFinish, miss: onMiss, hint: S.level.hint });
     startTimer(onTimeout);
   }
 
@@ -7098,16 +7491,18 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (it.type === 'quiz' || it.type === 'tf') { if (res.success) pts = stolen ? 70 : 100 + Math.round((50 * S.tLeft) / S.tTotal); }
     else pts = Math.round(res.frac * 150) + (res.success ? Math.round((30 * S.tLeft) / S.tTotal) : 0);
     if (S.double) pts *= 2;
+    pts = Math.round(pts * S.level.pts);
     resolve(res, who, pts);
   }
+  const canSteal = () => S.item.type === 'quiz' && S.teams.length > 1 && !S.level.noSteal;
   function onMiss() {
     stopTimer(); SFX.bad();
-    if (S.item.type === 'quiz' && S.phase === 'answer' && S.teams.length > 1) return startSteal();
+    if (canSteal() && S.phase === 'answer') return startSteal();
     resolve({ success: false, frac: 0 }, S.phase === 'stealAnswer' ? S.stealer : S.active, 0);
   }
   function onTimeout() {
     if (S.phase === 'answer') {
-      if (S.item.type === 'quiz' && S.teams.length > 1) { SFX.bad(); return startSteal(); }
+      if (canSteal()) { SFX.bad(); return startSteal(); }
       return onFinish(S.ctl.evaluate());
     }
     if (S.phase === 'steal') return resolve({ success: false, frac: 0 }, S.active, 0);
@@ -7136,10 +7531,17 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     const it = S.item;
     S.ctl.reveal();
     if (pts > 0) S.teams[who].score += pts;
-    const step = SURV() ? 0.2 : 0.94 / (S.rounds / 5);
+    const step = (SURV() ? 0.2 : 0.94 / (S.rounds / 5)) * S.level.gain;
     KEYS.forEach((k) => Sc.set(k, vals[k]));
-    const before = vals[it.cat], pre = faunaNow();
-    const after = Sc.add(it.cat, res.success ? step : res.frac > 0 ? step * res.frac * 0.6 : SURV() ? -0.1 : 0.04);
+    const before = S.sub ? health() : vals[it.cat], pre = faunaNow();
+    let after;
+    if (S.sub) {
+      // en una asignatura todo el valle mejora junto; con los niños, fallar nunca daña la cuenca (la consecuencia es dibujar)
+      const up = (0.75 / S.rounds) * S.level.gain, d = res.success ? up : res.frac > 0 ? up * res.frac * 0.6 : KIDS() ? 0 : Math.min(0, S.level.fail);
+      KEYS.forEach((k) => Sc.add(k, d)); after = health();
+      S.lastSticker = null;
+      if (res.success) { S.okCount++; if (KIDS()) { S.lastSticker = S.stickers.shift() || pick(D.kids.stickers); S.teams[who].album.push(S.lastSticker); } }
+    } else after = Sc.add(it.cat, res.success ? step : res.frac > 0 ? step * res.frac * 0.6 : SURV() ? -0.1 : S.level.fail);
     S.fx = faunaDelta(pre);
     S.double = false;
     if (SURV()) { if (res.success) S.survived++; else { S.lives--; SFX.alarm(); } }
@@ -7155,6 +7557,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   }
 
   async function showReveal(res, who, pts, before, after) {
+    if (S.sub) return subReveal(res, who, pts, before, after);
     const g = CN.scene(); setPhase('reveal'); stage.innerHTML = '';
     const it = S.item, cat = D.cats[it.cat], t = S.teams[who], ch = S.chap[it.cat] || ST.people[it.cat].chapters[0];
     CN.on(); updateGauges(it.cat); refresh(true);
@@ -7219,6 +7622,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
 
   // ---------- epílogo y resultados ----------
   async function finish() {
+    if (S.sub) return subFinish();
     const g = CN.scene(); setPhase('epilogue'); stage.innerHTML = '';
     teamsEl.hidden = true; SFX.fanfare(); refresh(true);
     const h = health(), ok = h >= ST.goal;
@@ -7293,7 +7697,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   }
 
   function rankTitle(score) {
-    const r = score / (S.rounds * 140);
+    const r = score / (S.rounds * 140 * S.level.pts);
     return r >= 0.85 ? 'Guardián o guardiana de la cuenca' : r >= 0.65 ? 'Ingeniero o ingeniera ambiental' : r >= 0.4 ? 'Ingeniero o ingeniera en formación' : 'Aprendiz del río';
   }
 
@@ -7336,7 +7740,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
 
   // ---------- teclado y controles ----------
   function togglePause() {
-    if (!['answer', 'steal', 'stealAnswer'].includes(S.phase)) return;
+    if (!['answer', 'steal', 'stealAnswer', 'mission'].includes(S.phase)) return;
     S.paused = !S.paused; pauseEl.hidden = !S.paused;
     const tm = $('#timer'); if (tm) tm.classList.toggle('paused', S.paused);
   }
@@ -7354,6 +7758,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (cine && (k === 's' || k === 'S')) return CN.skip();
     if (S.phase === 'steal' && /^[1-4]$/.test(k)) return buzz(+k - 1);
     if ((S.phase === 'answer' || S.phase === 'stealAnswer') && S.ctl && S.ctl.key(k)) { e.preventDefault(); return; }
+    if (k === 'Enter' && S.phase === 'mission') { e.preventDefault(); const b = $('#next'); if (b) b.click(); return; }
     if (k === 'Enter' && cine) {
       e.preventDefault();
       if (CN.busy) CN.next(); else { const b = $('#go') || $('#next'); if (b) b.click(); }
