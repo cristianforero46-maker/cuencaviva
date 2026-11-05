@@ -6272,6 +6272,63 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     Q(4, 'En Köppen, ¿qué significa Csa?', ['Templado con verano seco y cálido: mediterráneo', 'Tropical lluvioso', 'Polar de tundra', 'Continental con invierno seco'], 0, 'C: templado; s: verano seco; a: mes más cálido de 22 °C o más.'),
   ];
 
+  // ---------- transición energética (según la clase del profesor, 2026) ----------
+  // Los cálculos usan cifras propias: no repiten el biodigestor de Sotaquirá, el quiz de SPI ni las tareas.
+  const energia = [
+    Q(1, '¿Qué es la energía?', ['La capacidad de un sistema para realizar trabajo o producir cambios', 'Solo la electricidad de los cables', 'Un combustible líquido', 'La velocidad de un objeto'], 0, 'Se presenta como energía cinética, potencial, térmica, química, eléctrica y nuclear.'),
+    Q(1, '¿Cuál es la unidad de energía del Sistema Internacional?', ['El joule', 'El voltio', 'El metro', 'El amperio'], 0, 'También se usan el kilovatio-hora y la caloría.'),
+    TF(1, 'La energía se puede destruir por completo.', false, 'Primer principio de la termodinámica: no se crea ni se destruye, solo se transforma.'),
+    Q(1, '¿Cuál fue la principal fuente de energía de la humanidad hasta cerca de 1800?', ['La biomasa', 'El petróleo', 'El gas natural', 'La energía solar fotovoltaica'], 0, 'La madera y los residuos orgánicos dominaron durante milenios.'),
+    Q(1, '¿Qué fuente impulsó la Revolución Industrial?', ['El carbón', 'El viento', 'La energía nuclear', 'El gas natural'], 0, 'Alimentó máquinas de vapor, fábricas y ferrocarriles.'),
+    Q(1, '¿Cuál de estas fuentes es renovable?', ['Solar', 'Carbón', 'Petróleo', 'Gas natural'], 0, 'También lo son la eólica, la hidráulica, la geotérmica y la biomasa.'),
+    Q(1, '¿Qué convierte un panel solar en electricidad?', ['La luz del sol', 'El viento', 'El agua', 'El calor del subsuelo'], 0, 'Los fotones impactan células de silicio y liberan electrones.'),
+    Q(1, '¿Cuánto del consumo energético mundial cubren aproximadamente los fósiles?', ['Cerca del 80 %', 'Cerca del 10 %', 'Cerca del 30 %', 'Cerca del 50 %'], 0, 'Petróleo, carbón y gas siguen dominando la matriz mundial.'),
+    Q(1, '¿Para qué sirve el almacenamiento de energía?', ['Para guardarla y usarla cuando más se necesita', 'Para generar carbón', 'Para aumentar las emisiones', 'Para apagar la red'], 0, 'Combinado con solar, eólica e hidráulica reduce la dependencia de fósiles.'),
+    TF(1, 'Cuando enciendes una luz, alguna central debe estar generando esa electricidad en ese momento.', true, 'La demanda se compensa en tiempo real: turbinas, líneas y operadores trabajan coordinados.'),
+    Q(1, '¿Qué mueve una turbina eólica?', ['El aire en movimiento', 'El vapor de carbón', 'La luz del sol', 'El uranio'], 0, 'El viento lleva energía cinética, y la turbina la aprovecha.'),
+    TF(1, 'La transición energética solo depende de la tecnología.', false, 'También es un problema de sistemas: territorio, agua, alimentos, economía y sociedad.'),
+
+    SORT(2, 'Clasifica cada forma de energía.', [{ id: '', name: 'Primaria', desc: 'Está en la naturaleza sin transformar' }, { id: 'verde', name: 'Secundaria', desc: 'Se obtiene transformando otra' }],
+      [['Petróleo crudo', 0], ['Carbón', 0], ['Viento', 0], ['Electricidad', 1], ['Gasolina', 1], ['Hidrógeno', 1]], 'formas de energía en el grupo correcto', 'La secundaria es más versátil y fácil de transportar para el consumo final.'),
+    O(2, 'Ordena las transiciones energéticas históricas según su fuente dominante.', ['Biomasa: hasta 1800', 'Carbón: 1800 a 1900', 'Petróleo: 1900 a 1970', 'Gas natural: 1970 a 2000', 'Renovables: de 2000 a hoy'], 'Cada salto civilizatorio llegó con una nueva forma de capturar y transformar energía.'),
+    Q(2, '¿Qué diferencia a la matriz energética de la eléctrica?', ['La energética incluye todas las fuentes y sectores; la eléctrica, solo la generación de electricidad', 'Son exactamente lo mismo', 'La eléctrica incluye el transporte a gasolina', 'La energética solo mide paneles solares'], 0, 'La electricidad es cerca del 20 % del consumo final global.'),
+    Q(2, 'En la matriz energética mundial, ¿cuál es la fuente más grande?', ['Petróleo', 'Solar', 'Nuclear', 'Eólica'], 0, 'Petróleo 31 %, carbón 27 % y gas 23 %.'),
+    Q(2, '¿Qué hace un inversor en un sistema fotovoltaico?', ['Transforma corriente continua en alterna', 'Almacena la energía', 'Mueve el panel hacia el sol', 'Enfría las celdas'], 0, 'El panel produce DC, y hogares e industrias usan AC.'),
+    Q(2, '¿Qué sistema no necesita baterías e inyecta el excedente a la red?', ['Conectado a red (on-grid)', 'Autónomo (off-grid)', 'Sistema aislado', 'Generador de diésel'], 0, 'El autónomo usa baterías en zonas aisladas; el híbrido combina red, baterías y renovables.'),
+    Q(2, '¿Qué le pasa a la eficiencia de un panel cuando sube su temperatura?', ['Disminuye', 'Aumenta', 'No cambia', 'Se duplica'], 0, 'Las celdas rinden mejor en días fríos y soleados.'),
+    TF(2, 'Una pequeña sombra puede reducir drásticamente la producción de todo un panel.', true, 'Por eso importan la ubicación, la orientación y la inclinación.'),
+    Q(2, '¿Qué rango de eficiencia típica tiene un panel monocristalino?', ['18–22 %', '2–5 %', '40–50 %', '90–95 %'], 0, 'El policristalino da 15–17 %, la capa fina 10–13 % y el bifacial 20–24 %.'),
+    Q(2, '¿Qué es el CAPEX de un proyecto?', ['La inversión inicial que se paga una sola vez', 'El gasto de cada año', 'La ganancia final', 'Un impuesto a la energía'], 0, 'Incluye equipos, instalación, conexión y trámites.'),
+    Q(2, '¿Qué es el OPEX de un proyecto?', ['Los costos que se repiten mientras funciona', 'La compra de paneles', 'El préstamo inicial', 'El valor de la tierra'], 0, 'Puede ser fijo, como el seguro, o variable, como el combustible.'),
+    Q(2, '¿Qué es la Energiewende?', ['La política alemana de transición hacia fuentes renovables', 'Un panel solar flotante', 'Un gasoducto ruso', 'Una unidad de energía'], 0, 'Ha crecido en eólica y solar, con retos de costos y de red.'),
+
+    Q(3, '¿Qué representan las Horas Sol Pico (HSP)?', ['Las horas equivalentes de sol a 1000 W/m²', 'Las horas de luz del día', 'Las horas de trabajo del inversor', 'Las horas sin nubes al año'], 0, 'En Colombia suelen estar entre 3,5 y 5,5.'),
+    Q(3, '¿Qué estructura de costos tienen solar y eólica frente a gas o carbón?', ['CAPEX alto y OPEX bajo', 'CAPEX bajo y OPEX alto', 'Ambos muy altos', 'Sin ningún costo'], 0, 'El sol y el viento no se compran, pero la inversión inicial pesa mucho.'),
+    Q(3, '¿Por qué tasas de interés altas frenan la transición energética?', ['Porque las renovables necesitan mucho dinero al inicio', 'Porque suben el precio del sol', 'Porque reducen el viento', 'Porque eliminan el OPEX'], 0, 'En el caso de la clase, el VAN pasa de +32,1 M al 10 % a −3,1 M al 15 %.'),
+    Q(3, '¿Qué significa un VAN positivo?', ['El proyecto recupera la inversión, paga la tasa exigida y deja excedente', 'El proyecto pierde dinero', 'El proyecto rinde menos que la tasa exigida', 'El proyecto no tiene riesgo'], 0, 'Con VAN cero empata; con VAN negativo no rinde lo exigido.'),
+    Q(3, '¿Qué es la TIR?', ['La tasa de descuento con la que el VAN vale cero', 'La ganancia total del proyecto', 'El costo anual', 'La inflación del país'], 0, 'No se despeja: se encuentra por tanteo o con Excel.'),
+    Q(3, 'Si sube la tasa de descuento, ¿qué pasa con el valor presente de un flujo futuro?', ['Baja', 'Sube', 'No cambia', 'Se vuelve cero siempre'], 0, 'Cuanto más vale esperar, menos valen hoy los pesos futuros.'),
+    Q(3, '¿Qué agrega el SPEI que no tiene el SPI?', ['La demanda evaporativa: P − ETP', 'La velocidad del viento en altura', 'El precio del agua', 'La radiación ultravioleta'], 0, 'Por eso capta sequías agravadas por el calor, aunque la lluvia no cambie.'),
+    O(3, 'Ordena cómo se propaga una sequía.', ['Meteorológica: falta precipitación', 'Agrícola: cae la humedad del suelo', 'Hidrológica: bajan ríos y embalses', 'Socioeconómica: se afectan servicios y bienestar'], 'Las sequías pueden propagarse en cascada, y golpean también a las hidroeléctricas.'),
+    Q(3, '¿Qué diferencia un stock de un flujo?', ['El stock se acumula; el flujo entra o sale por unidad de tiempo', 'Son lo mismo', 'El flujo nunca cambia', 'El stock solo existe en economía'], 0, 'Son la base del pensamiento sistémico.'),
+    Q(3, '¿Qué provocó el colapso del Mar de Aral?', ['Desviar sus ríos para regar algodón', 'Un terremoto', 'Exceso de lluvia', 'Un derrame nuclear'], 0, 'En 60 años perdió cerca del 90 % de su volumen.'),
+    Q(3, '¿Qué países forman el Triángulo del Litio?', ['Argentina, Bolivia y Chile', 'Colombia, Perú y Ecuador', 'Brasil, Paraguay y Uruguay', 'México, Cuba y Panamá'], 0, 'La transición crea tensiones entre soberanía, demanda y justicia territorial.'),
+    Q(3, '¿Cuál es la paradoja energética de la clase?', ['Las renovables crecen, pero las emisiones de CO₂ siguen aumentando', 'Los paneles consumen más de lo que producen', 'El carbón ya desapareció', 'La demanda de energía está cayendo'], 0, 'Agregar capacidad no basta: hay que desplazar las fuentes contaminantes.'),
+
+    QC(4, 'Una casa usa 5 LED de 10 W por 4 h y un TV de 100 W por 3 h. ¿Cuál es su consumo diario?', ['500 Wh/día', '140 Wh/día', '50 Wh/día', '1.400 Wh/día'], 0, 'E = Σ(P × t) = 5 × 10 × 4 + 100 × 3 = 500 Wh/día.'),
+    QC(4, 'E = 3.000 Wh/día, HSP = 5 y R = 0,75. ¿Qué potencia de paneles necesitas?', ['800 Wp', '600 Wp', '11.250 Wp', '450 Wp'], 0, 'P = E / (HSP × R) = 3.000 / 3,75 = 800 Wp.'),
+    QC(4, 'Necesitas 800 Wp y cada panel es de 450 Wp. ¿Cuántos instalas?', ['2 paneles', '1 panel', '3 paneles', '4 paneles'], 0, '800 / 450 = 1,78, y siempre se redondea hacia arriba.'),
+    QC(4, 'Un sistema se diseña con HSP = 5, pero en el peor mes llega a 4. ¿Qué déficit tiene?', ['20 %', '10 %', '25 %', '80 %'], 0, '(5 − 4) / 5 = 20 %.'),
+    QC(4, '20 M invertidos al 5 % anual durante 2 años se convierten en...', ['22,05 M', '21 M', '22 M', '24 M'], 0, 'VF = 20 × 1,05² = 22,05 M.'),
+    QC(4, 'Ahorro de 30 M al año y OPEX de 5 M al año. ¿Cuál es el flujo neto?', ['25 M/año', '35 M/año', '150 M/año', '6 M/año'], 0, 'Flujo neto = ingresos o ahorros − egresos.'),
+    QC(4, 'CAPEX de 90 M y flujo neto de 15 M/año. ¿Cuál es la recuperación simple?', ['6 años', '15 años', '9 años', '1,7 años'], 0, '90 / 15 = 6 años, sin considerar el valor del dinero.'),
+    QC(4, 'CAPEX 100 M, flujo 25 M/año por 5 años, i = 10 % (factor 3,791). ¿Qué decides?', ['VAN ≈ −5,2 M: rechazar', 'VAN ≈ +25 M: invertir', 'VAN ≈ +94,8 M: invertir', 'VAN = 0: indiferente'], 0, 'VAN = −100 + 25 × 3,791 = −5,2 M: no rinde lo exigido.'),
+    QC(4, 'Un proyecto da VAN positivo al 10 % y negativo al 12 %. ¿Dónde está su TIR?', ['Entre 10 % y 12 %', 'Por debajo de 10 %', 'Por encima de 12 %', 'Exactamente en 22 %'], 0, 'La curva del VAN cruza el cero entre esas dos tasas.'),
+    QC(4, 'Precipitación acumulada 80 mm, media 120 mm y σ = 20 mm. Con la aproximación de clase, ¿cuál es el SPI?', ['−2,0: extremadamente seco', '+2,0: extremadamente húmedo', '−0,5: normal', '−1,0: moderadamente seco'], 0, '(80 − 120) / 20 = −2,0.'),
+    QC(4, 'P = 60 mm y ETP = 95 mm. ¿Cuál es el balance D del SPEI?', ['−35 mm: déficit', '+35 mm: excedente', '155 mm: excedente', '0,63 mm: normal'], 0, 'D = P − ETP = 60 − 95 = −35 mm.'),
+    QC(4, 'NIR = 0,5 y rojo = 0,1. ¿Cuánto vale el NDVI?', ['Cerca de 0,67: vegetación densa', 'Cerca de 0,4: suelo desnudo', '5: valor máximo', 'Cerca de −0,67: agua'], 0, 'NDVI = (NIR − R) / (NIR + R) = 0,4 / 0,6 ≈ 0,67.'),
+  ];
+
   // ---------- niños de 8 a 15 años ----------
   const explora = [
     Q(1, '🌿 ¿Qué planta del páramo guarda agua como una esponja?', ['El frailejón', 'El cactus de escritorio', 'La palma de coco', 'La rosa'], 0, 'Sus hojas peludas atrapan la humedad de la niebla. ¡Por eso cuidarlo es cuidar el agua!'),
@@ -6323,6 +6380,9 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     clima: { name: 'Climatología', desc: 'Según la clase: balance de energía, albedo, ENSO, Köppen, Caldas-Lang, nubes y termodinámica.', cat: 'clima', start: 'Empezar la clase',
       views: ['energia', 'bio', 'home', 'agua', 'rio'], kicker: 'Asignatura', title: 'Climatología',
       intro: 'Del cielo depende el agua de la cuenca. Vamos a leer las nubes, las lluvias y el clima de los Andes.', qs: clima },
+    energia: { name: 'Transición energética', desc: 'Según la clase: fuentes, matriz, solar fotovoltaica, CAPEX, VAN, TIR, SPEI, sistemas y minerales críticos.', cat: 'energia', start: 'Empezar la clase',
+      views: ['energia', 'ladrillera', 'agua', 'via', 'home'], kicker: 'Asignatura', title: 'Transición energética',
+      intro: 'Toda civilización ha cambiado cuando cambió su energía. Hoy nos toca a nosotros: cada acierto acerca este valle a un sistema limpio, justo y posible.', qs: energia },
     explora: { name: 'Exploradores · 8 a 15 años', desc: 'Aventura para niños: láminas de animales, recreos y misiones para dibujar en el cuaderno.', cat: 'explora', kids: true, start: '¡A explorar!',
       views: ['sp:oso:amplio', 'sp:colibri:retrato', 'fauna', 'sp:condor:amplio', 'rio', 'sp:aullador:amplio', 'bosque'], kicker: 'Exploradores de la cuenca', title: '¡Empieza la aventura!',
       intro: '¡Hola! Soy Frailín, el frailejón más curioso del páramo. ¡Saquen su cuaderno y sus colores! Si aciertan, ganan una lámina de un animal. Si fallan, tienen una misión de dibujo. ¿Listos?', qs: explora },
@@ -7724,8 +7784,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         ${S.has3d ? `<button class="btn ghost fauna-open" type="button" id="exploreOpen">🧭 Explorar el valle a pie</button>` : ''}
         <details><summary>Cómo se juega</summary><ul>
           <li>En el valle viven 23 especies emblemáticas de los Andes: el oso de anteojos, el cóndor, el jaguar, la danta, los monos… Cada una vuelve cuando la cuenca le da lo que necesita y se va cuando se degrada. Con la tecla F ven qué hace cada especie por el ecosistema.</li>
-          <li>Asignaturas: la historia completa de la cuenca, o solo Calidad del aire, solo Climatología, o Exploradores para niños de 8 a 15 años.</li>
-          <li>Dificultad: cambia el tiempo, los puntos, las ayudas y lo que le pasa a la cuenca cuando fallan. En Calidad del aire, Climatología y Exploradores también cambia qué tan difíciles son las preguntas.</li>
+          <li>Asignaturas: la historia completa de la cuenca, o solo Calidad del aire, Climatología o Transición energética, o Exploradores para niños de 8 a 15 años.</li>
+          <li>Dificultad: cambia el tiempo, los puntos, las ayudas y lo que le pasa a la cuenca cuando fallan. En esas asignaturas y en Exploradores también cambia qué tan difíciles son las preguntas.</li>
           <li>Exploradores: cada acierto gana una lámina de un animal. Si fallan, reciben una misión de dibujo para el cuaderno que recupera puntos. Cada cuatro preguntas hay un recreo salvaje.</li>
           <li>Cada capítulo empieza con la historia de una persona del valle. Después, un equipo enfrenta un reto: pregunta, mito o realidad, clasificar residuos, ordenar un proceso o calcular.</li>
           <li>Si un equipo falla una pregunta, los demás pueden robarla: el primero que presione su tecla (1 a 4) o toque su ficha responde.</li>
@@ -7924,7 +7984,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (!res.success || it.type === 'estimate') lines.push(answerLine(it, res));
     lines.push((kids ? '¿Sabían que…? ' : 'Dato: ') + it.dato);
     for (const l of lines) if (!(await CN.say(guide(), l, g))) return;
-    if (CV.harsh && S.lastFail && !(await testimony(S.sub.id === 'aire' ? 'aire' : (S.hurt % 2 ? 'agua' : 'bio'), g))) return;
+    if (CV.harsh && S.lastFail && !(await testimony(S.sub.id === 'aire' || S.sub.id === 'energia' ? S.sub.id : (S.hurt % 2 ? 'agua' : 'bio'), g))) return;
     if (!(await faunaMoment(S.fx, g, true))) return;
     if (owes) {
       CN.actions(`<button class="btn" id="next">✏️ ¡A la misión! <kbd>Enter</kbd></button>`);
