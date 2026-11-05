@@ -523,6 +523,37 @@ body.fade #fade{opacity:1}
 .ex-joy{display:none;position:absolute;left:26px;bottom:74px;width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid var(--line);place-items:center;pointer-events:none}
 .ex-joy i{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.55)}
 @media (pointer:coarse){.ex-joy{display:grid}.ex-info{bottom:auto;top:128px}}
+/* mundo de la energía */
+.emundo{position:fixed;top:0;right:0;bottom:0;z-index:9;width:min(380px,100%);padding:12px;overflow:auto;pointer-events:none}
+.em-card{pointer-events:auto;display:grid;gap:10px;padding:16px;border-radius:18px;background:var(--glass);border:1px solid var(--line);color:var(--mist);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.em-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.em-top h2{font-family:var(--display);font-size:23px;line-height:1.1;margin:2px 0 0}
+.em-top .eyebrow{margin:0}
+.em-top .btn{font-size:13px;padding:7px 12px;flex:none}
+.em-lead{margin:0;font-size:14px;line-height:1.4;color:var(--mist-2)}
+.em-head,.em-line{display:flex;justify-content:space-between;gap:10px;margin:0;font-size:13.5px}
+.em-head b{font-family:var(--mono);color:var(--ok)}
+.em-head b.low{color:var(--alarm)}
+.em-list{display:grid;gap:5px}
+.em-s{display:grid;grid-template-columns:82px 1fr 30px;align-items:center;gap:8px;font-size:13px}
+.em-s input{width:100%;min-width:0;accent-color:var(--c);height:24px;cursor:pointer}
+.em-s b{font-family:var(--mono);text-align:right}
+.em-ms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.em-m{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;font-size:11.5px}
+.em-m b{font-family:var(--mono)}
+.em-m i{height:6px;border-radius:9px;background:var(--glass-2);overflow:hidden;display:block}
+.em-m u{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--alarm),var(--sun),var(--ok));text-decoration:none;transition:width .3s}
+.em-views{display:flex;flex-wrap:wrap;gap:5px}
+.em-views button{border:1px solid var(--line);background:var(--glass-2);color:var(--mist);padding:5px 9px;border-radius:999px;font:600 12.5px var(--body);cursor:pointer}
+.em-card>.btn{font-size:15px;padding:11px 16px}
+.emundo.testing .em-list,.emundo.testing #emTest,.emundo.testing .em-views{opacity:.45;pointer-events:none}
+.em-result{padding:12px;border-radius:12px;background:var(--glass-2);border:1px solid var(--line);font-size:14px;line-height:1.4}
+.em-result p{margin:6px 0 0}.em-result ul{list-style:none;padding:0;margin:6px 0 0}
+.em-result .em-t{font-family:var(--display);font-size:17px}
+.em-result .ok{color:var(--ok)}.em-result .bad{color:var(--alarm);font-weight:700}
+.em-note{font-size:12px;color:var(--mist-2)}
+.energy-open{display:flex;margin:0 auto 4px}
+@media (max-width:640px){.emundo{top:auto;left:0;right:0;max-height:58vh;width:100%;padding:8px}}
 /* crédito del autor con enlaces */
 .author{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:12px 0 0;font-size:14px;color:var(--mist-2)}
 .author b{color:var(--mist)}
@@ -1455,6 +1486,7 @@ body.fade #fade{opacity:1}
         o.quema = { p: [sp.quema.x + 34, H(sp.quema) + 12, sp.quema.z + 30], t: [sp.quema.x, H(sp.quema) + 2, sp.quema.z] };
         const m = tribs[0].pts[11], hm = height(m[0], m[1]);
         o.quebrada = { p: [m[0] - 30, hm + 12, m[1] + 26], t: [m[0], hm, m[1]] };
+        o.presa = { p: [m[0] - 120, hm + 62, m[1] + 105], t: [m[0], hm + 8, m[1]] };
         return o;
       })(),
       aire: { p: [F.x + 130, 58, F.z + 160], t: [F.x, 48, F.z] },
@@ -1478,9 +1510,9 @@ body.fade #fade{opacity:1}
     try { nature = CV.nature ? CV.nature.build({ scene, world: W }) : null; } catch (e) { console.error(e); nature = null; }
     compile();
     const ctx = { scene, world: W, renderer, camera, target };
-    const msgs = { river: 'Abriendo las quebradas…', industry: 'Encendiendo las industrias…', fauna: 'Llamando a los animales…', weather: 'Trayendo las nubes…', crudo: 'Preparando el valle…', wildlife: 'Despertando al oso, al jaguar y al cóndor…', actions: 'Despertando a la gente del valle…' };
+    const msgs = { river: 'Abriendo las quebradas…', industry: 'Encendiendo las industrias…', fauna: 'Llamando a los animales…', weather: 'Trayendo las nubes…', crudo: 'Preparando el valle…', energiaMundo: 'Levantando las centrales…', wildlife: 'Despertando al oso, al jaguar y al cóndor…', actions: 'Despertando a la gente del valle…' };
     extras = [];
-    for (const k of ['river', 'industry', 'fauna', 'wildlife', 'actions', 'weather', 'crudo']) {
+    for (const k of ['river', 'industry', 'fauna', 'wildlife', 'actions', 'weather', 'crudo', 'energiaMundo']) {
       await step(msgs[k]);
       if (CV.abort3d) return false;
       try { if (CV[k]) extras.push(CV[k].build(ctx)); } catch (e) { console.error(e); }
@@ -2002,6 +2034,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     explore(w) { walk = w || null; if (w) { orbit = false; shot = null; baseP = null; fovGoal = 62; } else fovGoal = 50; },
     orbit(on) { orbit = !!on; if (on) { shot = null; orbitA = Math.atan2(camP.x, camP.z + 100); } },
     // lapso de tiempo: el sol da vueltas (días y noches pasan rápido) para la película del futuro
+    // de noche (prueba del Mundo de la energía); false devuelve la luz original
+    night(on) { if (on) setSun(new THREE.Vector3(0.35, -0.2, 0.7).normalize()); else if (baseSun) setSun(baseSun); updateEnv(true); },
     timelapse(on) { lapse = !!on; if (!on && baseSun) { lapseA = 0; setSun(baseSun); updateEnv(true); } },
   };
 })();
@@ -2519,7 +2553,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         mesh(new THREE.CylinderGeometry(0.28, 0.18, 0.55, 6), lampGlass, x, 3.85, z, 1, 1, 1);
         mesh(new THREE.ConeGeometry(0.36, 0.3, 6), ironM, x, 4.25, z, 1, 1, 1);
       });
-      ups.push((dt, t, v) => { lampGlass.emissiveIntensity = CV.sunHeight !== undefined ? 1.6 * (1 - smooth(-0.05, 0.12, CV.sunHeight)) : 0; });
+      ups.push((dt, t, v) => { lampGlass.emissiveIntensity = CV.sunHeight !== undefined && !CV.blackout ? 1.6 * (1 - smooth(-0.05, 0.12, CV.sunHeight)) : 0; });
 
       // ---------- casas ----------
       const reserved = (x, z) => (x === 0 && z === -26) || (x === 26 && z === -13) || (x === -26 && (z === -13 || z === 0)) || (x < -12 && z > 2);
@@ -5639,6 +5673,173 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   };
 })();
 </script>
+<script>/* Cuenca Viva · Mundo de la energía (Transición energética)
+   El estudiante reparte cómo se abastece el valle; las centrales aparecen en el 3D y la cuenca reacciona.
+   Luego prueba su sistema contra sequía, una noche sin viento y gas caro, y lo mide con el trilema:
+   seguridad, sostenibilidad y asequibilidad.
+   Los números son ilustrativos para aprender a comparar: no son datos oficiales de ningún mercado. */
+(function () {
+  const CV = window.CV;
+  // co2: g de CO₂ por kWh · cost: índice de costo por unidad de energía
+  const SOURCES = [
+    { id: 'carbon', name: 'Carbón', color: '#7a6d62', co2: 900, cost: 90, def: 40, view: 'ladrillera' },
+    { id: 'gas', name: 'Gas natural', color: '#e0935a', co2: 450, cost: 80, def: 30, view: 'aire' },
+    { id: 'hidro', name: 'Hidráulica', color: '#5ad1cc', co2: 20, cost: 60, def: 30, view: 'presa' },
+    { id: 'solar', name: 'Solar', color: '#ffc25a', co2: 40, cost: 55, def: 0, view: 'energia' },
+    { id: 'eolica', name: 'Eólica', color: '#b8d8ff', co2: 12, cost: 60, def: 0, view: 'energia' },
+    { id: 'biomasa', name: 'Biomasa', color: '#8fbf6a', co2: 60, cost: 95, def: 0, view: 'ganado' },
+  ];
+  const BAT = { id: 'bateria', name: 'Baterías', color: '#c9a2ff', def: 0, cost: 2.6 };
+  // cuánto entrega cada fuente en cada prueba (1 = lo normal)
+  const TESTS = [
+    { id: 'normal', title: 'Un día normal', view: 'home', say: 'Primero, un día normal en el valle.', k: {} },
+    { id: 'nino', title: 'Sequía de El Niño', view: 'presa', dry: true, say: 'Llega El Niño. Los embalses bajan y la hidráulica entrega mucho menos.', k: { hidro: 0.55, biomasa: 0.85, solar: 1.1 } },
+    { id: 'noche', title: 'Noche sin viento', view: 'pueblo', night: true, say: 'Cae la noche y no hay viento. Las renovables variables dejan de producir.', k: { solar: 0, eolica: 0.2 } },
+    { id: 'gas', title: 'El gas se dispara', view: 'aire', say: 'El gas se encarece en el mundo. ¿Quién paga la factura?', k: {}, cost: { gas: 2.2, carbon: 1.25 } },
+  ];
+
+  const mix = {};
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const supply = (t) => { let s = 0; SOURCES.forEach((f) => { s += mix[f.id] * (t.k[f.id] === undefined ? 1 : t.k[f.id]); }); return s + (t.night ? mix.bateria : 0); };
+  const total = () => SOURCES.reduce((a, f) => a + mix[f.id], 0);
+  const co2 = () => { const T = total() || 1; return SOURCES.reduce((a, f) => a + (mix[f.id] * f.co2) / T, 0); };
+  const cost = (t) => { const T = total() || 1; return SOURCES.reduce((a, f) => a + (mix[f.id] * f.cost * ((t && t.cost && t.cost[f.id]) || 1)) / T, 0) + mix.bateria * BAT.cost + Math.max(0, T - 100) * 0.6; };
+  const renewable = () => { const T = total() || 1; return (mix.hidro + mix.solar + mix.eolica + mix.biomasa) / T; };
+  function trilemma(t) {
+    const list = t ? [t] : TESTS, sup = Math.min(...list.map(supply));
+    return { seg: clamp(sup / 100, 0, 1), sos: clamp(1 - co2() / 750, 0, 1), ase: clamp(1 - (Math.max(...list.map(cost)) - 60) / 90, 0, 1), sup };
+  }
+
+  // ---------- centrales en 3D: solo existen dentro de este mundo ----------
+  CV.energiaMundo = {
+    build(ctx) {
+      const { scene, world: W } = ctx, { height, pads, rand, C, spots } = W;
+      const std = (hex, r = 0.75, m = 0.1) => new THREE.MeshStandardMaterial({ color: C(hex), roughness: r, metalness: m });
+      const sh = (o) => { o.castShadow = o.receiveShadow = true; return o; };
+      const mk = (g, m, p, x, y, z, sx = 1, sy = 1, sz = 1) => { const o = sh(new THREE.Mesh(g, m)); o.position.set(x, y, z); o.scale.set(sx, sy, sz); p.add(o); return o; };
+      const BOX = new THREE.BoxGeometry(1, 1, 1); BOX.translate(0, 0.5, 0);
+      const CYL = new THREE.CylinderGeometry(1, 1, 1, 18); CYL.translate(0, 0.5, 0);
+      const SPH = new THREE.SphereGeometry(1, 16, 10, 0, 6.283, 0, 1.57);
+      const site = (x, y, z) => { const g = new THREE.Group(); g.position.set(x, y, z); g.visible = false; scene.add(g); return g; };
+      const F = pads[0], S = pads.find((p) => p.id === 'solar');
+
+      // central a gas: turbinas, tanques y chimenea
+      const gas = site(F.x + 40, F.h, F.z + 34);
+      mk(BOX, std(0xc9ccd0), gas, 0, 0, 0, 22, 9, 12); mk(BOX, std(0xe0935a, 0.5), gas, 0, 9, 0, 23, 0.8, 13);
+      mk(CYL, std(0xb9bdc2, 0.5, 0.4), gas, 15, 0, 0, 2, 26, 2); [-7, 7].forEach((z) => mk(CYL, std(0xe9e9e6, 0.45, 0.3), gas, -17, 0, z, 5, 7, 5));
+
+      // presa con embalse sobre la quebrada
+      const m = W.tribs[0].pts[11], n = W.tribs[0].pts[13], h0 = height(m[0], m[1]), a = Math.atan2(n[1] - m[1], n[0] - m[0]);
+      const dam = site(m[0], h0 - 2, m[1]); dam.rotation.y = -a;
+      mk(BOX, std(0xb7b4aa, 0.9), dam, 0, 0, 0, 7, 22, 62); mk(BOX, std(0x8f8d85, 0.9), dam, 0, 22, 0, 9, 1.2, 66);
+      const lake = new THREE.Mesh(new THREE.CircleGeometry(1, 32), new THREE.MeshStandardMaterial({ color: C(0x2b7f8c), roughness: 0.12, metalness: 0.2 }));
+      lake.rotation.x = -Math.PI / 2; lake.scale.set(60, 34, 1); lake.position.set(-52, 17, 0); dam.add(lake);
+
+      // biodigestores: domos verdes junto al ganado
+      const bio = site(spots.ganado.x + 30, height(spots.ganado.x + 30, spots.ganado.z), spots.ganado.z);
+      [[0, 0], [15, 5], [-13, 8]].forEach(([x, z]) => { mk(SPH, std(0x4f8a3c, 0.6), bio, x, 0, z, 6.5, 5.5, 6.5); mk(CYL, std(0xa8afb4, 0.6), bio, x, 0, z, 7, 0.8, 7); });
+
+      // baterías: contenedores junto a la granja solar
+      const bat = site(S.x + 40, S.h + 0.4, S.z - 42), bats = [];
+      for (let i = 0; i < 12; i++) { const c = mk(BOX, std(i % 2 ? 0xe7e7ec : 0xd9d2ee, 0.5, 0.2), bat, (i % 4) * 8 - 12, 0, ((i / 4) | 0) * 7, 6.4, 3, 2.8); c.visible = false; bats.push(c); }
+
+      const sites = { gas, hidro: dam, biomasa: bio };
+      return {
+        update(dt) {
+          const on = !!CV.energyWorld;
+          Object.keys(sites).forEach((k) => { const v = on ? mix[k] || 0 : 0, g = sites[k]; g.visible = v > 0; if (g.visible) g.scale.y += (clamp(v / 30, 0.45, 1) - g.scale.y) * Math.min(1, dt * 2.5); });
+          bat.visible = on && mix.bateria > 0;
+          if (bat.visible) bats.forEach((c, i) => (c.visible = i < Math.ceil(mix.bateria / 3.4)));
+          if (dam.visible) lake.visible = !CV.energyDry;
+        },
+      };
+    },
+  };
+
+  // ---------- panel ----------
+  let root = null, O = null, running = false;
+  const pct = (v) => Math.round(v * 100) + ' %';
+  const meter = (id, label) => `<div class="em-m"><span>${label}</span><b id="m${id}">0 %</b><i><u id="b${id}"></u></i></div>`;
+  const slider = (f) => `<label class="em-s" style="--c:${f.color}"><span>${f.name}</span><input type="range" min="0" max="${f.id === 'bateria' ? 30 : 100}" step="5" value="${mix[f.id]}" data-id="${f.id}" aria-label="${f.name}"><b id="v${f.id}">${mix[f.id]}</b></label>`;
+
+  // la cuenca responde: el carbón ensucia el aire, los embalses grandes le cuestan a la biodiversidad
+  function refresh() {
+    if (!root) return;
+    const T = total(), c = co2(), r = renewable(), tr = trilemma(TESTS[0]);
+    root.querySelector('#emTotal').textContent = `${T} de 100 %`;
+    root.querySelector('#emTotal').classList.toggle('low', T < 100);
+    [...SOURCES, BAT].forEach((f) => { root.querySelector('#v' + f.id).textContent = mix[f.id]; });
+    root.querySelector('#emCo2').textContent = `${Math.round(c)} g CO₂/kWh`;
+    root.querySelector('#emRen').textContent = `${pct(r)} renovable`;
+    [['seg', tr.seg], ['sos', tr.sos], ['ase', tr.ase]].forEach(([k, v]) => { root.querySelector('#m' + k).textContent = pct(v); root.querySelector('#b' + k).style.width = pct(v); });
+    CV.blackout = T < 100;
+    const air = clamp(1 - c / 620, 0.05, 1), bioK = clamp(air * 0.65 + 0.42 - (mix.hidro > 45 ? (mix.hidro - 45) * 0.008 : 0) - (mix.biomasa > 40 ? (mix.biomasa - 40) * 0.008 : 0), 0.08, 1);
+    O.setVals({ aire: air, energia: clamp(r * 1.15, 0.05, 1), bio: bioK, agua: clamp(air * 0.4 + 0.5, 0.1, 1), residuos: 0.75 });
+  }
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function runTests() {
+    if (running) return;
+    running = true;
+    const box = root.querySelector('#emResult'), rows = [];
+    root.classList.add('testing');
+    box.hidden = false; box.innerHTML = '';
+    for (const t of TESTS) {
+      if (!root) { running = false; return; }
+      const r = trilemma(t), ok = r.sup >= 100;
+      O.focus(t.view);
+      if (t.night) CV.scene.night(true);
+      if (t.dry) { CV.energyDry = true; if (CV.weather) CV.weather.force(0, 8); }
+      CV.blackout = !ok;
+      box.innerHTML = `<b class="em-t">${t.title}</b><p>${t.say}</p><p class="${ok ? 'ok' : 'bad'}">${ok ? `Cubre ${Math.round(r.sup)} % de la demanda.` : `¡Apagón! Solo cubre ${Math.round(r.sup)} % de la demanda.`}</p>`;
+      if (CV.audio) { CV.audio.speak(t.say + (ok ? ' El sistema resiste.' : ' Apagón.'), CV.story.narrator); if (!ok) CV.audio.sfx.alarm(); }
+      rows.push({ t, ok, sup: r.sup });
+      await sleep(5500);
+      CV.scene.night(false); CV.energyDry = false;
+      if (CV.audio) CV.audio.hush();
+    }
+    if (!root) { running = false; return; }
+    const all = trilemma(), fails = rows.filter((x) => !x.ok).length, score = Math.min(fails ? 59 - (fails - 1) * 15 : 100, Math.round(((all.seg + all.sos + all.ase) / 3) * 100)); // un sistema con apagones no aprueba
+    const low = [['seguridad', all.seg, 'agrega respaldo firme o baterías'], ['sostenibilidad', all.sos, 'reduce carbón y gas'], ['asequibilidad', all.ase, 'evita la sobrecapacidad y el combustible caro']].sort((a, b) => a[1] - b[1])[0];
+    box.innerHTML = `<b class="em-t">Resultado: ${score} / 100</b>
+      <ul>${rows.map((x) => `<li class="${x.ok ? 'ok' : 'bad'}">${x.ok ? '✓' : '✗'} ${x.t.title}: ${Math.round(x.sup)} %</li>`).join('')}</ul>
+      <p>${fails ? `El sistema falló en ${fails === 1 ? 'una prueba' : fails + ' pruebas'}.` : 'El sistema resistió todas las pruebas.'} Su punto débil es la ${low[0]}: ${low[2]}.</p>
+      <p class="em-note">Valores ilustrativos para comparar opciones, no datos oficiales.</p>`;
+    O.focus('home'); root.classList.remove('testing'); running = false; refresh();
+  }
+
+  function open(o) {
+    O = o; CV.energyWorld = true; running = false;
+    [...SOURCES, BAT].forEach((f) => (mix[f.id] = f.def));
+    root = document.createElement('section'); root.className = 'emundo'; root.setAttribute('aria-label', 'Mundo de la energía');
+    root.innerHTML = `<div class="em-card">
+      <div class="em-top"><div><p class="eyebrow">Transición energética</p><h2>Mundo de la energía</h2></div><button class="btn ghost" id="emOut" type="button">← Salir</button></div>
+      <p class="em-lead">Reparta cómo se abastece el valle hasta cubrir la demanda y mire qué le pasa a la cuenca.</p>
+      <div class="em-head"><span>Demanda cubierta</span><b id="emTotal"></b></div>
+      <div class="em-list">${SOURCES.map(slider).join('')}${slider(BAT)}</div>
+      <p class="em-line"><span id="emCo2"></span><span id="emRen"></span></p>
+      <div class="em-ms">${meter('seg', 'Seguridad')}${meter('sos', 'Sostenibilidad')}${meter('ase', 'Asequibilidad')}</div>
+      <div class="em-views" id="emViews" role="group" aria-label="Ver lugar">${[['Valle', 'home'], ['Solar y viento', 'energia'], ['Carbón', 'ladrillera'], ['Gas', 'aire'], ['Presa', 'presa'], ['Pueblo', 'pueblo']].map(([n, v]) => `<button type="button" data-v="${v}">${n}</button>`).join('')}</div>
+      <button class="btn" id="emTest" type="button">Poner a prueba el sistema</button>
+      <div class="em-result" id="emResult" hidden></div>
+    </div>`;
+    document.body.appendChild(root);
+    root.querySelector('.em-list').oninput = (e) => { if (e.target.dataset.id) { mix[e.target.dataset.id] = +e.target.value; refresh(); } };
+    root.querySelector('.em-list').onchange = (e) => { const f = SOURCES.find((x) => x.id === e.target.dataset.id); if (f && !running) O.focus(f.view); };
+    root.querySelector('#emViews').onclick = (e) => { const b = e.target.closest('button'); if (b && !running) O.focus(b.dataset.v); };
+    root.querySelector('#emTest').onclick = runTests;
+    root.querySelector('#emOut').onclick = close;
+    refresh(); O.focus('home');
+  }
+  function close() {
+    if (!root) return;
+    root.remove(); root = null; CV.energyWorld = false; CV.blackout = false; CV.energyDry = false;
+    CV.scene.night(false); if (CV.audio) CV.audio.hush();
+    O.exit();
+  }
+  CV.energiaUI = { open, close, trilemma, mix, SOURCES, TESTS };
+})();
+</script>
 <script>/* Cuenca Viva · lo que hace la gente del valle
    Acciones con impacto ambiental que se ven en la escena y que cambian cuando la cuenca mejora:
    buses y camiones con humo negro (→ bus eléctrico), ganado en las laderas taladas (→ bosque),
@@ -7781,6 +7982,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         <label class="field" for="pres">Presentado por (opcional)<input id="pres" maxlength="80" placeholder="Ej.: Programa de Ingeniería Ambiental" value="${esc(cfg.presenter)}"></label>
         <button class="btn" type="submit">Comenzar la historia</button>
         <button class="btn ghost fauna-open" type="button" id="faunaOpen"><svg class="ico"><use href="#i-paw"/></svg> Conocer la fauna de la cuenca</button>
+        ${S.has3d ? `<button class="btn fauna-open energy-open" type="button" id="energyOpen" hidden>⚡ Entrar al Mundo de la energía</button>` : ''}
         ${S.has3d ? `<button class="btn ghost fauna-open" type="button" id="exploreOpen">🧭 Explorar el valle a pie</button>` : ''}
         <details><summary>Cómo se juega</summary><ul>
           <li>En el valle viven 23 especies emblemáticas de los Andes: el oso de anteojos, el cóndor, el jaguar, la danta, los monos… Cada una vuelve cuando la cuenca le da lo que necesita y se va cuando se degrada. Con la tecla F ven qué hace cada especie por el ecosistema.</li>
@@ -7791,6 +7993,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           <li>Si un equipo falla una pregunta, los demás pueden robarla: el primero que presione su tecla (1 a 4) o toque su ficha responde.</li>
           <li>Responder rápido da puntos extra. Gana el equipo con más puntos.</li>
           <li>Meta común: si entre todos llevan la vida de la cuenca al 70 %, todos los equipos ganan el sello de Guardianes de la Cuenca.</li>
+          <li>Mundo de la energía (en Transición energética): repartan carbón, gas, hidráulica, solar, eólica, biomasa y baterías; las centrales aparecen en el valle y el sistema se pone a prueba contra sequía, noche sin viento y gas caro.</li>
           <li>Explorar el valle: recorran la cuenca a pie, sin preguntas. Cerca de un animal aparece qué hace por la cuenca, y pueden cambiar el estado del valle para ver cómo cambian la lluvia y la neblina.</li>
           <li>Teclas: Enter avanza el subtítulo, S salta la escena, H muestra solo el paisaje, A a D responden, P pausa.</li>
         </ul></details>
@@ -7816,6 +8019,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       $('#subjects').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.s === k));
       $('#modes [data-m="supervivencia"]').hidden = k !== 'cuenca';
       $('#hardBox').hidden = !!D.subjects[k].kids; // Exploradores nunca lleva escenas fuertes
+      if ($('#energyOpen')) $('#energyOpen').hidden = k !== 'energia';
       if (k !== 'cuenca' && cfg.mode === 'supervivencia') setMode('equipos');
       startLabel();
     };
@@ -7873,6 +8077,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     }));
     $('#faunaOpen').onclick = () => openFauna(true);
     if ($('#exploreOpen')) $('#exploreOpen').onclick = () => openExplore(cfg);
+    if ($('#energyOpen')) $('#energyOpen').onclick = () => openEnergy(cfg);
     $('#pres').oninput = (e) => { const v = e.target.value.trim(); $('#presLine').textContent = v ? 'Presentado por ' + v : ''; };
     $('#setup').onsubmit = (e) => {
       e.preventDefault();
@@ -7890,6 +8095,14 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     CV.harsh = !!cfg.fuerte; if (CV.crudo) CV.crudo.reset();
     KEYS.forEach((k) => Sc.set(k, 1, true));
     CV.explorar.open({ setState: (v) => { KEYS.forEach((k) => Sc.set(k, v)); AU.setMood(v); }, exit: renderSetup });
+  }
+
+  // Mundo de la energía: el estudiante diseña el sistema del valle y lo pone a prueba
+  function openEnergy(cfg) {
+    CN.scene(); CN.off(); clearLater(); setPhase('explore'); stage.innerHTML = ''; AU.init();
+    CV.harsh = !!cfg.fuerte; if (CV.crudo) CV.crudo.reset();
+    savePrefs(cfg);
+    CV.energiaUI.open({ setVals: (o) => { KEYS.forEach((k) => Sc.set(k, o[k])); AU.setMood(o.aire); }, focus: (v) => CV.scene.focus(v, true), exit: renderSetup });
   }
 
   function buildSeq(n) {
