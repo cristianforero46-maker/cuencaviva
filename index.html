@@ -1518,7 +1518,7 @@ body.fade #fade{opacity:1}
     const nr = g.attributes.normal.array;
     const L = (h) => { const c = C(h); return [c.r, c.g, c.b]; };
     const D = { wet: L(0x4a3d2c), mud: L(0x6e5c41), dry: L(0x8f7f55), ero: L(0x9a7550), rock: L(0x6b655b), high: L(0x8a8263) };
-    const H = { wet: L(0x2e4423), bank: L(0x4a6a30), grass: L(0x5f7f36), forest: L(0x2f4d24), rock: L(0x707259), par: L(0x8e9157), par2: L(0x6d7a46) };
+    const H = { wet: L(0x2e4423), bank: L(0x4a7a30), grass: L(0x568a34), forest: L(0x2f5a26), rock: L(0x4f7338), par: L(0x7d9a4c), par2: L(0x5c8440) };
     terr = { A: new Float32Array(n * 3), B: new Float32Array(n * 3), th: new Float32Array(n), river: new Uint8Array(n), col: new Float32Array(n * 3), k: -9, kr: -9 };
     // mezcla de colores canal por canal (sin crear arreglos por vértice: menos trabajo para el recolector de memoria)
     const a = [0, 0, 0], b = [0, 0, 0], t3 = [0, 0, 0];
@@ -2795,6 +2795,27 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const glow = CV.Q && CV.Q.lite ? 0.45 : 0.15;
       ups.push((dt, t, v) => { grassM.color.copy(dry).lerp(lush, smooth(0.05, 0.85, v.bio * 0.65 + v.agua * 0.35)); grassM.emissive.copy(grassM.color).multiplyScalar(glow); });
 
+      // ---------- pradera que lo cubre todo ----------
+      // matas anchas de una sola lámina (dos triángulos): por eso caben por montones y tapizan laderas enteras
+      const meadowG = new THREE.PlaneGeometry(1, 1, 1, 1); meadowG.translate(0, 0.5, 0);
+      { const n = meadowG.attributes.normal; for (let i = 0; i < n.count; i++) n.setXYZ(i, 0, 1, 0); }
+      const NM = Math.round(170000 * QK), meadowM = new THREE.InstancedMesh(meadowG, grassM, NM);
+      let nm = 0;
+      for (let tries = 0; nm < NM && tries < 520000; tries++) {
+        const z = -700 + rand() * 1420, x = riverX(z) + (rand() < 0.5 ? -1 : 1) * (17 + Math.pow(rand(), 0.85) * 640);
+        const h = height(x, z);
+        if (h < 1.4 || h > 230 || slope(x, z) > 2.2 || inPad(x, z, 0.62)) continue;
+        if (village && Math.hypot(x - village.x, z - village.z) < 50) continue;
+        const lo = lawn(x, z) ? 0.3 : 1, w = (2.6 + rand() * 2.8) * (lawn(x, z) ? 0.7 : 1), t = (0.9 + rand() * 0.8) * lo;
+        dummy.position.set(x, h - 0.08, z); dummy.rotation.set(0, rand() * 6.28, 0); dummy.scale.set(w, t, 1); dummy.updateMatrix();
+        meadowM.setMatrixAt(nm, dummy.matrix);
+        const v = 0.7 + rand() * 0.5; meadowM.setColorAt(nm, new THREE.Color(v, v, v * (0.88 + rand() * 0.16)));
+        nm++;
+      }
+      meadowM.count = nm; meadowM.receiveShadow = true; meadowM.frustumCulled = false; scene.add(meadowM);
+      // aun en una cuenca degradada queda pasto seco; con la cuenca sana lo cubre todo
+      ups.push((dt, t, v) => { meadowM.count = Math.round(nm * (0.25 + 0.75 * smooth(0.08, 0.6, v.bio))); });
+
       // ---------- flores silvestres ----------
       // manojos de flores (tallos verdes y corolas claras que se tiñen por instancia: amarillas, moradas, blancas y rojas);
       // se mecen con el mismo viento del pasto y abundan solo cuando la biodiversidad de la cuenca es alta
@@ -2841,7 +2862,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       for (let tries = 0; nb < NB && tries < 260000; tries++) {
         const z = -660 + rand() * 1340, x = riverX(z) + (rand() < 0.5 ? -1 : 1) * (24 + Math.pow(rand(), 0.9) * 560);
         const h = height(x, z);
-        if (h < 2 || h > 150 || slope(x, z) > 1.5 || inPad(x, z, 0.9)) continue;
+        if (h < 2 || h > 210 || slope(x, z) > 2.4 || inPad(x, z, 0.9)) continue;
         if (village && Math.hypot(x - village.x, z - village.z) < 62) continue;
         if (lawn(x, z)) continue;
         const s = 1.1 + rand() * 2.4;
