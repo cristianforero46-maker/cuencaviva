@@ -6944,6 +6944,9 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         u.rate = (1 + ((o.rate || 1) - 1) * k) * (nat ? 1 : 0.95);
         // la narradora habla con calma, como en un documental: un poco más lento y más grave
         if (o.narrator) { u.rate = nat ? 0.9 : 0.85; u.pitch = nat ? 0.98 : 0.94; }
+        // matiz de la frase (lo calcula cine.js): más lenta y baja en lo triste, algo más viva en lo que emociona
+        if (o.feelRate) u.rate *= o.feelRate;
+        if (o.feelPitch) u.pitch *= o.feelPitch;
         return u;
       };
       // un intento con la voz elegida; si no arranca o da error, otro con la voz por defecto del teléfono
@@ -7129,6 +7132,16 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     e.text.textContent = s; e.text.classList.add('in');
   }
 
+  // interpretación: cada frase se dice según lo que cuenta, como lo haría un locutor de cine
+  const SAD = /muri|muert|ardi|arder|llor|duele|silencio|solo quer|no pude|no volvi|se fueron|se secaron|inhalador|oxígeno|nadie/i;
+  function feel(who, s) {
+    const o = Object.assign({}, who || NARR());
+    if ((who && who.sad) || SAD.test(s)) { o.feelRate = 0.9; o.feelPitch = 0.97; }
+    else if (/…$/.test(s)) { o.feelRate = 0.93; o.feelPitch = 0.99; }
+    else if (/!$/.test(s)) { o.feelRate = 1.04; o.feelPitch = 1.03; }
+    return o;
+  }
+
   const cine = {
     on() { document.body.classList.add('cine'); },
     off() { document.body.classList.remove('cine'); this.clear(); this.actions(''); this.chips(''); },
@@ -7178,8 +7191,10 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       for (const s of split(text)) {
         if (g !== gen || skipAll) break;
         showLine(who, s);
-        const read = Math.max(1800, s.length * 62), rest = narr ? (/…$/.test(s) ? 1100 : 650) : 320;
-        await waitStep(AU.speak(s, who || NARR()).then((ok) => sleep(ok ? rest : read)));
+        const v = feel(who, s), read = Math.max(1800, s.length * 62);
+        // silencios: la pausa también cuenta; después de una frase triste se deja respirar
+        const rest = v.feelRate === 0.9 ? 1300 : narr ? (/…$/.test(s) ? 1100 : 650) : 320;
+        await waitStep(AU.speak(s, v).then((ok) => sleep(ok ? rest : read)));
       }
       if (g === gen) e.subs.classList.remove('speaking');
       return g === gen;
@@ -7628,7 +7643,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const v = AU.voiceInfo(ST.narrator), el = $('#vHint'); if (!el) return;
       const any = AU.listVoices().some((x) => x.natural);
       el.textContent = !v ? 'Se usará la voz del dispositivo. Si no se escucha, suban el volumen y quiten el modo silencio del celular.'
-        : v.natural ? `Narradora: ${v.name}.` : any ? `Narradora: ${v.name}. Elijan una voz «natural» para que suene más humana.` : `Narradora: ${v.name}. Para voces humanas de narradora (Salomé, Dalia, Gonzalo…), abran el juego en Microsoft Edge.`;
+        : v.natural ? `Narradora: ${v.name}.` : any ? `Narradora: ${v.name}. Elijan una voz «natural» para que suene más humana.` : `Narradora: ${v.name}. Para voces humanas de narradora (Salomé, Dalia, Gonzalo…), abran el juego en Microsoft Edge. En iPhone pueden descargar una voz «mejorada» o «premium» en Ajustes › Accesibilidad › Contenido leído › Voces.`;
     };
     hint(); setTimeout(hint, 1200);
     $('#voiceSel').onchange = (e) => { cfg.voiceName = e.target.value; AU.narratorVoice = cfg.voiceName; hint(); };
@@ -8100,7 +8115,11 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   async function testimony(k, g) {
     const a = ST.harsh[k], txt = a[S.hurt++ % a.length];
     CN.chips(`<span class="res-bad">Lo que pasa en el valle</span><span>${esc(ST.people[k].name)}</span>`);
-    return CN.say(speaker(k), txt, g);
+    // piano suave debajo de la voz, con un silencio antes y después, como en una escena de película
+    AU.theme(true);
+    const ok = (await CN.pause(900, g)) && (await CN.say(Object.assign({}, speaker(k), { sad: true }), txt, g)) && (await CN.pause(700, g));
+    AU.theme(false);
+    return ok;
   }
 
   async function showEvent() {
