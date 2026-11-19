@@ -626,6 +626,22 @@ body.fade #fade{opacity:1}
 .more-opts>summary{cursor:pointer;padding:8px 0;font-weight:700;color:var(--mist)}
 .more-opts[open]>summary{margin-bottom:6px}
 .more-opts>fieldset,.more-opts>label,.more-opts>p{margin-bottom:12px}
+/* demostración de 5 minutos */
+.demo-open{background:linear-gradient(120deg,#ff7a5c,#ffd23f);color:#1d1404}
+.demo-out{position:fixed;left:14px;bottom:max(12px,env(safe-area-inset-bottom));opacity:.75;z-index:28;font-size:13.5px;padding:7px 14px}
+.demo-q{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:27;width:min(720px,calc(100vw - 28px));max-height:calc(100vh - 40px);overflow:auto;padding:24px;border-radius:22px;animation:winIn .45s cubic-bezier(.2,1.3,.4,1)}
+.demo-q h2{font-family:var(--display);font-size:clamp(21px,3.4vw,30px);line-height:1.2;margin:6px 0 16px}
+.demo-opts{display:grid;gap:10px}
+.demo-opts button{display:flex;gap:12px;align-items:center;text-align:left;padding:13px 16px;border-radius:14px;border:1px solid var(--line);background:var(--glass-2);color:var(--mist);font:600 clamp(15px,2.2vw,18px) var(--body);cursor:pointer;transition:transform .12s,border-color .12s}
+.demo-opts button:hover:not(:disabled){transform:translateY(-2px);border-color:var(--sun)}
+.demo-opts kbd{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--mist);color:var(--ink);font:800 15px var(--mono)}
+.demo-opts button.ok{border-color:#7ed957;background:rgba(126,217,87,.25)}
+.demo-opts button.bad{border-color:#e84a4a;background:rgba(232,74,74,.25)}
+.demo-timer{height:7px;border-radius:9px;background:rgba(255,255,255,.14);overflow:hidden;margin-top:16px}
+.demo-timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff7a5c,#ffd23f);transform-origin:left;animation:demoT linear forwards}
+@keyframes demoT{to{transform:scaleX(0)}}
+.demo-final{text-align:center}
+.demo-final-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
@@ -7409,7 +7425,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   // Prefiere voces neuronales ("Natural", "Online", "Neural"), luego Google; acento colombiano o latino primero.
   const MALE = /pablo|jorge|ra[uú]l|diego|juan|carlos|enrique|andr[eé]s|[aá]lvaro|gonzalo|miguel|gerardo|alonso|jos[eé]|emilio|federico|luciano|rodrigo|dar[ií]o|sa[uú]l|tom[aá]s|jorge|luis|manuel|sergio|v[ií]ctor|alberto|arnau|male|hombre/i;
   const FEMALE = /helena|laura|sabina|paulina|m[oó]nica|luc[ií]a|elvira|dalia|salom[eé]|paloma|ximena|elena|sof[ií]a|hilda|marisol|lupe|camila|catalina|paola|larissa|beatriz|irene|estrella|triana|abril|andrea|renata|yolanda|valentina|female|mujer/i;
-  const LANG = { 'es-CO': 40, 'es-MX': 26, 'es-US': 24, 'es-419': 24, 'es-VE': 22, 'es-PE': 22, 'es-AR': 18, 'es-CL': 18, 'es-ES': 8 };
+  const LANG = { 'es-CO': 40, 'es-MX': 26, 'es-US': 24, 'es-419': 24, 'es-VE': 22, 'es-EC': 22, 'es-PA': 20, 'es-PE': 22, 'es-AR': 18, 'es-CL': 18, 'es-ES': 8 };
   const isNatural = (v) => /natural|neural|online|premium|enhanced/i.test(v.name);
   // prefer: nombres de voz preferidos para cada personaje (p. ej. Salomé para la locutora), en orden
   function pickVoice(gender, prefer) {
@@ -7418,7 +7434,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       let s = LANG[v.lang.replace('_', '-')] || 10;
       if (isNatural(v)) s += 100; else if (/google/i.test(v.name)) s += 45;
       if (gender && (gender === 'm' ? MALE : FEMALE).test(v.name)) s += 60;
-      if (prefer) prefer.forEach((p, i) => { if (v.name.toLowerCase().includes(p.toLowerCase())) s += 90 - i * 8; });
+      if (prefer) prefer.forEach((p, i) => { if (v.name.toLowerCase().includes(p.toLowerCase())) s += i === 0 ? 300 : 120 - i * 10; }); // la primera voz del reparto manda
       if (s > bestScore) { bestScore = s; best = v; }
     });
     return best;
@@ -8407,6 +8423,217 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   CV.explorar = { open, exit };
 })();
 </script>
+<script>/* Cuenca Viva · demostración de 5 minutos (para presentar el juego)
+   Un capítulo corto y cinematográfico: el páramo arde, el río muere, el aire enferma y llega la gran tormenta.
+   Cada habitante habla como se habla en su tierra. Cuatro preguntas para el público, el futuro si nada cambia
+   y un cierre de esperanza. game.js le pasa sus herramientas en run(api). */
+(function () {
+  const CV = window.CV;
+  const esc = (s) => CV.ch.util.esc(s);
+
+  // reparto de voces: con Microsoft Edge se oyen las voces neuronales (Salomé y Gonzalo de Colombia,
+  // Luis y Andrea de Ecuador, Margarita de Panamá, Paola de Venezuela); en otros navegadores, la mejor que haya
+  const CAST = {
+    tomas: { key: 'bio', name: 'Don Tomás', role: 'campesino del páramo, Boyacá', gender: 'm', pitch: 0.9, rate: 0.9, prefer: ['Luis', 'Gonzalo', 'Jorge', 'Alonso'] },
+    rosa: { key: 'agua', name: 'Doña Rosa', role: 'pescadora del Magdalena', gender: 'f', pitch: 0.97, rate: 1, prefer: ['Margarita', 'Paola', 'Karla', 'Ramona', 'Camila'] },
+    luz: { key: 'energia', name: 'Luz Marina', role: 'enfermera, Antioquia', gender: 'f', pitch: 1, rate: 1, prefer: ['Paola', 'Andrea', 'Camila', 'Catalina'] },
+    mateo: { key: 'aire', name: 'Mateo', role: '9 años', gender: 'f', pitch: 1.25, rate: 1.05, prefer: ['Andrea', 'Sofia', 'Valentina', 'Dalia'] },
+    efrain: { key: 'residuos', name: 'Don Efraín', role: 'reciclador, Bogotá', gender: 'm', pitch: 0.95, rate: 1, prefer: ['Gonzalo', 'Sebastian', 'Jorge', 'Alonso'] },
+  };
+
+  const SCENES = [
+    {
+      kicker: 'Capítulo I', title: 'El páramo arde', view: 'bosque', close: 'bio', chips: 'Ola de calor · 34 °C en el páramo',
+      event(t) { t.weather(0, 60); t.fire(60); t.drop(['bio', 'agua'], 0.12); t.sfx('alarm'); t.shake(0.6); },
+      narr: 'Cuarenta y dos días sin llover. Allá arriba, donde nace el agua, el páramo empieza a arder.',
+      who: 'tomas',
+      say: 'Ay, sumercé… Yo tengo setenta y cuatro años y nunca había visto el páramo así. Mi abuelo me decía: mijo, el frailejón es el que nos guarda el agua, no lo vaya a tocar. Antes había harta neblina, sumercé. Ahoritica no queda ni el rocío.',
+      q: { text: '¿Por qué el páramo es tan importante para el agua del valle?', ok: 0,
+        opts: ['Atrapa la humedad de la niebla y la suelta poco a poco a quebradas y ríos', 'Porque allá arriba llueve todos los días del año', 'Porque guarda lagos subterráneos de agua salada', 'No es importante: el agua del valle viene del mar'],
+        why: 'El páramo es una esponja: guarda la niebla y regula el agua de millones de colombianos.' },
+    },
+    {
+      kicker: 'Capítulo II', title: 'El río que se murió', view: 'curtiembre', close: 'rio', chips: 'Vertimiento ilegal · el río sin oxígeno',
+      event(t) { t.drop(['agua', 'bio'], 0.14); t.sfx('fall'); },
+      narr: 'Río abajo, las curtiembres descargan sin tratar. El agua se queda sin oxígeno.',
+      who: 'rosa',
+      say: 'Ajá, mijo, mire esta vaina. Aquí mismito yo tiraba la atarraya y sacaba bocachico pa’ todo el barrio. Ahora saco bolsas, espuma… y pescao muerto. Ombe, este río me dio de comer cuarenta años. Y yo no sé qué le voy a dar de comer a mis nietos.',
+      q: { text: 'Mito o realidad: «el río se limpia solo, sin importar cuánto le echemos».', ok: 1,
+        opts: ['Realidad: el agua corriendo lo limpia todo', 'Mito: si la carga supera lo que el río puede degradar, se queda sin oxígeno y muere'],
+        why: 'El río se depura solo hasta un límite. Por eso existen las plantas de tratamiento.' },
+    },
+    {
+      kicker: 'Capítulo III', title: 'El aire que no se ve', view: 'aire', close: 'escuela', chips: 'Alerta roja · PM2,5 en 98 µg/m³',
+      event(t) { t.drop(['aire'], 0.2); t.sfx('alarm'); },
+      narr: 'Quemas, buses viejos, chimeneas. Una nube gris queda atrapada entre las montañas.',
+      who: 'luz',
+      say: 'Ay, qué pecado… Esta semana me llegaron once niños con tos al puesto de salud. Uno es Mateo, el de doña Gloria. Pues vea, el cielo de este pueblo ya no es azul. Es gris.',
+      who2: 'mateo', say2: 'Seño… ¿por qué me cuesta respirar cuando juego fútbol?',
+      q: { text: '¿Qué contaminante del aire entra más profundo en los pulmones de un niño?', ok: 2,
+        opts: ['El vapor de agua', 'El nitrógeno', 'El material particulado fino PM2,5', 'El oxígeno'],
+        why: 'El PM2,5 es tan fino que llega a los alvéolos y pasa a la sangre.' },
+    },
+    {
+      kicker: 'Capítulo IV', title: 'La noche de la gran tormenta', view: 'pueblo', close: 'rio', chips: 'Emergencia · el río se desborda', storm: true,
+      event(t) { t.night(true); t.weather(1, 120); t.blackout(true); t.drop(['agua', 'residuos', 'energia'], 0.12); t.sfx('alarm'); t.shake(1); },
+      narr: 'Después de la sequía, el diluvio. Sin bosque que frene el agua, la montaña baja hacia el pueblo. Se va la luz.',
+      who: 'efrain',
+      say: 'Mi llave, yo llevo treinta años recogiendo lo que la gente bota. Y anoche, con ese aguacero, la basura tapó los caños y el agua se metió a las casas. Qué boleta… la gente subiendo a los niños al techo.',
+      q: { text: 'Decisión final. El alcalde les entrega el presupuesto. ¿Qué hacen primero?', ok: 1, big: true,
+        opts: ['Construir un muro más alto en la orilla del río', 'Restaurar el páramo y el bosque de la cuenca alta, tratar las aguas y separar los residuos', 'Traer agua en carrotanques cada verano', 'Esperar a que el clima vuelva a la normalidad'],
+        why: 'Un muro no cura una cuenca enferma. Cuidar la parte alta protege a todos los de abajo.' },
+    },
+  ];
+
+  const FUTURE = [
+    { year: '2040', view: 'rio', set: 0.03, say: 'Dos mil cuarenta. Nadie cambió nada. Doña Rosa colgó la atarraya: ya no había peces.' },
+    { year: '2050', view: 'quebrada', set: 0, say: 'Dos mil cincuenta. Las quebradas se secaron, y las familias se fueron con sus corotos en un camión.' },
+    { year: '2050', view: 'pueblo', set: 0, say: 'Mateo tiene treinta y cuatro años y respira con un inhalador. Le cuenta a su hija que, cuando él era niño, aquí había un río.', hard: true },
+  ];
+
+  async function run(api) {
+    const { CN, AU, Sc, KEYS, stage, setPhase, refresh, exit } = api;
+    const g = CN.scene(), SFX = AU.sfx, N = CV.story.narrator;
+    const alive = () => CN.alive(g);
+    let score = 0;
+    setPhase('event'); stage.innerHTML = '';
+    const restore = () => { if (CV.scene && CV.scene.night) CV.scene.night(false); CV.blackout = false; };
+    // botón para salir en cualquier momento
+    const out = document.createElement('button'); out.className = 'btn ghost demo-out'; out.type = 'button'; out.textContent = '✕ Salir de la demostración';
+    out.onclick = () => { CN.scene(); finish(); exit(); };
+    document.body.appendChild(out);
+    const finish = () => { out.remove(); restore(); AU.theme(false); Sc.lapse(false); const q = document.querySelector('.demo-q'); if (q) q.remove(); };
+
+    const tools = {
+      weather: (v, s) => { if (CV.weather) CV.weather.force(v, s); },
+      fire: (s) => { if (CV.crudo && CV.harsh) CV.crudo.ignite(s); },
+      drop: (ks, d) => { ks.forEach((k) => Sc.add(k, -d)); refresh(true); },
+      sfx: (n) => { try { SFX[n](); } catch (e) {} },
+      shake: (s) => Sc.shake(s),
+      night: (on) => { if (CV.scene && CV.scene.night) CV.scene.night(on); },
+      blackout: (on) => { CV.blackout = on; },
+    };
+
+    // estado inicial: un valle golpeado pero vivo
+    KEYS.forEach((k) => Sc.set(k, 0.42, true)); refresh(false);
+    CN.on(); CN.chips('<span>Demostración</span><span>5 minutos</span>');
+    const ok = async (p) => (await p) && alive();
+
+    if (!(await ok(CN.cut('vuelo', null, g)))) return;
+    if (!(await ok(CN.chapter('Cuenca Viva', 'Cinco minutos para salvar un valle', g)))) return;
+    if (!(await ok(CN.say(N, 'Un valle de los Andes colombianos. Cincuenta y dos mil personas, un río, un páramo. Hoy el valle está enfermo… y ustedes deciden cómo termina esta historia.', g)))) return;
+
+    for (let i = 0; i < SCENES.length; i++) {
+      const sc = SCENES[i];
+      setPhase('event');
+      if (!(await ok(CN.cut(sc.view, 'acercar', g)))) return;
+      sc.event(tools);
+      CN.chips(`<span class="res-bad">${esc(sc.kicker)}</span><span>${esc(sc.chips)}</span>`);
+      if (!(await ok(CN.chapter(sc.kicker, sc.title, g)))) return;
+      if (!(await ok(CN.say(N, sc.narr, g)))) return;
+      if (!(await ok(CN.cut(sc.close, 'orbitar', g)))) return;
+      // testimonio con piano suave y silencios, como en una película
+      AU.theme(true);
+      if (!(await ok(CN.pause(350, g)))) return;
+      if (!(await ok(CN.say(CAST[sc.who], sc.say, g)))) return;
+      if (sc.who2 && !(await ok(CN.say(Object.assign({}, CAST[sc.who2]), sc.say2, g)))) return;
+      if (!(await ok(CN.pause(250, g)))) return;
+      AU.theme(false);
+      // pregunta para el público
+      const right = await ask(sc.q, g, api, i);
+      if (!alive()) return;
+      if (right) { score++; KEYS.forEach((k) => Sc.add(k, sc.q.big ? 0.2 : 0.1)); } else KEYS.forEach((k) => Sc.add(k, -0.04));
+      refresh(true);
+      if (sc.storm) { tools.blackout(false); tools.night(false); tools.weather(0.3, 20); }
+      setPhase('event');
+      if (!(await ok(CN.say(N, (right ? '¡Correcto! ' : 'No era esa. ') + sc.q.why, g)))) return;
+    }
+
+    // ---------- el futuro si nada cambia ----------
+    setPhase('event');
+    CN.chips('<span class="res-bad">¿Y si nada cambia?</span>');
+    const saved = KEYS.map((k) => api.vals[k]);
+    if (!(await ok(CN.chapter('Epílogo', '¿Y si todo sigue igual?', g)))) return;
+    Sc.lapse(true); AU.setMood(0);
+    for (const b of FUTURE) {
+      if (b.hard && !CV.harsh) continue;
+      CN.chips(`<span class="res-bad">${b.year}</span><span>Si nada cambia</span>`);
+      if (!(await ok(CN.cut(b.view, 'acercar', g)))) { Sc.lapse(false); return; }
+      KEYS.forEach((k) => Sc.set(k, b.set)); refresh(true); tools.sfx('fall');
+      if (!(await ok(CN.say(N, b.say, g)))) { Sc.lapse(false); return; }
+    }
+    Sc.lapse(false);
+
+    // ---------- todavía estamos a tiempo ----------
+    CN.chips('<span class="res-ok">Hoy</span><span>Todavía estamos a tiempo</span>');
+    KEYS.forEach((k, i) => Sc.set(k, Math.max(saved[i], 0.88))); refresh(true);
+    AU.setMood(1); AU.theme(true); tools.sfx('rise');
+    if (!(await ok(CN.cut('vuelo', null, g)))) return;
+    if (CV.misiones) { const z = CV.world && CV.world.zones; if (z) { CV.misiones.flock({ x: z.fauna.x, z: z.fauna.z, n: 50 }); CV.misiones.flock({ x: z.bosque.x, z: z.bosque.z, n: 30, alt: 75 }); } }
+    if (!(await ok(CN.say(N, `Acertaron ${score} de ${SCENES.length}. Pero ese futuro todavía no ha llegado. El páramo, el río y el aire se pueden recuperar.`, g)))) return;
+    if (!(await ok(CN.cut('fauna', 'orbitar', g)))) return;
+    if (!(await ok(CN.say(N, 'Eso no lo hace la suerte. Lo hace gente que estudia para cuidar la vida. Eso es la ingeniería ambiental.', g)))) return;
+    if (CV.misiones) CV.misiones.confetti(document.body);
+    AU.theme(false);
+    finalCard(score, api);
+    finish();
+  }
+
+  // tarjeta con la pregunta: se responde con clic o con las teclas 1 a 4 (o A a D); 20 segundos
+  function ask(q, g, api, idx) {
+    const { CN, AU, setPhase } = api, SFX = AU.sfx;
+    return new Promise((res) => {
+      setPhase('demoq');
+      CN.clear();
+      const T = q.big ? 20 : 15, L = 'ABCD';
+      const box = document.createElement('section'); box.className = 'demo-q card'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Pregunta para el público');
+      box.innerHTML = `<p class="eyebrow">${q.big ? 'Decisión final' : 'Pregunta ' + (idx + 1)} · para el público</p><h2>${esc(q.text)}</h2>
+        <div class="demo-opts">${q.opts.map((o, i) => `<button type="button" data-i="${i}"><kbd>${L[i]}</kbd><span>${esc(o)}</span></button>`).join('')}</div>
+        <div class="demo-timer"><i></i></div>`;
+      document.body.appendChild(box);
+      AU.speak(q.text, CV.story.narrator);
+      const bar = box.querySelector('.demo-timer i'); bar.style.animationDuration = T + 's';
+      let done = false;
+      const pickIt = (i) => {
+        if (done) return; done = true; clearTimeout(timer); removeEventListener('keydown', key, true);
+        const right = i === q.ok;
+        box.querySelectorAll('button').forEach((b, j) => { b.disabled = true; if (j === q.ok) b.classList.add('ok'); else if (j === i) b.classList.add('bad'); });
+        bar.style.animationPlayState = 'paused';
+        AU.hush();
+        if (right) { SFX.ok(); if (CV.misiones) CV.misiones.confetti(document.body); } else { SFX.bad(); api.Sc.shake(0.5); }
+        api.flash(right ? 'ok' : 'bad');
+        setTimeout(() => { box.remove(); res(right); }, 1700);
+      };
+      const key = (e) => {
+        if (!CN.alive(g)) { removeEventListener('keydown', key, true); return; }
+        const k = e.key.toUpperCase(), i = /^[1-4]$/.test(k) ? +k - 1 : L.indexOf(k);
+        if (i >= 0 && i < q.opts.length) { e.preventDefault(); e.stopPropagation(); pickIt(i); }
+      };
+      addEventListener('keydown', key, true);
+      box.addEventListener('click', (e) => { const b = e.target.closest('button[data-i]'); if (b) pickIt(+b.dataset.i); });
+      const timer = setTimeout(() => pickIt(-1), T * 1000);
+      // si se sale de la demostración, la tarjeta desaparece
+      const watch = setInterval(() => { if (!CN.alive(g)) { clearInterval(watch); clearTimeout(timer); box.remove(); removeEventListener('keydown', key, true); } if (done) clearInterval(watch); }, 300);
+    });
+  }
+
+  function finalCard(score, api) {
+    const { CN, stage, setPhase, exit } = api;
+    CN.off(); setPhase('final');
+    stage.innerHTML = `<div class="card final-card demo-final">
+      <p class="eyebrow">Demostración · Cuenca Viva</p>
+      <h2>Acertaron ${score} de ${SCENES.length}</h2>
+      <p class="lead">Esto fue un solo capítulo. El juego completo tiene la historia de cinco habitantes, cuatro asignaturas, un modo para niños, el Mundo de la energía y un valle para recorrer a pie.</p>
+      <div class="demo-final-actions"><button class="btn" type="button" id="demoAgain">Ver la demostración otra vez</button><button class="btn ghost" type="button" id="demoHome">Ir al juego completo</button></div>
+      ${CV.credito ? CV.credito.author('author-final') : ''}
+    </div>`;
+    stage.querySelector('#demoAgain').onclick = () => api.again();
+    stage.querySelector('#demoHome').onclick = exit;
+  }
+
+  CV.demo = { run, cast: CAST };
+})();
+</script>
 <script>/* Cuenca Viva · flujo del juego como película:
    portada → apertura narrada → capítulos (anécdota, reto, desenlace) → eventos → epílogo y resultados */
 (function () {
@@ -8624,6 +8851,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         <label class="field" for="pres">Presentado por (opcional)<input id="pres" maxlength="80" placeholder="Ej.: Programa de Ingeniería Ambiental" value="${esc(cfg.presenter)}"></label>
         </details>
         <button class="btn" type="submit">Comenzar la historia</button>
+        <button class="btn demo-open" type="button" id="demoOpen">🎬 Demostración de 5 minutos</button>
         <button class="btn ghost fauna-open" type="button" id="faunaOpen"><svg class="ico"><use href="#i-paw"/></svg> Conocer la fauna de la cuenca</button>
         ${S.has3d ? `<button class="btn fauna-open energy-open" type="button" id="energyOpen" hidden>⚡ Entrar al Mundo de la energía</button>` : ''}
         ${S.has3d ? `<button class="btn ghost fauna-open" type="button" id="exploreOpen">🧭 Explorar el valle a pie</button>` : ''}
@@ -8720,6 +8948,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     }));
     $('#faunaOpen').onclick = () => openFauna(true);
     if ($('#exploreOpen')) $('#exploreOpen').onclick = () => openExplore(cfg);
+    $('#demoOpen').onclick = () => openDemo(cfg);
     if ($('#energyOpen')) $('#energyOpen').onclick = () => openEnergy(cfg);
     $('#pres').oninput = (e) => { const v = e.target.value.trim(); $('#presLine').textContent = v ? 'Presentado por ' + v : ''; };
     $('#setup').onsubmit = (e) => {
@@ -8738,6 +8967,15 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     CV.harsh = !!cfg.fuerte; if (CV.crudo) CV.crudo.reset();
     KEYS.forEach((k) => Sc.set(k, 1, true));
     CV.explorar.open({ kids: !!(D.subjects[cfg.subject] && D.subjects[cfg.subject].kids), setState: (v) => { KEYS.forEach((k) => Sc.set(k, v)); AU.setMood(v); }, exit: renderSetup });
+  }
+
+  // Demostración de 5 minutos para presentar el juego (sustentación, ferias, colegios)
+  function openDemo(cfg) {
+    CN.scene(); CN.off(); clearLater(); stopTimer(); stage.innerHTML = ''; AU.init();
+    savePrefs(cfg);
+    CV.harsh = !!cfg.fuerte; if (CV.crudo) CV.crudo.reset();
+    hud.hidden = false; teamsEl.hidden = true; Sc.orbit(false); $('#hudRound').textContent = 'Demostración';
+    CV.demo.run({ CN, AU, Sc, KEYS, vals, stage, setPhase, refresh, flash, exit: renderSetup, again: () => openDemo(cfg) });
   }
 
   // Mundo de la energía: el estudiante diseña el sistema del valle y lo pone a prueba
