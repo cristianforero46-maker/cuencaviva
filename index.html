@@ -4564,7 +4564,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       }
 
       // ---------- dónde vive cada quien ----------
-      const okGround = (x, z) => height(x, z) > 2.5 && Math.abs(x - riverX(z)) > 24 && !pads.some((p) => Math.hypot(x - p.x, z - p.z) < p.r);
+      const okGround = (x, z) => height(x, z) > 2.5 && Math.abs(x - riverX(z)) > 24 && !pads.some((p) => Math.hypot(x - p.x, z - p.z) < p.r) && !(W.road && z > W.road.z0 && z < W.road.z1 && Math.abs(x - W.road.x(z)) < 14);
       const ptIn = (h) => { for (let k = 0; k < 40; k++) { const a = rand() * 6.283, r = Math.sqrt(rand()) * h.r, x = h.x + Math.cos(a) * r, z = h.z + Math.sin(a) * r; if (okGround(x, z) && (!h.min || height(x, z) > h.min)) return [x, z]; } return [h.x, h.z]; };
       const Zf = zones.fauna, Zb = zones.bosque;
       const HAB = { pradera: { x: Zf.x, z: Zf.z, r: Zf.r * 1.05 }, bosque: { x: Zb.x, z: Zb.z, r: Zb.r * 0.6 } };
@@ -5339,16 +5339,44 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           idle: ['look', 'sit', 'forage', 'look'], eye: { iris: 0x2e1c10 }, camK: 4, bg: [24, 20, 17], furFn: bearFur, paint: bearPaint(0.6),
           extras: (T) => claws(T, 5, 0.03, 0xd8c8a8).concat([bearNose(T)]) };
 
-        S.danta = { tpl: quad({ L: 1.25, hipH: 0.98, shH: 0.9, hipD: 0.56, chD: 0.55, hipW: 0.5, chW: 0.46, bellyW: 0.56, belly: 0.03, neckL: 0.22, neckA: 4, neckR0: 0.25, neckR1: 0.2,
-            headL: 0.5, headW: 0.24, headH: 0.27, headA: 24, snoutL: 0.48, snW: 0.12, snH: 0.1, noseDrop: 0.02, earH: 0.12, earW: 0.085, earRound: 0.9, earSpread: 0.5, earTilt: 0.2, eyeR: 0.012, eyeTh: 62,
-            fr: [0.1, 0.075, 0.06], hr: [0.14, 0.09, 0.07], pawR: 0.065, pawH: 0.045, pawL: 0.11, wristK: 0.16, hockK: 0.24, tailL: 0.08, tailR0: 0.05, tailR1: 0.025, tailN: 3, tailUp: -40 }),
-          fur: { len: 0.014, dens: 300, thick: 0.35, root: 0.7 }, under: 0.85, speed: 0.55, stride: 1.2, swing: 0.36, idle: ['graze', 'look', 'graze'], grazeN: 0.6, eye: { iris: 0x2a1a10 }, camK: 3, rough: 0.7,
+        // danta (Tapirus terrestris): cuerpo largo y redondeado con la grupa más alta que la cruz, patas cortas,
+        // cabeza alargada que termina en una pequeña trompa móvil (probóscide), crin corta y oscura en la nuca,
+        // pelo muy corto y liso pardo oscuro, mejillas y labios grisáceos y orejas con borde blanco
+        const tapirTrunk = (T) => {
+          const n = T.nose, hb = T.B[T.bi.head].pos, d = n.hd, u = n.hU, r0 = Math.max(n.r[0], n.r[1]) * 1.15;
+          const p0 = add3(n.pos, d, -0.05), pts = [p0, add3(add3(p0, d, 0.035), u, -0.004), add3(add3(p0, d, 0.065), u, -0.016), add3(add3(p0, d, 0.085), u, -0.036), add3(add3(p0, d, 0.092), u, -0.058)];
+          const g = { pos: [], uv: [], hair: [], comb: [], fur: [], si: [], sw: [], idx: [], seams: [], maps: [] }, sp = { furAt: () => 0 };
+          loft(g, { pts, rad: pts.map((_, i) => { const r = r0 * (1 - i * 0.11); return [r * 1.08, r * 0.9, r * 0.9]; }), ref: [0, 1, 0], region: [0, 0, 0.1, 0.1], joints: [[0, 0]], seg: 10, sub: 3 }, Qd, sp, null);
+          const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(g.pos.map((v, i) => v - hb[i % 3]), 3)); geo.setAttribute('normal', new THREE.BufferAttribute(finishNormals(g), 3)); geo.setIndex(g.idx);
+          // fosas nasales en la punta
+          const tip = pts[4], nos = new THREE.SphereGeometry(1, 10, 8); nos.scale(r0 * 0.28, r0 * 0.18, r0 * 0.28);
+          const nos2 = nos.clone(); const side = norm(cross(d, u));
+          const a = add3(add3(tip, side, r0 * 0.3), d, 0.004), b = add3(add3(tip, side, -r0 * 0.3), d, 0.004);
+          nos.translate(a[0] - hb[0], a[1] - hb[1], a[2] - hb[2]); nos2.translate(b[0] - hb[0], b[1] - hb[1], b[2] - hb[2]);
+          return [{ bone: 'head', geo, mat: new THREE.MeshStandardMaterial({ color: 0x2c2522, roughness: 0.55 }), pos: [0, 0, 0] },
+            { bone: 'head', geo: nos, mat: noseMat, pos: [0, 0, 0] }, { bone: 'head', geo: nos2, mat: noseMat, pos: [0, 0, 0] }];
+        };
+        S.danta = { tpl: quad({ L: 1.45, hipH: 0.96, shH: 0.86, hipD: 0.6, chD: 0.56, hipW: 0.52, chW: 0.46, bellyW: 0.58, belly: 0.04, dip: 0.02, neckL: 0.2, neckA: 2, neckR0: 0.27, neckR1: 0.22,
+            headL: 0.46, headW: 0.25, headH: 0.36, headA: 28, snoutL: 0.4, snW: 0.13, snH: 0.15, noseDrop: 0.04, dome: 0.22, earH: 0.11, earW: 0.08, earRound: 0.95, earSpread: 0.45, earTilt: 0.25, eyeR: 0.0105, eyeTh: 64,
+            fr: [0.1, 0.075, 0.058], hr: [0.15, 0.09, 0.068], pawR: 0.062, pawH: 0.045, pawL: 0.1, wristK: 0.14, hockK: 0.22, tailL: 0.07, tailR0: 0.045, tailR1: 0.02, tailN: 3, tailUp: -45 }),
+          fur: { len: 0.007, dens: 300, thick: 0.3, root: 0.75 }, under: 0.85, speed: 0.55, stride: 1.15, swing: 0.34, idle: ['graze', 'look', 'graze'], grazeN: 0.6, eye: { iris: 0x241610 }, camK: 3, rough: 0.62,
+          // la crin: pelo más largo y erizado sobre la nuca; el resto, liso
+          furFn: (P) => (P.kind === "body" && P.st > 6.4 && P.st < 10.6 && P.top > 0.6 && Math.abs(P.lat) < 0.4 ? 3.2 : 1) * defaultFur(P, S.danta),
+          extras: (T) => tapirTrunk(T),
           paint(P) {
-            let c = mul(cs(P, hx(0x4a3c32), hx(0x6a5a4c), -0.6, 0.2), 0.88 + 0.24 * fb(P.U * 4, P.V * 3));
-            if (P.kind === 'body') { if (P.st > 6.5 && P.st < 9.5 && Math.abs(P.u - 0.5) < 0.05) c = mul(c, 0.6); if (P.st > 13 && P.top < -0.1) c = mx(c, hx(0xd9d3c4), sm(-0.1, -0.5, P.top)); c = nose(P, c, 0x2a2220); }
-            if (P.kind === 'ear' && P.v > 0.75) c = hx(0xe8e2d4);
-            if (P.kind === 'leg') c = legDark(P, c, 0x2a221e, 0.6, 0.9);
-            return mul(c, grain(P, 0.12));
+            const base = hx(0x3a302a), grey = hx(0x8a8078);
+            let c = mul(cs(P, base, hx(0x4e423a), -0.6, 0.2), 0.86 + 0.24 * fb(P.U * 4, P.V * 3));
+            if (P.kind === 'body') {
+              const k = P.st;
+              if (k > 6.4 && k < 10.6 && P.top > 0.55) c = mx(c, hx(0x17120f), sm(0.55, 0.75, P.top)); // crin oscura
+              if (k > 10.4 && P.top < 0.0) c = mx(c, grey, sm(0.0, -0.45, P.top) * 0.55); // mejillas y garganta grisáceas
+              if (k > 13.2 && P.top < -0.45) c = mx(c, hx(0xb8b0a4), sm(-0.45, -0.7, P.top) * 0.6); // borde claro del labio
+              c = nose(P, c, 0x2a2220);
+            }
+            if (P.kind === 'ear') c = P.v > 0.72 ? hx(0xece6d8) : mx(base, hx(0x1e1916), 0.4);
+            if (P.kind === 'leg') c = legDark(P, c, 0x221c18, 0.55, 0.88);
+            if (P.kind === 'tail') c = hx(0x2a221e);
+            return mul(c, grain(P, 0.1));
           } };
 
         S.guanaco = { tpl: quad({ L: 0.95, hipH: 1.05, shH: 1.04, hipD: 0.42, chD: 0.46, hipW: 0.34, chW: 0.34, bellyW: 0.38, belly: 0.02, neckL: 0.66, neckA: 66, neckR0: 0.105, neckR1: 0.08,
