@@ -384,7 +384,7 @@ body.tension .fx-vignette{background:radial-gradient(120% 90% at 50% 42%,transpa
 @media (max-width:480px){.setup-2{grid-template-columns:1fr}.voice{gap:12px}.avatar{width:56px;height:56px}}
 
 /* Modo película: franjas negras, subtítulos y capítulos */
-#scene{filter:saturate(1.07) contrast(1.05)}
+#scene{filter:var(--pf,brightness(1)) var(--gf,saturate(1.07) contrast(1.05));transition:filter 2.2s ease}
 :root{--lbt:clamp(58px,9.5vh,100px);--lbb:clamp(124px,21vh,196px)}
 .lb{position:fixed;left:0;right:0;z-index:7;background:#020403;height:0;overflow:hidden;display:flex;transition:height 1s cubic-bezier(.7,0,.2,1)}
 .lb-top{top:0;align-items:flex-end}
@@ -642,6 +642,42 @@ body.fade #fade{opacity:1}
 @keyframes demoT{to{transform:scaleX(0)}}
 .demo-final{text-align:center}
 .demo-final-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+/* color de cine por capítulo, desenfoque de fondo en primeros planos y modo proyector */
+.fx-atmo{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.fx-grade{transition:background 2s,opacity 2s}
+body[data-grade="dorado"]{--gf:saturate(1.18) contrast(1.06) sepia(.12)}
+body[data-grade="dorado"] .fx-grade{opacity:.8;background:linear-gradient(180deg,rgba(255,170,80,.6) 0%,rgba(255,140,90,.15) 55%,rgba(120,40,90,.35) 100%)}
+body[data-grade="fuego"]{--gf:saturate(1.25) contrast(1.12) sepia(.2)}
+body[data-grade="fuego"] .fx-grade{opacity:.9;background:linear-gradient(180deg,rgba(255,110,20,.55) 0%,rgba(200,50,10,.35) 60%,rgba(40,10,0,.5) 100%)}
+body[data-grade="rio"]{--gf:saturate(.8) contrast(1.06) hue-rotate(-14deg)}
+body[data-grade="rio"] .fx-grade{opacity:.75;background:linear-gradient(180deg,rgba(140,150,70,.35) 0%,rgba(60,90,40,.45) 100%)}
+body[data-grade="smog"]{--gf:saturate(.55) contrast(.92) sepia(.3) brightness(.97)}
+body[data-grade="smog"] .fx-grade{opacity:.85;background:linear-gradient(180deg,rgba(150,140,110,.5) 0%,rgba(90,85,70,.45) 100%)}
+body[data-grade="tormenta"]{--gf:saturate(.6) contrast(1.18) brightness(.9) hue-rotate(8deg)}
+body[data-grade="tormenta"] .fx-grade{opacity:.9;background:linear-gradient(180deg,rgba(40,70,120,.6) 0%,rgba(20,30,60,.5) 100%)}
+body[data-grade="futuro"]{--gf:grayscale(.75) sepia(.35) contrast(1.12)}
+body[data-grade="futuro"] .fx-grade{opacity:.7;background:linear-gradient(180deg,rgba(160,120,70,.4) 0%,rgba(40,30,20,.5) 100%)}
+body[data-grade="esperanza"]{--gf:saturate(1.3) brightness(1.04) contrast(1.04)}
+body[data-grade="esperanza"] .fx-grade{opacity:.7;background:linear-gradient(180deg,rgba(255,200,120,.45) 0%,rgba(80,170,140,.3) 100%)}
+body.dof .fx-vignette{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);-webkit-mask-image:radial-gradient(ellipse 30% 42% at 50% 44%,transparent 45%,#000 95%);mask-image:radial-gradient(ellipse 30% 42% at 50% 44%,transparent 45%,#000 95%)}
+body.proyector{--pf:brightness(1.22) contrast(1.12) saturate(1.12)}
+body.proyector .fx-vignette{opacity:.55}
+/* póster de la pantalla de carga */
+.loader-art{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.loader{isolation:isolate}
+.loader::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(8,19,15,0) 40%,rgba(8,19,15,.85) 100%)}
+.loader strong{font-size:clamp(48px,9vw,96px);color:#fff7e6;text-shadow:0 6px 40px rgba(80,20,0,.55)}
+.loader-tag{display:block;font-style:normal;font-family:var(--display);font-size:clamp(15px,2vw,20px);color:#fff1d6;margin-bottom:10px;text-shadow:0 2px 14px rgba(0,0,0,.5)}
+.loader span{color:#ffe9c9}
+.la-sun{animation:laSun 6s ease-in-out infinite alternate}
+.la-ray{animation:laRay 7s ease-in-out infinite alternate;transform-origin:1040px 430px}
+.la-mist{animation:laMist 9s ease-in-out infinite alternate}
+.la-birds{animation:laBirds 14s linear infinite}
+@keyframes laSun{to{transform:translateY(-14px)}}
+@keyframes laRay{from{opacity:.1;transform:rotate(-2deg)}to{opacity:.24;transform:rotate(2deg)}}
+@keyframes laMist{to{transform:translateX(-60px)}}
+@keyframes laBirds{from{transform:translate(-120px,20px)}to{transform:translate(500px,-60px)}}
+@media (prefers-reduced-motion:reduce){.la-sun,.la-ray,.la-mist,.la-birds{animation:none}}
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
@@ -689,7 +725,28 @@ body.fade #fade{opacity:1}
     <div id="faunaList" class="fauna-list"></div>
   </div>
 </section>
-<div id="loader" class="loader"><strong>Cuenca Viva</strong><span id="loaderMsg">Dibujando el valle…</span>
+<div id="loader" class="loader"><svg class="loader-art" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<defs>
+<linearGradient id="lsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2a4a"/><stop offset=".45" stop-color="#e2774a"/><stop offset=".7" stop-color="#ffc77a"/><stop offset="1" stop-color="#ffe2a8"/></linearGradient>
+<radialGradient id="lsun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff6d8"/><stop offset=".35" stop-color="#ffd48a" stop-opacity=".9"/><stop offset="1" stop-color="#ffb060" stop-opacity="0"/></radialGradient>
+<linearGradient id="lm1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b0607a"/><stop offset="1" stop-color="#e08a6a"/></linearGradient>
+<linearGradient id="lm2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3f6a"/><stop offset="1" stop-color="#9a5f6a"/></linearGradient>
+<linearGradient id="lm3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c4a3a"/><stop offset="1" stop-color="#1c3428"/></linearGradient>
+<linearGradient id="lm4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16271d"/><stop offset="1" stop-color="#08130f"/></linearGradient>
+<linearGradient id="lriv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe0a0"/><stop offset="1" stop-color="#ff9a5a" stop-opacity=".6"/></linearGradient>
+</defs>
+<rect width="1600" height="900" fill="url(#lsky)"/>
+<circle class="la-sun" cx="1040" cy="430" r="260" fill="url(#lsun)"/>
+<g class="la-ray" opacity=".18" fill="#fff1c8"><path d="M1040 430 L700 0 L780 0Z"/><path d="M1040 430 L960 0 L1030 0Z"/><path d="M1040 430 L1250 0 L1330 0Z"/><path d="M1040 430 L1520 0 L1600 40Z"/></g>
+<path fill="url(#lm1)" opacity=".85" d="M0 520 L120 430 L230 470 L360 360 L470 430 L600 330 L720 420 L840 350 L960 440 L1100 360 L1230 450 L1370 380 L1500 440 L1600 400 L1600 900 L0 900Z"/>
+<path class="la-mist" fill="#ffd9b0" opacity=".35" d="M0 560 Q400 520 800 560 T1600 550 L1600 620 L0 620Z"/>
+<path fill="url(#lm2)" d="M0 600 L150 520 L300 580 L420 500 L560 590 L700 520 L860 600 L1000 530 L1160 610 L1300 540 L1450 600 L1600 560 L1600 900 L0 900Z"/>
+<path fill="url(#lm3)" d="M0 690 L200 610 L380 680 L520 640 L640 700 L780 660 L900 720 L1080 650 L1240 710 L1420 640 L1600 690 L1600 900 L0 900Z"/>
+<path fill="url(#lriv)" opacity=".85" d="M760 700 Q720 760 800 800 Q900 850 820 900 L900 900 Q980 850 880 800 Q800 760 840 700Z"/>
+<path fill="url(#lm4)" d="M0 780 L180 730 L360 790 L560 760 L700 820 L940 800 L1120 830 L1300 770 L1600 800 L1600 900 L0 900Z"/>
+<g fill="#08130f"><g transform="translate(180 760)"><rect x="-4" y="-60" width="8" height="60"/><circle cy="-66" r="16"/></g><g transform="translate(250 780) scale(.8)"><rect x="-4" y="-60" width="8" height="60"/><circle cy="-66" r="16"/></g><g transform="translate(1380 770) scale(1.1)"><rect x="-4" y="-60" width="8" height="60"/><circle cy="-66" r="16"/></g><g transform="translate(1460 790) scale(.7)"><rect x="-4" y="-60" width="8" height="60"/><circle cy="-66" r="16"/></g></g>
+<g class="la-birds" fill="none" stroke="#2a1a22" stroke-width="3" stroke-linecap="round"><path d="M600 260 q12 -10 24 0 q12 -10 24 0"/><path d="M660 230 q9 -8 18 0 q9 -8 18 0"/><path d="M560 300 q8 -7 16 0 q8 -7 16 0"/></g>
+</svg><strong>Cuenca Viva</strong><em class="loader-tag">Una historia del agua, el aire y la vida en los Andes</em><span id="loaderMsg">Dibujando el valle…</span>
   <button class="btn" id="loaderAlt" type="button" hidden>Jugar sin 3D</button>
   <span class="loader-note" id="loaderNote"></span>
   <!-- si el visor no ejecuta JavaScript (vista previa del iPhone, de WhatsApp, del correo), el juego no puede arrancar: se explica qué hacer -->
@@ -1915,7 +1972,13 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     // "sp:jaguar", "sp:oso"…: plano de documental que sigue a un animal (wildlife.js)
     const spk = typeof name === 'string' && name.slice(0, 3) === 'sp:' ? name.slice(3).split(':') : null;
     const sp = spk && CV.wildlife && CV.wildlife.shot ? CV.wildlife.shot(spk[0], spk[1] || opts.kind) : null;
-    if (sp) { shot = sp; shot.kind = name; } else if (SPECIAL[name]) { shot = SPECIAL[name](); shot.kind = name; } else shot = makeShot(VIEWS[name] ? name : 'fauna', opts.kind);
+    // "pp:rosa", "pp:tomas"…: primer plano de un protagonista que habla; la cámara se le acerca despacio, con lente larga
+    const pp = typeof name === 'string' && name.slice(0, 3) === 'pp:' && CV.protagonistas && CV.protagonistas.list ? CV.protagonistas.list.find((q) => q.id === name.slice(3)) : null;
+    if (pp) {
+      const o = pp.g.position, k = pp.g.scale.x, a = pp.face + (opts.kind === 'lado' ? 0.9 : 0.35), hy = o.y + 1.78 * k;
+      const fx = Math.sin(a), fz = Math.cos(a);
+      shot = { path: (e) => { const d = (4.2 - 1 * e) * k; const p = new THREE.Vector3(o.x + fx * d, hy - 0.1 * k, o.z + fz * d); p.y = Math.max(p.y, height(p.x, p.z) + 0.9); return { p, t: new THREE.Vector3(o.x, hy - 0.32 * k, o.z) }; }, dur: 26, f0: 30, f1: 26, calm: true, kind: name };
+    } else if (sp) { shot = sp; shot.kind = name; } else if (SPECIAL[name]) { shot = SPECIAL[name](); shot.kind = name; } else shot = makeShot(VIEWS[name] ? name : 'fauna', opts.kind);
     shot.start = clock;
     const q = shotPose(shot, 0);
     goalP.copy(q.p); goalT.copy(q.t); fovGoal = shot.f0;
@@ -2116,6 +2179,10 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     orbit(on) { orbit = !!on; if (on) { shot = null; orbitA = Math.atan2(camP.x, camP.z + 100); } },
     // lapso de tiempo: el sol da vueltas (días y noches pasan rápido) para la película del futuro
     // de noche (prueba del Mundo de la energía); false devuelve la luz original
+    // hora dorada: sol bajo y cálido para la apertura y el final de la demostración
+    golden(on) { if (on) setSun(new THREE.Vector3(0.42, 0.1, 0.72).normalize()); else if (baseSun) setSun(baseSun); updateEnv(true); },
+    // anochecer de tormenta: queda luz suficiente para ver a la gente (también en un proyector)
+    dusk(on) { if (on) setSun(new THREE.Vector3(0.3, 0.06, 0.75).normalize()); else if (baseSun) setSun(baseSun); updateEnv(true); },
     night(on) { if (on) setSun(new THREE.Vector3(0.35, -0.2, 0.7).normalize()); else if (baseSun) setSun(baseSun); updateEnv(true); },
     timelapse(on) { lapse = !!on; if (!on && baseSun) { lapseA = 0; setSun(baseSun); updateEnv(true); } },
   };
@@ -2939,6 +3006,9 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           #ifdef USE_INSTANCING
             ip = vec3(instanceMatrix[3][0], instanceMatrix[3][1], instanceMatrix[3][2]);
           #endif
+          // de muy cerca (cámara a pie o primeros planos) las matas se encogen: así no tapan la vista como hojas gigantes
+          float cvNear = smoothstep(1.2, 9.0, distance(ip, cameraPosition));
+          transformed *= 0.15 + 0.85 * cvNear;
           float sway = sin(uTime * 1.6 + ip.x * 0.08 + ip.z * 0.06) + 0.5 * sin(uTime * 2.7 + ip.z * 0.15);
           transformed.x += sway * 0.22 * uv.y; transformed.z += sway * 0.12 * uv.y;`);
       };
@@ -3336,7 +3406,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           transparent: true, depthWrite: false,
           uniforms: { uTex: { value: puff }, uColor: { value: new THREE.Color() }, uScale: { value: 800 } },
           vertexShader: 'attribute float aSize;attribute float aAlpha;varying float vA;uniform float uScale;void main(){vA=aAlpha;vec4 mv=modelViewMatrix*vec4(position,1.0);gl_PointSize=aSize*uScale/-mv.z;gl_Position=projectionMatrix*mv;}',
-          fragmentShader: 'uniform sampler2D uTex;uniform vec3 uColor;varying float vA;void main(){vec4 t=texture2D(uTex,gl_PointCoord);gl_FragColor=vec4(uColor,t.a*vA);}',
+          fragmentShader: 'uniform sampler2D uTex;uniform vec3 uColor;varying float vA;void main(){vec4 t=texture2D(uTex,gl_PointCoord);gl_FragColor=vec4(uColor,t.a*t.a*vA*0.75);}',
         });
         const pts = new THREE.Points(g, mat); pts.frustumCulled = false; scene.add(pts);
         const spawn = (p) => { p.age = 0; p.life = (o.life || 8) * (0.8 + rand() * 0.4); p.x = top.x + (rand() - 0.5) * (o.spread || 2); p.y = top.y; p.z = top.z + (rand() - 0.5) * (o.spread || 2); p.vx = (o.wind || 4) * (0.7 + rand() * 0.6); p.vy = (o.rise || 7) * (0.7 + rand() * 0.6); p.vz = (rand() - 0.5) * 3; };
@@ -7369,6 +7439,16 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     o.connect(g); g.connect(A.master); o.start(t); o.stop(t + d + 0.05);
   }
   const sfx = {
+    // trueno: chasquido seco y retumbo largo; far (0 a 1) lo hace más lejano y grave
+    thunder(far) {
+      const c = A.ctx; if (!c || !A.on || !A.noise) return;
+      far = far || 0; const t = c.currentTime, s = c.createBufferSource(), g = c.createGain(), lp = filt('lowpass', 900 - far * 600, 0.7);
+      s.buffer = A.noise; s.loop = true; s.playbackRate.value = 0.5;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5 - far * 0.3, t + 0.04 + far * 0.2);
+      for (let k = 0; k < 4; k++) g.gain.exponentialRampToValueAtTime((0.22 - far * 0.12) * (1 - k * 0.2), t + 0.5 + k * 0.6 + Math.random() * 0.3);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 4.2);
+      lp.frequency.exponentialRampToValueAtTime(140, t + 4); s.connect(lp); lp.connect(g); g.connect(A.master); s.start(t); s.stop(t + 4.3);
+    },
     ok() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, 0.45, 'triangle', 0.14, i * 0.08)); },
     mid() { [523.25, 587.33, 659.25].forEach((f, i) => tone(f, 0.3, 'triangle', 0.1, i * 0.1)); },
     bad() { tone(220, 0.32, 'sawtooth', 0.06, 0, 150); tone(165, 0.45, 'sawtooth', 0.05, 0.12, 110); },
@@ -7540,8 +7620,35 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     } else if (themeT && !stopT) stopT = setTimeout(() => { clearInterval(themeT); themeT = null; stopT = null; }, 3000);
   }
 
+  // ---------- cuerdas: colchón de acordes lentos debajo del piano (triste, oscuro o esperanza) ----------
+  let padG = null, padT = null, padV = [], padStep = 0;
+  const PADS = {
+    triste: [[220, 261.63, 329.63], [174.61, 220, 261.63], [261.63, 329.63, 392], [196, 246.94, 293.66]],
+    oscuro: [[73.42, 110, 146.83, 174.61], [69.3, 103.83, 138.59, 164.81], [73.42, 110, 146.83, 155.56], [65.41, 98, 130.81, 155.56]],
+    esperanza: [[261.63, 329.63, 392, 523.25], [196, 293.66, 392, 493.88], [220, 329.63, 440, 523.25], [174.61, 261.63, 349.23, 440]],
+  };
+  function strings(kind) {
+    const c = A.ctx; if (!c) return;
+    if (!padG) { padG = c.createGain(); padG.gain.value = 0; const lp = filt('lowpass', 1400, 0.5); padG.connect(lp); lp.connect(A.master); try { lp.connect(reverb()); } catch (e) {} }
+    const stopVoices = (when) => { padV.forEach((o) => { try { o.g.gain.setTargetAtTime(0.0001, when, 1.2); o.o.forEach((x) => x.stop(when + 5)); } catch (e) {} }); padV = []; };
+    if (!kind || !A.on) { padG.gain.setTargetAtTime(0, c.currentTime, 1.5); if (padT) { clearInterval(padT); padT = null; } stopVoices(c.currentTime); return; }
+    padG.gain.setTargetAtTime(kind === 'oscuro' ? 0.11 : 0.075, c.currentTime, 1.6);
+    const chords = PADS[kind] || PADS.triste;
+    const play = () => {
+      const t = c.currentTime; stopVoices(t);
+      chords[padStep++ % chords.length].forEach((f) => {
+        const g = c.createGain(), os = [];
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 2.2);
+        [-7, 0, 6].forEach((det) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = det; o.connect(g); o.start(t); os.push(o); });
+        g.connect(padG); padV.push({ g, o: os });
+      });
+    };
+    if (padT) clearInterval(padT);
+    play(); padT = setInterval(play, 6500);
+  }
+
   CV.audio = {
-    init, setMood, speak, hush, sfx, theme, listVoices,
+    init, setMood, speak, hush, sfx, theme, listVoices, pad: strings,
     setFire(k) { if (A.amb && A.amb.fire) A.amb.fire.gain.setTargetAtTime(k * 0.09, A.ctx.currentTime, 0.8); },
     setRain(k) { if (A.amb && A.amb.rain) A.amb.rain.gain.setTargetAtTime(k * 0.05, A.ctx.currentTime, 0.8); },
     set narratorVoice(n) { A.narratorVoice = n || ''; },
@@ -7767,31 +7874,59 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const add = (parent, g, mat, x, y, z, sx, sy, sz, rx = 0, ry = 0, rz = 0) => {
         const m = new THREE.Mesh(g, mat); m.position.set(x, y, z); m.scale.set(sx, sy, sz); m.rotation.set(rx, ry, rz); m.castShadow = true; parent.add(m); return m;
       };
-      // cuerpo articulado sencillo: caderas, torso, cabeza, brazos y piernas que giran desde el hombro y la cadera
+      // persona con rasgos: torso con hombros (torno), cuello, cabeza ovalada con cejas, ojos que parpadean,
+      // nariz, orejas, boca que se abre al hablar, manos con pulgar, y pelo, bigote o moño según cada quien
+      const torsoG = (() => { const pts = [[0, -0.32], [0.17, -0.31], [0.2, -0.2], [0.19, 0], [0.21, 0.16], [0.24, 0.24], [0.19, 0.3], [0.07, 0.33], [0, 0.33]].map(([x, y]) => new THREE.Vector2(x, y));
+        const g = new THREE.LatheGeometry(pts, 20); g.scale(1, 1, 0.68); return g; })();
+      const headG = (() => { const g = new THREE.SphereGeometry(1, 24, 18), p = g.attributes.position;
+        for (let i = 0; i < p.count; i++) { const y = p.getY(i), z = p.getZ(i); // mentón más angosto y mejillas suaves
+          const nar = y < 0 ? 1 - 0.22 * (-y) : 1; p.setX(i, p.getX(i) * nar); p.setZ(i, z * (y < 0 ? 1 - 0.1 * (-y) : 1) + (y < -0.2 && z > 0 ? 0.04 : 0)); }
+        g.computeVertexNormals(); return g; })();
+      const limbG = new THREE.CylinderGeometry(1, 0.8, 1, 12);
       function person(o) {
-        const k = o.kid ? 0.7 : 1, g = new THREE.Group(), body = new THREE.Group(); g.add(body); g.scale.setScalar(k * 0.95);
-        const skin = std(o.skin || 0xb98563, 0.7), shirt = std(o.shirt, 0.85), pants = std(o.pants, 0.9), shoe = std(0x2a211b, 0.8), hair = std(o.hair || 0x241a14, 0.9);
-        const limb = (x, y, mat, len, w) => { const pivot = new THREE.Group(); pivot.position.set(x, y, 0); body.add(pivot); add(pivot, geo.cyl, mat, 0, -len / 2, 0, w, len, w); return pivot; };
-        const legL = limb(-0.12, 0.9, pants, 0.86, 0.1), legR = limb(0.12, 0.9, pants, 0.86, 0.1);
-        [legL, legR].forEach((l) => add(l, geo.box, shoe, 0, -0.88, 0.05, 0.14, 0.08, 0.26));
-        add(body, geo.cyl, pants, 0, 0.98, 0, 0.21, 0.2, 0.15);
-        const torso = add(body, geo.cyl, shirt, 0, 1.28, 0, 0.22, 0.58, 0.15);
-        if (o.ruana) add(body, geo.cone, std(o.ruana, 0.95), 0, 1.3, 0, 0.42, 0.62, 0.3);
-        const armL = limb(-0.3, 1.52, shirt, 0.62, 0.065), armR = limb(0.3, 1.52, shirt, 0.62, 0.065);
-        [armL, armR].forEach((a) => add(a, geo.sph, skin, 0, -0.64, 0, 0.065, 0.075, 0.065));
-        add(body, geo.cyl, skin, 0, 1.62, 0, 0.06, 0.1, 0.06);
-        const head = new THREE.Group(); head.position.set(0, 1.78, 0); body.add(head);
-        add(head, geo.sph, skin, 0, 0, 0, 0.13, 0.155, 0.14);
-        add(head, geo.sph, hair, 0, 0.04, -0.02, 0.138, 0.14, 0.14);
-        [-0.045, 0.045].forEach((x) => add(head, geo.sph, std(0x111111, 0.3), x, 0.01, 0.125, 0.016, 0.018, 0.01));
-        if (o.hat === 'sombrero') { add(head, geo.cyl, std(0xe7dbb8, 0.9), 0, 0.12, 0, 0.32, 0.02, 0.32); add(head, geo.cyl, std(0xe7dbb8, 0.9), 0, 0.2, 0, 0.13, 0.14, 0.13); add(head, geo.cyl, std(0x2a211b), 0, 0.15, 0, 0.135, 0.03, 0.135); }
-        if (o.hat === 'cap') { add(head, geo.sph, std(o.capC || 0x2e6fb3, 0.8), 0, 0.08, 0, 0.145, 0.09, 0.145); add(head, geo.box, std(o.capC || 0x2e6fb3, 0.8), 0, 0.06, 0.14, 0.2, 0.02, 0.14); }
-        if (o.hat === 'nurse') add(head, geo.box, std(0xffffff, 0.6), 0, 0.15, 0, 0.2, 0.07, 0.14);
-        if (o.scarf) { add(head, geo.sph, std(o.scarf, 0.95), 0, 0.03, -0.01, 0.152, 0.165, 0.15); add(body, geo.torus, std(o.scarf, 0.95), 0, 1.6, 0, 0.11, 0.11, 0.11, Math.PI / 2); }
-        if (o.long) add(body, geo.cone, pants, 0, 0.62, 0, 0.3, 0.75, 0.24);
-        if (o.backpack) add(body, geo.box, std(0xd9442b, 0.8), 0, 1.3, -0.17, 0.32, 0.4, 0.14);
-        if (o.cross) { add(torso, geo.box, std(0xd02a2a, 0.6), 0, 0.2, 1.02, 0.5, 0.12, 0.02); add(torso, geo.box, std(0xd02a2a, 0.6), 0, 0.2, 1.02, 0.18, 0.34, 0.02); }
-        return { g, body, legL, legR, armL, armR, head };
+        const k = o.kid ? 0.68 : 1, g = new THREE.Group(), body = new THREE.Group(); g.add(body); g.scale.setScalar(k * 0.95);
+        const skin = std(o.skin || 0xb98563, 0.62), shirt = std(o.shirt, 0.85), pants = std(o.pants, 0.9), shoe = std(0x2a211b, 0.7), hair = std(o.hair || 0x241a14, 0.85);
+        const dark = std(0x1a1210, 0.4), white = std(0xf2efe8, 0.3), lip = std(o.lip || 0x8a4a3e, 0.6);
+        const limb = (x, y, mat, len, w) => { const pivot = new THREE.Group(); pivot.position.set(x, y, 0); body.add(pivot); add(pivot, limbG, mat, 0, -len / 2, 0, w, len, w); return pivot; };
+        const legL = limb(-0.11, 0.92, pants, 0.88, 0.085), legR = limb(0.11, 0.92, pants, 0.88, 0.085);
+        [legL, legR].forEach((l) => { add(l, geo.sph, shoe, 0, -0.88, 0.06, 0.08, 0.06, 0.15); });
+        add(body, geo.sph, pants, 0, 0.95, 0, 0.19, 0.12, 0.13);
+        const torso = add(body, torsoG, shirt, 0, 1.3, 0, 1, 1, 1);
+        add(body, geo.torus, shirt, 0, 1.62, 0, 0.075, 0.075, 0.075, Math.PI / 2); // cuello de la camisa
+        if (o.ruana) { const r = add(body, geo.cone, std(o.ruana, 0.95), 0, 1.3, 0, 0.44, 0.66, 0.32); r.material.side = THREE.DoubleSide; add(body, geo.cone, std(0x3a2416, 0.95), 0, 0.99, 0, 0.445, 0.04, 0.325); }
+        const armL = limb(-0.27, 1.56, shirt, 0.6, 0.058), armR = limb(0.27, 1.56, shirt, 0.6, 0.058);
+        [armL, armR].forEach((a, i) => { add(a, geo.sph, skin, 0, -0.64, 0.01, 0.05, 0.07, 0.035); add(a, geo.sph, skin, i ? -0.035 : 0.035, -0.61, 0.03, 0.016, 0.03, 0.016, 0.4); });
+        add(body, geo.cyl, skin, 0, 1.66, 0, 0.055, 0.12, 0.055);
+        const head = new THREE.Group(); head.position.set(0, 1.84, 0); body.add(head);
+        add(head, headG, skin, 0, 0, 0, 0.115, 0.145, 0.13);
+        [-1, 1].forEach((s) => add(head, geo.sph, skin, s * 0.112, 0, -0.005, 0.02, 0.035, 0.02)); // orejas
+        add(head, geo.sph, skin, 0, -0.008, 0.128, 0.018, 0.034, 0.022); // nariz
+        add(head, geo.sph, skin, 0, -0.035, 0.13, 0.024, 0.016, 0.018);
+        // ojos (blanco, iris, pupila y párpado que baja al parpadear) y cejas
+        const lids = [];
+        [-1, 1].forEach((s) => {
+          add(head, geo.sph, white, s * 0.042, 0.022, 0.108, 0.022, 0.016, 0.012);
+          add(head, geo.sph, std(o.eye || 0x3a2416, 0.25), s * 0.042, 0.022, 0.118, 0.011, 0.012, 0.006);
+          add(head, geo.sph, dark, s * 0.042, 0.022, 0.121, 0.005, 0.006, 0.003);
+          lids.push(add(head, geo.sph, skin, s * 0.042, 0.03, 0.111, 0.024, 0.006, 0.013));
+          add(head, geo.box, std(o.brow || o.hair || 0x241a14, 0.9), s * 0.044, 0.05, 0.118, 0.04, 0.008, 0.008, 0, 0, s * -0.12);
+        });
+        // boca oscura que se abre al hablar, labio y bigote
+        const mouth = add(head, geo.sph, std(0x3a1a16, 0.6), 0, -0.072, 0.112, 0.026, 0.004, 0.01);
+        add(head, geo.box, lip, 0, -0.066, 0.115, 0.05, 0.006, 0.008);
+        if (o.mustache) add(head, geo.box, std(o.mustache, 0.95), 0, -0.056, 0.124, 0.07, 0.014, 0.012);
+        // pelo
+        add(head, geo.sph, hair, 0, 0.045, -0.012, 0.122, 0.12, 0.13);
+        if (o.bun) add(head, geo.sph, hair, 0, 0.06, -0.13, 0.055, 0.05, 0.05);
+        if (o.long) add(head, geo.sph, hair, 0, -0.06, -0.06, 0.11, 0.13, 0.08);
+        if (o.hat === 'sombrero') { const m = std(0xe7dbb8, 0.9); add(head, geo.cyl, m, 0, 0.12, 0, 0.3, 0.015, 0.3); add(head, geo.cyl, m, 0, 0.19, 0, 0.12, 0.13, 0.12); add(head, geo.cyl, std(0x2a211b), 0, 0.145, 0, 0.123, 0.03, 0.123); }
+        if (o.hat === 'cap') { add(head, geo.sph, std(o.capC || 0x2e6fb3, 0.8), 0, 0.075, -0.005, 0.125, 0.085, 0.135); add(head, geo.box, std(o.capC || 0x2e6fb3, 0.8), 0, 0.06, 0.13, 0.17, 0.012, 0.12, -0.15); }
+        if (o.hat === 'nurse') add(head, geo.box, std(0xffffff, 0.6), 0, 0.15, 0, 0.18, 0.06, 0.12);
+        if (o.scarf) { add(head, geo.sph, std(o.scarf, 0.95), 0, 0.035, -0.018, 0.13, 0.15, 0.14); add(body, geo.torus, std(o.scarf, 0.95), 0, 1.63, 0, 0.1, 0.1, 0.12, Math.PI / 2); }
+        if (o.skirt) add(body, geo.cone, std(o.skirt, 0.9), 0, 0.66, 0, 0.3, 0.68, 0.24);
+        if (o.backpack) { add(body, geo.box, std(0xd9442b, 0.8), 0, 1.3, -0.19, 0.3, 0.36, 0.13); [-0.1, 0.1].forEach((x) => add(body, geo.box, std(0x8a2a1a, 0.8), x, 1.4, -0.06, 0.03, 0.4, 0.2)); }
+        if (o.cross) { add(torso, geo.box, std(0xd02a2a, 0.6), 0, 0.12, 0.14, 0.09, 0.025, 0.01); add(torso, geo.box, std(0xd02a2a, 0.6), 0, 0.12, 0.14, 0.025, 0.09, 0.01); }
+        return { g, body, legL, legR, armL, armR, head, mouth, lids };
       }
       const P = [];
       const place = (who, x, z, face, o) => {
@@ -7799,21 +7934,21 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         P.push(Object.assign(p, who, { x, z, face, t: Math.random() * 10 })); return p;
       };
       const zr = W.people.rosa.z, rx = W.people.rosa.x;
-      const rosa = place({ id: 'rosa', name: 'Doña Rosa', role: 'Pescadora del río', say: 'Cuando el río baja limpio vuelven los peces… y vuelve la comida a mi casa.', act: 'fish' }, rx, zr, -Math.PI / 2, { shirt: 0x8a3b5c, pants: 0x3b3b52, scarf: 0xd9a21b, hair: 0x5a5550, long: true });
+      const rosa = place({ id: 'rosa', name: 'Doña Rosa', role: 'Pescadora del río', say: 'Cuando el río baja limpio vuelven los peces… y vuelve la comida a mi casa.', act: 'fish' }, rx, zr, -Math.PI / 2, { shirt: 0x8a3b5c, pants: 0x3b3b52, skirt: 0x3b3b52, scarf: 0x1f6f78, hair: 0x5a5550, bun: true, skin: 0x8d5a3c });
       // caña de pescar con su sedal
       { const rod = new THREE.Group(); rod.position.set(0, -0.6, 0); rosa.armR.add(rod);
         add(rod, geo.cyl, std(0x6b4a2b, 0.8), 0, 0, 1.3, 0.02, 2.8, 0.02, Math.PI / 2 - 0.5);
         rosa.line = add(rod, geo.cyl, std(0xeeeeee, 0.5), 0, -0.7, 2.6, 0.004, 1.6, 0.004); }
       const pv = W.pads.find((p) => p.id === 'pueblo') || { x: 0, z: 0, h: 0 }, vh = pv.h || 0;
       const vx = (x) => pv.x + x, vz = (z) => pv.z + z;
-      const mateo = place({ id: 'mateo', name: 'Mateo', role: 'Estudiante de cuarto grado', say: '¡En la escuela sembramos árboles! El aire del recreo ahora huele a lluvia.', act: 'walk', a: -28, b: 4, c: 19.5 }, vx(19.5), vz(-20), 0, { kid: true, shirt: 0xf5c518, pants: 0x1d3f8f, backpack: true, hair: 0x1a1410 });
+      const mateo = place({ id: 'mateo', name: 'Mateo', role: 'Estudiante de cuarto grado', say: '¡En la escuela sembramos árboles! El aire del recreo ahora huele a lluvia.', act: 'walk', a: -28, b: 4, c: 19.5 }, vx(19.5), vz(-20), 0, { kid: true, shirt: 0xf5c518, pants: 0x1d3f8f, backpack: true, hair: 0x1a1410, skin: 0xc28e6a });
       void mateo;
-      place({ id: 'luz', name: 'Luz Marina', role: 'Enfermera del puesto de salud', say: 'Cuando el aire está limpio llegan menos niños con tos al puesto de salud.', act: 'wave' }, vx(6.5), vz(9), Math.PI, { shirt: 0xf4f6f6, pants: 0xf4f6f6, hat: 'nurse', cross: true, hair: 0x2b1d14, long: true });
+      place({ id: 'luz', name: 'Luz Marina', role: 'Enfermera del puesto de salud', say: 'Cuando el aire está limpio llegan menos niños con tos al puesto de salud.', act: 'wave' }, vx(6.5), vz(9), Math.PI, { shirt: 0x7fbfb8, pants: 0x5f9f99, skirt: 0x5f9f99, hat: 'nurse', cross: true, hair: 0x2b1d14, long: true, skin: 0xd2a07c });
       const bx = W.spots.basura.x - 6, bz = W.spots.basura.z - 9;
-      const efra = place({ id: 'efrain', name: 'Don Efraín', role: 'Reciclador de oficio', say: 'Lo que ustedes botan, yo lo separo. Cada botella que no llega al río es una victoria.', act: 'sack' }, bx, bz, 0.6, { shirt: 0x5b6b3a, pants: 0x3a352d, hat: 'cap', capC: 0x2e6fb3, hair: 0x9a948c });
+      const efra = place({ id: 'efrain', name: 'Don Efraín', role: 'Reciclador de oficio', say: 'Lo que ustedes botan, yo lo separo. Cada botella que no llega al río es una victoria.', act: 'sack' }, bx, bz, 0.6, { shirt: 0x5b6b3a, pants: 0x3a352d, hat: 'cap', capC: 0x2e6fb3, hair: 0x9a948c, mustache: 0x8f8a82, skin: 0xa8714f });
       add(efra.body, geo.sph, std(0xe9e6dc, 0.9), 0.05, 1.45, -0.32, 0.32, 0.42, 0.26);
       const tx = W.people.tomas.x, tz = W.people.tomas.z;
-      const tomas = place({ id: 'tomas', name: 'Don Tomás', role: 'Campesino del páramo', say: 'El frailejón es el que nos da el agua. Mi abuelo me enseñó a no tocarlo.', act: 'hoe' }, tx, tz, 2.2, { shirt: 0xe8e1cf, pants: 0x3a3a3a, hat: 'sombrero', ruana: 0x7a4b2a, hair: 0xb5b0a8 });
+      const tomas = place({ id: 'tomas', name: 'Don Tomás', role: 'Campesino del páramo', say: 'El frailejón es el que nos da el agua. Mi abuelo me enseñó a no tocarlo.', act: 'hoe' }, tx, tz, 2.2, { shirt: 0xe8e1cf, pants: 0x3a3a3a, hat: 'sombrero', ruana: 0x7a4b2a, hair: 0xb5b0a8, mustache: 0xd8d4cc, brow: 0xcfcac2, skin: 0xb07a55 });
       { const hoe = new THREE.Group(); hoe.position.set(0, -0.62, 0); tomas.armR.add(hoe);
         add(hoe, geo.cyl, std(0x6b4a2b, 0.8), 0, -0.2, 0.3, 0.025, 1.5, 0.025, 0.9); add(hoe, geo.box, std(0x777a7c, 0.4), 0, -0.75, 0.85, 0.22, 0.03, 0.18, 0.4); }
       if (W.pads.find((p) => p.id === 'pueblo')) P.filter((p) => p.id === 'mateo' || p.id === 'luz').forEach((p) => (p.g.position.y = vh + 0.05));
@@ -7829,7 +7964,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
             // al acercarse alguien en "Explorar", lo miran
             let face = p.face;
             if (wk && Math.hypot(wk.x - p.g.position.x, wk.z - p.g.position.z) < 14) face = Math.atan2(wk.x - p.g.position.x, wk.z - p.g.position.z);
-            if (p.act === 'walk' && !(wk && Math.hypot(wk.x - p.g.position.x, wk.z - p.g.position.z) < 14)) {
+            if (p.act === 'walk' && CV.talking !== p.id && !(wk && Math.hypot(wk.x - p.g.position.x, wk.z - p.g.position.z) < 14)) {
               p.u = (p.u === undefined ? 0 : p.u) + dt * 0.04 * (p.dir || 1);
               if (p.u > 1) { p.u = 1; p.dir = -1; } else if (p.u < 0) { p.u = 0; p.dir = 1; }
               p.g.position.z = vz(p.a + (p.b - p.a) * p.u); face = p.dir < 0 ? Math.PI : 0;
@@ -7839,6 +7974,15 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
             if (p.act === 'hoe') { const s = Math.max(0, Math.sin(t * 1.4)); p.armR.rotation.x = -1.4 + s * 1.3; p.armL.rotation.x = -1.2 + s * 1.1; p.body.rotation.x = 0.1 + s * 0.2; }
             if (p.act === 'wave') { const near = wk && Math.hypot(wk.x - p.g.position.x, wk.z - p.g.position.z) < 14; p.armR.rotation.z = near ? 2.6 : 0.1; p.armR.rotation.x = near ? Math.sin(t * 7) * 0.3 : 0; }
             if (p.act === 'sack') { p.armL.rotation.x = -2.6; p.armR.rotation.x = Math.sin(t * 0.8) * 0.1; }
+            // parpadeo
+            const bl = (t % 4.3) < 0.13; p.lids.forEach((l) => { l.scale.y = bl ? 0.02 : 0.006; l.position.y = bl ? 0.022 : 0.03; });
+            // cuando le toca hablar en la demostración: mira a la cámara, mueve la boca, asiente y gesticula
+            if (CV.talking === p.id) {
+              const cam = CV.scene.debug().camera.position; face = Math.atan2(cam.x - p.g.position.x, cam.z - p.g.position.z);
+              const on = document.querySelector('#subs.speaking') ? 1 : 0, m = on * Math.max(0, Math.sin(t * 17) * 0.6 + Math.sin(t * 9.3) * 0.5);
+              p.mouth.scale.y = 0.004 + m * 0.016; p.head.rotation.x = Math.sin(t * 2.2) * 0.06 * on; p.head.rotation.y = Math.sin(t * 0.7) * 0.15;
+              if (p.act !== 'fish' && p.act !== 'hoe' && p.act !== 'sack') { p.armR.rotation.x = -0.5 - 0.35 * Math.max(0, Math.sin(t * 1.3)) * on; p.armR.rotation.z = 0.15; p.legL.rotation.x = p.legR.rotation.x = 0; p.armL.rotation.x = 0; p.body.position.y = 0; }
+            } else p.mouth.scale.y = 0.004;
             p.g.rotation.y += Math.atan2(Math.sin(face - p.g.rotation.y), Math.cos(face - p.g.rotation.y)) * Math.min(1, dt * 3);
           });
         },
@@ -8265,6 +8409,104 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   CV.misiones = { start, stop, act, update, setNight, endNight, flock, see, unlock, toast, showAlbum, confetti, get night() { return night; }, get on() { return !!M; } };
 })();
 </script>
+<script>/* Cuenca Viva · atmósfera de cine sobre la imagen 3D
+   Una capa 2D encima del valle: ceniza que cae, brasas que suben, smog, relámpagos con trueno y rayos de sol.
+   También el color de cada capítulo (body[data-grade]) y el desenfoque de fondo de los primeros planos (body.dof).
+   CV.atmo.set('ceniza' | 'brasas' | 'smog' | 'tormenta' | 'dorado' | null) */
+(function () {
+  const CV = (window.CV = window.CV || {});
+  let cv = null, x = null, mode = null, parts = [], raf = 0, last = 0, flashT = 0, nextBolt = 0, rayA = 0;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function ensure() {
+    if (cv) return;
+    cv = document.createElement('canvas'); cv.className = 'fx-atmo'; cv.setAttribute('aria-hidden', 'true');
+    document.body.insertBefore(cv, document.querySelector('.fx-grain') || document.body.firstChild);
+    x = cv.getContext('2d'); size(); addEventListener('resize', size);
+  }
+  function size() { if (!cv) return; const r = Math.min(1.5, devicePixelRatio || 1); cv.width = innerWidth * r; cv.height = innerHeight * r; x.setTransform(r, 0, 0, r, 0, 0); }
+  const R = Math.random;
+  function spawn(m) {
+    const W = innerWidth, H = innerHeight;
+    if (m === 'ceniza') return { x: R() * W, y: -10 - R() * H, vx: 8 + R() * 14, vy: 18 + R() * 30, s: 1 + R() * 2.6, r: R() * 6, a: 0.35 + R() * 0.45, c: R() < 0.3 ? '60,55,50' : '170,165,158' };
+    if (m === 'brasas') return { x: R() * W, y: H + R() * 60, vx: -10 + R() * 20, vy: -(30 + R() * 70), s: 1 + R() * 2.2, r: R() * 6, a: 0.6 + R() * 0.4, c: R() < 0.5 ? '255,150,40' : '255,90,20', life: 2 + R() * 4 };
+    if (m === 'smog') return { x: R() * W, y: H * (0.3 + R() * 0.7), vx: 4 + R() * 8, vy: -1 + R() * 2, s: 120 + R() * 220, r: 0, a: 0.05 + R() * 0.07, c: R() < 0.5 ? '120,118,100' : '95,92,82' };
+    if (m === 'tormenta') return { x: R() * W * 1.3 - W * 0.15, y: -20 - R() * H, vx: -160, vy: 900 + R() * 500, s: 14 + R() * 18, r: 0, a: 0.18 + R() * 0.2, c: '200,215,230' };
+    return null;
+  }
+  const COUNT = { ceniza: 160, brasas: 90, smog: 26, tormenta: 260 };
+
+  function draw(now) {
+    raf = requestAnimationFrame(draw);
+    const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
+    const W = innerWidth, H = innerHeight;
+    x.clearRect(0, 0, W, H);
+    if (mode === 'dorado') {
+      // rayos de sol entre las montañas: abanico suave desde arriba a la izquierda
+      rayA += dt * 0.02;
+      x.save(); x.globalCompositeOperation = 'screen'; x.filter = 'blur(22px)';
+      const sx = W * 0.18, sy = -H * 0.1;
+      for (let i = 0; i < 7; i++) {
+        const a = 0.55 + i * 0.13 + Math.sin(rayA * 3 + i) * 0.03, len = H * 1.6, w = 0.035 + (i % 3) * 0.015;
+        const g = x.createLinearGradient(sx, sy, sx + Math.cos(a) * len, sy + Math.sin(a) * len);
+        g.addColorStop(0, 'rgba(255,214,150,.13)'); g.addColorStop(1, 'rgba(255,214,150,0)');
+        x.fillStyle = g; x.beginPath(); x.moveTo(sx, sy);
+        x.lineTo(sx + Math.cos(a - w) * len, sy + Math.sin(a - w) * len); x.lineTo(sx + Math.cos(a + w) * len, sy + Math.sin(a + w) * len); x.fill();
+      }
+      x.restore();
+    }
+    const n = COUNT[mode] || 0;
+    while (parts.length < n) parts.push(spawn(mode));
+    if (parts.length > n) parts.length = n;
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i];
+      p.x += p.vx * dt; p.y += p.vy * dt; p.r += dt;
+      if (mode === 'brasas') { p.life -= dt; p.vx += Math.sin(p.r * 3) * 20 * dt; }
+      const gone = p.y > H + 30 || p.x > W + 300 || p.x < -300 || (mode === 'brasas' && (p.life < 0 || p.y < -20));
+      if (gone) { parts[i] = spawn(mode); if (mode !== 'brasas' && mode !== 'smog') parts[i].y = -20; continue; }
+      if (mode === 'smog') {
+        const g = x.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s); g.addColorStop(0, `rgba(${p.c},${p.a})`); g.addColorStop(1, `rgba(${p.c},0)`);
+        x.fillStyle = g; x.fillRect(p.x - p.s, p.y - p.s, p.s * 2, p.s * 2);
+      } else if (mode === 'tormenta') {
+        x.strokeStyle = `rgba(${p.c},${p.a})`; x.lineWidth = 1.2; x.beginPath(); x.moveTo(p.x, p.y); x.lineTo(p.x + p.vx * 0.018, p.y + p.s); x.stroke();
+      } else {
+        const fl = mode === 'brasas' ? 0.6 + 0.4 * Math.sin(p.r * 12) : 1;
+        x.fillStyle = `rgba(${p.c},${p.a * fl})`;
+        if (mode === 'brasas') { x.shadowColor = `rgba(${p.c},.9)`; x.shadowBlur = 8; }
+        x.beginPath(); x.ellipse(p.x, p.y, p.s, p.s * (mode === 'ceniza' ? 0.6 : 1), p.r, 0, 6.29); x.fill();
+        x.shadowBlur = 0;
+      }
+    }
+    // relámpagos: destello blanco azulado y trueno con retraso
+    if (mode === 'tormenta' && !reduce) {
+      if (now > nextBolt) {
+        nextBolt = now + 3500 + R() * 6000; flashT = 1;
+        const far = R(); setTimeout(() => { try { CV.audio.sfx.thunder(far); } catch (e) {} }, 200 + far * 1600);
+        if (CV.scene && CV.scene.shake) CV.scene.shake(0.25);
+      }
+      if (flashT > 0) {
+        const f = flashT > 0.7 ? 1 : flashT > 0.55 ? 0.2 : flashT > 0.4 ? 0.8 : flashT * 0.6;
+        x.fillStyle = `rgba(225,235,255,${0.55 * f})`; x.fillRect(0, 0, W, H);
+        flashT -= dt * 2.2;
+      }
+    }
+    if (!mode && !parts.length) { cancelAnimationFrame(raf); raf = 0; x.clearRect(0, 0, W, H); }
+  }
+
+  CV.atmo = {
+    set(m) {
+      ensure();
+      mode = m || null; parts = []; nextBolt = performance.now() + 1200;
+      if (reduce && m !== 'dorado') mode = null;
+      if (mode && !raf) { last = 0; raf = requestAnimationFrame(draw); }
+      if (!mode) { x.clearRect(0, 0, innerWidth, innerHeight); }
+    },
+    grade(g) { if (g) document.body.dataset.grade = g; else delete document.body.dataset.grade; },
+    dof(on) { document.body.classList.toggle('dof', !!on); },
+    clear() { this.set(null); this.grade(null); this.dof(false); },
+  };
+})();
+</script>
 <script>/* Cuenca Viva · explorar el valle
    Recorrer la cuenca a pie, sin preguntas. Computador: W A S D o flechas, Mayús para correr y arrastrar para mirar.
    Celular: palanca a la izquierda y arrastrar a la derecha. Muestra el animal más cercano y qué hace por la cuenca. */
@@ -8443,7 +8685,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
 
   const SCENES = [
     {
-      kicker: 'Capítulo I', title: 'El páramo arde', view: 'bosque', close: 'bio', chips: 'Ola de calor · 34 °C en el páramo',
+      kicker: 'Capítulo I', title: 'El páramo arde', view: 'bosque', close: 'bio', grade: 'fuego', atmo: 'brasas', pad: 'triste', chips: 'Ola de calor · 34 °C en el páramo',
       event(t) { t.weather(0, 60); t.fire(60); t.drop(['bio', 'agua'], 0.12); t.sfx('alarm'); t.shake(0.6); },
       narr: 'Cuarenta y dos días sin llover. Allá arriba, donde nace el agua, el páramo empieza a arder.',
       who: 'tomas',
@@ -8453,7 +8695,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         why: 'El páramo es una esponja: guarda la niebla y regula el agua de millones de colombianos.' },
     },
     {
-      kicker: 'Capítulo II', title: 'El río que se murió', view: 'curtiembre', close: 'rio', chips: 'Vertimiento ilegal · el río sin oxígeno',
+      kicker: 'Capítulo II', title: 'El río que se murió', view: 'curtiembre', close: 'rio', grade: 'rio', atmo: null, pad: 'triste', chips: 'Vertimiento ilegal · el río sin oxígeno',
       event(t) { t.drop(['agua', 'bio'], 0.14); t.sfx('fall'); },
       narr: 'Río abajo, las curtiembres descargan sin tratar. El agua se queda sin oxígeno.',
       who: 'rosa',
@@ -8463,7 +8705,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         why: 'El río se depura solo hasta un límite. Por eso existen las plantas de tratamiento.' },
     },
     {
-      kicker: 'Capítulo III', title: 'El aire que no se ve', view: 'aire', close: 'escuela', chips: 'Alerta roja · PM2,5 en 98 µg/m³',
+      kicker: 'Capítulo III', title: 'El aire que no se ve', view: 'aire', close: 'escuela', grade: 'smog', atmo: 'smog', pad: 'triste', chips: 'Alerta roja · PM2,5 en 98 µg/m³',
       event(t) { t.drop(['aire'], 0.2); t.sfx('alarm'); },
       narr: 'Quemas, buses viejos, chimeneas. Una nube gris queda atrapada entre las montañas.',
       who: 'luz',
@@ -8474,8 +8716,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         why: 'El PM2,5 es tan fino que llega a los alvéolos y pasa a la sangre.' },
     },
     {
-      kicker: 'Capítulo IV', title: 'La noche de la gran tormenta', view: 'pueblo', close: 'rio', chips: 'Emergencia · el río se desborda', storm: true,
-      event(t) { t.night(true); t.weather(1, 120); t.blackout(true); t.drop(['agua', 'residuos', 'energia'], 0.12); t.sfx('alarm'); t.shake(1); },
+      kicker: 'Capítulo IV', title: 'La noche de la gran tormenta', view: 'pueblo', close: 'rio', grade: 'tormenta', atmo: 'tormenta', pad: 'oscuro', chips: 'Emergencia · el río se desborda', storm: true,
+      event(t) { t.dusk(true); t.weather(1, 120); t.blackout(true); t.drop(['agua', 'residuos', 'energia'], 0.12); t.sfx('alarm'); t.shake(1); },
       narr: 'Después de la sequía, el diluvio. Sin bosque que frene el agua, la montaña baja hacia el pueblo. Se va la luz.',
       who: 'efrain',
       say: 'Mi llave, yo llevo treinta años recogiendo lo que la gente bota. Y anoche, con ese aguacero, la basura tapó los caños y el agua se metió a las casas. Qué boleta… la gente subiendo a los niños al techo.',
@@ -8502,7 +8744,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     const out = document.createElement('button'); out.className = 'btn ghost demo-out'; out.type = 'button'; out.textContent = '✕ Salir de la demostración';
     out.onclick = () => { CN.scene(); finish(); exit(); };
     document.body.appendChild(out);
-    const finish = () => { out.remove(); restore(); AU.theme(false); Sc.lapse(false); const q = document.querySelector('.demo-q'); if (q) q.remove(); };
+    const finish = () => { out.remove(); restore(); AU.theme(false); AU.pad(null); Sc.lapse(false); CV.talking = null; if (CV.atmo) CV.atmo.clear(); if (CV.scene.golden) CV.scene.golden(false); const q = document.querySelector('.demo-q'); if (q) q.remove(); };
 
     const tools = {
       weather: (v, s) => { if (CV.weather) CV.weather.force(v, s); },
@@ -8511,14 +8753,24 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       sfx: (n) => { try { SFX[n](); } catch (e) {} },
       shake: (s) => Sc.shake(s),
       night: (on) => { if (CV.scene && CV.scene.night) CV.scene.night(on); },
+      dusk: (on) => { if (CV.scene && CV.scene.dusk) CV.scene.dusk(on); },
       blackout: (on) => { CV.blackout = on; },
+      look: (grade, atmo) => { if (CV.atmo) { CV.atmo.grade(grade); CV.atmo.set(atmo); } },
     };
+    // primer plano de quien habla: la cámara se le acerca, el fondo se desenfoca y mueve la boca al hablar
+    const close = async (id, lado) => {
+      if (!(CV.protagonistas && CV.protagonistas.list)) return true;
+      CV.talking = id; const r = await CN.cut('pp:' + id, lado ? 'lado' : null, g); if (CV.atmo) CV.atmo.dof(true); return r;
+    };
+    const unclose = () => { CV.talking = null; if (CV.atmo) CV.atmo.dof(false); };
 
     // estado inicial: un valle golpeado pero vivo
     KEYS.forEach((k) => Sc.set(k, 0.42, true)); refresh(false);
     CN.on(); CN.chips('<span>Demostración</span><span>5 minutos</span>');
     const ok = async (p) => (await p) && alive();
 
+    if (CV.scene.golden) CV.scene.golden(true);
+    tools.look('dorado', 'dorado'); AU.pad('esperanza');
     if (!(await ok(CN.cut('vuelo', null, g)))) return;
     if (!(await ok(CN.chapter('Cuenca Viva', 'Cinco minutos para salvar un valle', g)))) return;
     if (!(await ok(CN.say(N, 'Un valle de los Andes colombianos. Cincuenta y dos mil personas, un río, un páramo. Hoy el valle está enfermo… y ustedes deciden cómo termina esta historia.', g)))) return;
@@ -8526,25 +8778,26 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     for (let i = 0; i < SCENES.length; i++) {
       const sc = SCENES[i];
       setPhase('event');
+      if (i === 0 && CV.scene.golden) CV.scene.golden(false);
       if (!(await ok(CN.cut(sc.view, 'acercar', g)))) return;
-      sc.event(tools);
+      sc.event(tools); tools.look(sc.grade, sc.atmo); AU.pad(sc.pad);
       CN.chips(`<span class="res-bad">${esc(sc.kicker)}</span><span>${esc(sc.chips)}</span>`);
       if (!(await ok(CN.chapter(sc.kicker, sc.title, g)))) return;
       if (!(await ok(CN.say(N, sc.narr, g)))) return;
-      if (!(await ok(CN.cut(sc.close, 'orbitar', g)))) return;
-      // testimonio con piano suave y silencios, como en una película
+      // testimonio en primer plano, con piano y cuerdas suaves y silencios, como en una película
+      if (!(await ok(close(sc.who)))) return;
       AU.theme(true);
       if (!(await ok(CN.pause(350, g)))) return;
       if (!(await ok(CN.say(CAST[sc.who], sc.say, g)))) return;
-      if (sc.who2 && !(await ok(CN.say(Object.assign({}, CAST[sc.who2]), sc.say2, g)))) return;
+      if (sc.who2) { if (!(await ok(close(sc.who2, true)))) return; if (!(await ok(CN.say(Object.assign({}, CAST[sc.who2]), sc.say2, g)))) return; }
       if (!(await ok(CN.pause(250, g)))) return;
-      AU.theme(false);
+      unclose(); AU.theme(false);
       // pregunta para el público
       const right = await ask(sc.q, g, api, i);
       if (!alive()) return;
       if (right) { score++; KEYS.forEach((k) => Sc.add(k, sc.q.big ? 0.2 : 0.1)); } else KEYS.forEach((k) => Sc.add(k, -0.04));
       refresh(true);
-      if (sc.storm) { tools.blackout(false); tools.night(false); tools.weather(0.3, 20); }
+      if (sc.storm) { tools.blackout(false); tools.dusk(false); tools.weather(0.3, 20); tools.look(null, null); }
       setPhase('event');
       if (!(await ok(CN.say(N, (right ? '¡Correcto! ' : 'No era esa. ') + sc.q.why, g)))) return;
     }
@@ -8554,7 +8807,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     CN.chips('<span class="res-bad">¿Y si nada cambia?</span>');
     const saved = KEYS.map((k) => api.vals[k]);
     if (!(await ok(CN.chapter('Epílogo', '¿Y si todo sigue igual?', g)))) return;
-    Sc.lapse(true); AU.setMood(0);
+    Sc.lapse(true); AU.setMood(0); tools.look('futuro', 'ceniza'); AU.pad('oscuro');
     for (const b of FUTURE) {
       if (b.hard && !CV.harsh) continue;
       CN.chips(`<span class="res-bad">${b.year}</span><span>Si nada cambia</span>`);
@@ -8567,7 +8820,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     // ---------- todavía estamos a tiempo ----------
     CN.chips('<span class="res-ok">Hoy</span><span>Todavía estamos a tiempo</span>');
     KEYS.forEach((k, i) => Sc.set(k, Math.max(saved[i], 0.88))); refresh(true);
-    AU.setMood(1); AU.theme(true); tools.sfx('rise');
+    AU.setMood(1); AU.theme(true); AU.pad('esperanza'); tools.sfx('rise');
+    if (CV.scene.golden) CV.scene.golden(true); tools.look('esperanza', 'dorado');
     if (!(await ok(CN.cut('vuelo', null, g)))) return;
     if (CV.misiones) { const z = CV.world && CV.world.zones; if (z) { CV.misiones.flock({ x: z.fauna.x, z: z.fauna.z, n: 50 }); CV.misiones.flock({ x: z.bosque.x, z: z.bosque.z, n: 30, alt: 75 }); } }
     if (!(await ok(CN.say(N, `Acertaron ${score} de ${SCENES.length}. Pero ese futuro todavía no ha llegado. El páramo, el río y el aire se pueden recuperar.`, g)))) return;
@@ -8814,8 +9068,9 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     hud.hidden = true; teamsEl.hidden = true; pauseEl.hidden = true; S.paused = false;
     Sc.orbit(false); Sc.lapse(false); KEYS.forEach((k) => Sc.set(k, 1, true)); Sc.shot('paseo', null, true);
     const p = loadPrefs();
-    const cfg = { mode: p.mode || 'equipos', player: p.player || '', n: p.n || 4, rounds: p.rounds || 15, time: p.time || 30, voice: p.voice === 0 ? 0 : 1, voiceName: p.voiceName || '', level: p.level === undefined ? 1 : p.level, subject: D.subjects[p.subject] ? p.subject : 'cuenca', fuerte: p.fuerte === 0 ? 0 : 1, names: (p.names || []).slice(0, 4), presenter: p.presenter || '', best: p.best || 0,
+    const cfg = { mode: p.mode || 'equipos', player: p.player || '', n: p.n || 4, rounds: p.rounds || 15, time: p.time || 30, voice: p.voice === 0 ? 0 : 1, voiceName: p.voiceName || '', level: p.level === undefined ? 1 : p.level, subject: D.subjects[p.subject] ? p.subject : 'cuenca', fuerte: p.fuerte === 0 ? 0 : 1, proj: p.proj ? 1 : 0, names: (p.names || []).slice(0, 4), presenter: p.presenter || '', best: p.best || 0,
       quality: Math.max(0, QUALITY.indexOf(CV.Q ? CV.Q.pref : 'auto')) };
+    document.body.classList.toggle('proyector', !!cfg.proj);
     const seg = (k, opts) => `<div class="seg" data-k="${k}">${opts.map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${cfg[k] === v}">${l}</button>`).join('')}</div>`;
     stage.innerHTML = `<section class="title-screen">
       <div class="hero">
@@ -8841,6 +9096,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         <p class="voice-hint" id="recLine">${cfg.best ? `Récord de supervivencia en este computador: ${rondas(cfg.best)}.` : ''}</p>
         <fieldset id="durBox"><legend>Duración</legend>${seg('rounds', [[10, 'Rápida · 10 capítulos'], [15, 'Completa · 15 capítulos']])}</fieldset>
         <details class="more-opts"><summary>Más opciones · voz, sonido, gráficos, escenas fuertes</summary>
+        <fieldset><legend>Modo proyector</legend>${seg('proj', [[0, 'No'], [1, 'Sí']])}<p class="voice-hint lvl-hint">Sube brillo y contraste para que el valle se vea bien en un video beam o una sala con luz.</p></fieldset>
         <fieldset id="hardBox"><legend>Escenas fuertes</legend>${seg('fuerte', [[1, 'Sí'], [0, 'No']])}<p class="voice-hint lvl-hint">Incendios, gas tóxico, animales y personas afectadas y testimonios duros. Pensado para mayores de 14 años.</p></fieldset>
         <fieldset><legend>Narración por voz</legend>${seg('voice', [[1, 'Sí'], [0, 'No']])}</fieldset>
         <label class="field" for="voiceSel" id="voiceBox">Voz de la narradora (las «natural» son las más humanas)
@@ -8939,6 +9195,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       sg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
       if (k === 'n') drawInputs();
       if (k === 'level') lvlHint();
+      if (k === 'proj') { document.body.classList.toggle('proyector', !!cfg.proj); const pp = loadPrefs(); pp.proj = cfg.proj; savePrefs(pp); }
       if (k === 'quality') {
         // la calidad se aplica al construir el valle: se guarda y se recarga la página
         const pref = QUALITY[cfg.quality];
