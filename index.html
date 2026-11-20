@@ -678,6 +678,55 @@ body.proyector .fx-vignette{opacity:.55}
 @keyframes laMist{to{transform:translateX(-60px)}}
 @keyframes laBirds{from{transform:translate(-120px,20px)}to{transform:translate(500px,-60px)}}
 @media (prefers-reduced-motion:reduce){.la-sun,.la-ray,.la-mist,.la-birds{animation:none}}
+/* portada renovada: velo de lectura, partículas, título animado, cifras y botones principales */
+.title-screen{position:relative;isolation:isolate;align-items:start}
+.title-screen>.hero{position:sticky;top:0;align-self:start;padding-top:clamp(8px,4vh,48px)}
+.title-screen .wordmark{font-size:clamp(60px,8.4vw,128px)}
+@media (max-width:900px){.title-screen>.hero{position:static;padding-top:0}}
+.title-scrim{position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgba(4,12,9,.82) 0%,rgba(4,12,9,.55) 38%,rgba(4,12,9,.1) 62%,rgba(4,12,9,.35) 100%),linear-gradient(0deg,rgba(4,12,9,.6) 0%,rgba(4,12,9,0) 40%);animation:scrimIn 1.4s ease both}
+@keyframes scrimIn{from{opacity:0}}
+.title-motes{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.title-motes i{position:absolute;left:var(--x);bottom:-10px;width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle,#fff6c8,rgba(255,214,120,0) 70%);box-shadow:0 0 10px rgba(255,220,140,.7);animation:mote var(--d) linear infinite;animation-delay:var(--w);opacity:0}
+@keyframes mote{0%{transform:translate(0,0);opacity:0}10%{opacity:.9}90%{opacity:.7}100%{transform:translate(40px,-105vh);opacity:0}}
+.hero-pill{display:inline-flex;padding:7px 14px;border-radius:999px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.14);color:#cfe6d4;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:riseIn .8s .1s both}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#7ed957;box-shadow:0 0 0 0 rgba(126,217,87,.7);animation:livePulse 1.8s infinite}
+@keyframes livePulse{70%{box-shadow:0 0 0 10px rgba(126,217,87,0)}100%{box-shadow:0 0 0 0 rgba(126,217,87,0)}}
+.wordmark b{display:inline-block;font-weight:inherit;animation:letterIn .9s cubic-bezier(.2,1.2,.3,1) both;animation-delay:calc(.25s + var(--i) * .06s)}
+@keyframes letterIn{from{opacity:0;transform:translateY(.45em) rotate(6deg);filter:blur(8px)}}
+.wordmark span b{background:linear-gradient(100deg,#ffc25a 0%,#ffe9a8 25%,#ff9a3d 50%,#ffc25a 75%,#ffe9a8 100%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:letterIn .9s cubic-bezier(.2,1.2,.3,1) both,shimmer 6s linear infinite;animation-delay:calc(.25s + var(--i) * .06s),0s}
+@keyframes shimmer{to{background-position:-300% 0}}
+.wm-river{display:block;width:min(420px,80%);height:26px;margin:-6px 0 18px}
+.wm-river path{fill:none;stroke:#4fc3e8;stroke-width:4;stroke-linecap:round;stroke-dasharray:520;stroke-dashoffset:520;filter:drop-shadow(0 0 6px rgba(79,195,232,.7));animation:riverDraw 2.2s 1s cubic-bezier(.6,0,.2,1) forwards}
+@keyframes riverDraw{to{stroke-dashoffset:0}}
+.hero .lead{animation:riseIn .9s .9s both}
+@keyframes riseIn{from{opacity:0;transform:translateY(16px)}}
+.hero-stats{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:22px 0 0;padding:0;max-width:560px}
+.hero-stats li{padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.12);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:riseIn .8s both}
+.hero-stats li:nth-child(1){animation-delay:1.1s}.hero-stats li:nth-child(2){animation-delay:1.2s}.hero-stats li:nth-child(3){animation-delay:1.3s}.hero-stats li:nth-child(4){animation-delay:1.4s}
+.hero-stats b{display:block;font-family:var(--display);font-size:clamp(20px,2.2vw,28px);line-height:1.05;color:#fff}
+.hero-stats span{font-size:12px;color:#b9cdbf}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px;animation:riseIn .8s 1.5s both}
+.hero-play{position:relative;overflow:hidden;font-size:18px;padding:16px 26px;display:inline-flex;align-items:center;gap:12px;box-shadow:0 12px 34px rgba(255,170,60,.38)}
+.hero-play::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-120%);animation:sheen 3.6s 2.4s infinite}
+@keyframes sheen{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.play-ico{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.18);font-size:13px}
+.hero-cta .demo-open{font-size:16px;padding:14px 22px}
+.hero-more{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;animation:riseIn .8s 1.65s both}
+.chip-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.32);color:var(--mist);font:600 14px var(--body);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:transform .15s,border-color .15s,background .15s}
+.chip-btn:hover{transform:translateY(-2px);border-color:var(--sun);background:rgba(0,0,0,.5)}
+.chip-btn .ico{width:16px;height:16px}
+.hero .author{animation:riseIn .8s 1.8s both}
+.setup{animation:panelIn 1s .6s cubic-bezier(.2,1,.3,1) both}
+@keyframes panelIn{from{opacity:0;transform:translateX(40px) scale(.98)}}
+.setup-head h2{font-family:var(--display);font-size:clamp(22px,2.4vw,28px);margin:4px 0 0}
+.step legend{display:flex;align-items:center;gap:8px;color:var(--mist);font-weight:700;font-size:14px}
+.step legend::before{content:var(--n);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--sun);color:#1d1404;font:800 13px var(--mono)}
+.setup>*{animation:riseIn .6s both}
+.setup>*:nth-child(2){animation-delay:.8s}.setup>*:nth-child(3){animation-delay:.9s}.setup>*:nth-child(4){animation-delay:1s}.setup>*:nth-child(5){animation-delay:1.1s}
+.subjects button,.modes button{transition:transform .15s,border-color .15s,box-shadow .2s}
+.subjects button:hover,.modes button:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+@media (max-width:900px){.hero-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.title-scrim{background:linear-gradient(180deg,rgba(4,12,9,.75) 0%,rgba(4,12,9,.45) 50%,rgba(4,12,9,.75) 100%)}}
+@media (prefers-reduced-motion:reduce){.title-motes,.hero-play::after{display:none}.wordmark b,.wordmark span b,.hero-pill,.hero .lead,.hero-stats li,.hero-cta,.hero-more,.setup,.setup>*,.wm-river path{animation:none;opacity:1;stroke-dashoffset:0}}
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
@@ -1974,10 +2023,16 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     const sp = spk && CV.wildlife && CV.wildlife.shot ? CV.wildlife.shot(spk[0], spk[1] || opts.kind) : null;
     // "pp:rosa", "pp:tomas"…: primer plano de un protagonista que habla; la cámara se le acerca despacio, con lente larga
     const pp = typeof name === 'string' && name.slice(0, 3) === 'pp:' && CV.protagonistas && CV.protagonistas.list ? CV.protagonistas.list.find((q) => q.id === name.slice(3)) : null;
-    if (pp) {
+    // "incendio": plano del primer frente de fuego, desde un costado y un poco arriba, acercándose despacio
+    const fr = name === 'incendio' && CV.crudo && CV.crudo.fronts ? CV.crudo.fronts[0] : null;
+    if (fr) {
+      const nx = -Math.sin(fr.a), nz = Math.cos(fr.a), hf = height(fr.x, fr.z);
+      shot = { path: (e) => { const d = 120 - 45 * e, x = fr.x + nx * d + Math.cos(fr.a) * 30, z = fr.z + nz * d + Math.sin(fr.a) * 30;
+        const p = new THREE.Vector3(x, Math.max(height(x, z) + 14, hf + 26 - 8 * e), z); return { p, t: new THREE.Vector3(fr.x, hf + 6, fr.z) }; }, dur: 18, f0: 44, f1: 38, kind: name };
+    } else if (pp) {
       const o = pp.g.position, k = pp.g.scale.x, a = pp.face + (opts.kind === 'lado' ? 0.9 : 0.35), hy = o.y + 1.78 * k;
       const fx = Math.sin(a), fz = Math.cos(a);
-      shot = { path: (e) => { const d = (4.2 - 1 * e) * k; const p = new THREE.Vector3(o.x + fx * d, hy - 0.1 * k, o.z + fz * d); p.y = Math.max(p.y, height(p.x, p.z) + 0.9); return { p, t: new THREE.Vector3(o.x, hy - 0.32 * k, o.z) }; }, dur: 26, f0: 30, f1: 26, calm: true, kind: name };
+      shot = { path: (e) => { const d = (4.2 - 1.6 * e) * k; const p = new THREE.Vector3(o.x + fx * d, hy - 0.1 * k, o.z + fz * d); p.y = Math.max(p.y, height(p.x, p.z) + 0.9); return { p, t: new THREE.Vector3(o.x, hy - 0.32 * k, o.z) }; }, dur: 60, f0: 30, f1: 24, calm: true, kind: name };
     } else if (sp) { shot = sp; shot.kind = name; } else if (SPECIAL[name]) { shot = SPECIAL[name](); shot.kind = name; } else shot = makeShot(VIEWS[name] ? name : 'fauna', opts.kind);
     shot.start = clock;
     const q = shotPose(shot, 0);
@@ -5757,6 +5812,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     // incendio inmediato durante unos segundos (evento de la historia)
     ignite(secs) { igniteT = secs; grow = Math.max(grow, 0.08); },
     reset() { grow = 0; igniteT = 0; },
+    // incendio ya extendido (para la demostración: las llamas se ven desde el primer plano)
+    blaze(g, secs) { igniteT = Math.max(igniteT, secs || 60); grow = Math.max(grow, g || 0.5); },
     build(ctx) {
       const { scene, world: W, renderer, camera } = ctx, { rand, smooth, height, riverX, pads } = W, Q = CV.Q || { level: 'alta', k: 1 };
       if (Q.level === 'segura') return { update() {} };
@@ -5767,6 +5824,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         { x: Zb.x - 70, z: Zb.z + 80, a: 0.3, L: 75 }, { x: sp.vereda.x, z: sp.vereda.z, a: 2.6, L: 85 },
       ];
       if (W.zones.paramo) fronts.push({ x: W.zones.paramo.x + 70, z: W.zones.paramo.z + 30, a: 1.0, L: 80 });
+      CV.crudo.fronts = fronts;
       // el fuego siempre queda lejos del pueblo: se ve en las montañas, nunca encima de las casas
       fronts.forEach((f, i) => {
         f.start = i * 0.16;
@@ -7647,8 +7705,31 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     play(); padT = setInterval(play, 6500);
   }
 
+  // ---------- música grabada (Gymnopédie n.º 1 de Satie, Musopen, dominio público) ----------
+  // si el archivo musica.js no está o el navegador no puede reproducirlo, se usa el piano sintetizado
+  let mus = null, musG = null;
+  function music(on) {
+    const c = A.ctx;
+    if (!CV.musicaData || !c) { theme(on); return; }
+    if (!mus) {
+      try {
+        mus = new Audio(CV.musicaData); mus.loop = true; mus.preload = 'auto';
+        const src = c.createMediaElementSource(mus); musG = c.createGain(); musG.gain.value = 0; src.connect(musG); musG.connect(A.master);
+        mus.onerror = () => { mus = null; CV.musicaData = null; };
+      } catch (e) { mus = null; theme(on); return; }
+    }
+    const t = c.currentTime;
+    if (on && A.on) {
+      musG.gain.cancelScheduledValues(t); musG.gain.setTargetAtTime(0.5, t, 1.2);
+      const p = mus.play(); if (p && p.catch) p.catch(() => theme(true));
+    } else {
+      musG.gain.cancelScheduledValues(t); musG.gain.setTargetAtTime(0, t, 1);
+      setTimeout(() => { if (mus && musG.gain.value < 0.02) mus.pause(); }, 4000);
+    }
+  }
+
   CV.audio = {
-    init, setMood, speak, hush, sfx, theme, listVoices, pad: strings,
+    init, setMood, speak, hush, sfx, theme, listVoices, pad: strings, music,
     setFire(k) { if (A.amb && A.amb.fire) A.amb.fire.gain.setTargetAtTime(k * 0.09, A.ctx.currentTime, 0.8); },
     setRain(k) { if (A.amb && A.amb.rain) A.amb.rain.gain.setTargetAtTime(k * 0.05, A.ctx.currentTime, 0.8); },
     set narratorVoice(n) { A.narratorVoice = n || ''; },
@@ -8685,8 +8766,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
 
   const SCENES = [
     {
-      kicker: 'Capítulo I', title: 'El páramo arde', view: 'bosque', close: 'bio', grade: 'fuego', atmo: 'brasas', pad: 'triste', chips: 'Ola de calor · 34 °C en el páramo',
-      event(t) { t.weather(0, 60); t.fire(60); t.drop(['bio', 'agua'], 0.12); t.sfx('alarm'); t.shake(0.6); },
+      kicker: 'Capítulo I', title: 'El páramo arde', view: 'bosque', fireView: 'incendio', close: 'bio', grade: 'fuego', atmo: 'brasas', pad: 'triste', chips: 'Ola de calor · 34 °C en el páramo',
+      event(t) { t.weather(0, 60); t.blaze(0.6, 70); t.drop(['bio', 'agua'], 0.12); t.sfx('alarm'); t.shake(0.6); },
       narr: 'Cuarenta y dos días sin llover. Allá arriba, donde nace el agua, el páramo empieza a arder.',
       who: 'tomas',
       say: 'Ay, sumercé… Yo tengo setenta y cuatro años y nunca había visto el páramo así. Mi abuelo me decía: mijo, el frailejón es el que nos guarda el agua, no lo vaya a tocar. Antes había harta neblina, sumercé. Ahoritica no queda ni el rocío.',
@@ -8744,11 +8825,12 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     const out = document.createElement('button'); out.className = 'btn ghost demo-out'; out.type = 'button'; out.textContent = '✕ Salir de la demostración';
     out.onclick = () => { CN.scene(); finish(); exit(); };
     document.body.appendChild(out);
-    const finish = () => { out.remove(); restore(); AU.theme(false); AU.pad(null); Sc.lapse(false); CV.talking = null; if (CV.atmo) CV.atmo.clear(); if (CV.scene.golden) CV.scene.golden(false); const q = document.querySelector('.demo-q'); if (q) q.remove(); };
+    const finish = () => { out.remove(); restore(); AU.music(false); AU.pad(null); Sc.lapse(false); CV.talking = null; if (CV.atmo) CV.atmo.clear(); if (CV.scene.golden) CV.scene.golden(false); const q = document.querySelector('.demo-q'); if (q) q.remove(); };
 
     const tools = {
       weather: (v, s) => { if (CV.weather) CV.weather.force(v, s); },
       fire: (s) => { if (CV.crudo && CV.harsh) CV.crudo.ignite(s); },
+      blaze: (g, s) => { if (CV.crudo && CV.harsh && CV.crudo.blaze) CV.crudo.blaze(g, s); },
       drop: (ks, d) => { ks.forEach((k) => Sc.add(k, -d)); refresh(true); },
       sfx: (n) => { try { SFX[n](); } catch (e) {} },
       shake: (s) => Sc.shake(s),
@@ -8779,19 +8861,19 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const sc = SCENES[i];
       setPhase('event');
       if (i === 0 && CV.scene.golden) CV.scene.golden(false);
-      if (!(await ok(CN.cut(sc.view, 'acercar', g)))) return;
+      if (!(await ok(CN.cut(sc.fireView && CV.harsh && CV.crudo && CV.crudo.fronts ? sc.fireView : sc.view, 'acercar', g)))) return;
       sc.event(tools); tools.look(sc.grade, sc.atmo); AU.pad(sc.pad);
       CN.chips(`<span class="res-bad">${esc(sc.kicker)}</span><span>${esc(sc.chips)}</span>`);
       if (!(await ok(CN.chapter(sc.kicker, sc.title, g)))) return;
       if (!(await ok(CN.say(N, sc.narr, g)))) return;
       // testimonio en primer plano, con piano y cuerdas suaves y silencios, como en una película
       if (!(await ok(close(sc.who)))) return;
-      AU.theme(true);
+      AU.pad(null); AU.music(true);
       if (!(await ok(CN.pause(350, g)))) return;
       if (!(await ok(CN.say(CAST[sc.who], sc.say, g)))) return;
       if (sc.who2) { if (!(await ok(close(sc.who2, true)))) return; if (!(await ok(CN.say(Object.assign({}, CAST[sc.who2]), sc.say2, g)))) return; }
       if (!(await ok(CN.pause(250, g)))) return;
-      unclose(); AU.theme(false);
+      unclose(); AU.music(false); AU.pad(sc.pad);
       // pregunta para el público
       const right = await ask(sc.q, g, api, i);
       if (!alive()) return;
@@ -8799,6 +8881,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       refresh(true);
       if (sc.storm) { tools.blackout(false); tools.dusk(false); tools.weather(0.3, 20); tools.look(null, null); }
       setPhase('event');
+      if (!(await ok(CN.cut(sc.view, 'orbitar', g)))) return;
       if (!(await ok(CN.say(N, (right ? '¡Correcto! ' : 'No era esa. ') + sc.q.why, g)))) return;
     }
 
@@ -8820,7 +8903,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     // ---------- todavía estamos a tiempo ----------
     CN.chips('<span class="res-ok">Hoy</span><span>Todavía estamos a tiempo</span>');
     KEYS.forEach((k, i) => Sc.set(k, Math.max(saved[i], 0.88))); refresh(true);
-    AU.setMood(1); AU.theme(true); AU.pad('esperanza'); tools.sfx('rise');
+    AU.setMood(1); AU.pad(null); AU.music(true); tools.sfx('rise');
     if (CV.scene.golden) CV.scene.golden(true); tools.look('esperanza', 'dorado');
     if (!(await ok(CN.cut('vuelo', null, g)))) return;
     if (CV.misiones) { const z = CV.world && CV.world.zones; if (z) { CV.misiones.flock({ x: z.fauna.x, z: z.fauna.z, n: 50 }); CV.misiones.flock({ x: z.bosque.x, z: z.bosque.z, n: 30, alt: 75 }); } }
@@ -8828,7 +8911,6 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (!(await ok(CN.cut('fauna', 'orbitar', g)))) return;
     if (!(await ok(CN.say(N, 'Eso no lo hace la suerte. Lo hace gente que estudia para cuidar la vida. Eso es la ingeniería ambiental.', g)))) return;
     if (CV.misiones) CV.misiones.confetti(document.body);
-    AU.theme(false);
     finalCard(score, api);
     finish();
   }
@@ -8880,6 +8962,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       <p class="lead">Esto fue un solo capítulo. El juego completo tiene la historia de cinco habitantes, cuatro asignaturas, un modo para niños, el Mundo de la energía y un valle para recorrer a pie.</p>
       <div class="demo-final-actions"><button class="btn" type="button" id="demoAgain">Ver la demostración otra vez</button><button class="btn ghost" type="button" id="demoHome">Ir al juego completo</button></div>
       ${CV.credito ? CV.credito.author('author-final') : ''}
+      ${CV.musicaData ? '<p class="voice-hint">Música: Gymnopédie n.º 1 de Erik Satie, interpretada por Robin Alciatore · Musopen (dominio público).</p>' : ''}
     </div>`;
     stage.querySelector('#demoAgain').onclick = () => api.again();
     stage.querySelector('#demoHome').onclick = exit;
@@ -9073,17 +9156,35 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     document.body.classList.toggle('proyector', !!cfg.proj);
     const seg = (k, opts) => `<div class="seg" data-k="${k}">${opts.map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${cfg[k] === v}">${l}</button>`).join('')}</div>`;
     stage.innerHTML = `<section class="title-screen">
+      <div class="title-scrim" aria-hidden="true"></div>
+      <div class="title-motes" aria-hidden="true">${Array.from({ length: 18 }, (_, i) => `<i style="--x:${(i * 53) % 100}%;--d:${8 + (i % 6) * 2.5}s;--w:${-(i * 1.7) % 12}s;--s:${3 + (i % 4)}px"></i>`).join('')}</div>
       <div class="hero">
-        <p class="eyebrow">Ingeniería Ambiental · Una historia interactiva</p>
-        <h1 class="wordmark">Cuenca<br><span>Viva</span></h1>
+        <p class="eyebrow hero-pill"><span class="live-dot"></span>Ingeniería Ambiental · Una historia interactiva</p>
+        <h1 class="wordmark" aria-label="Cuenca Viva">${[...'Cuenca'].map((c, i) => `<b style="--i:${i}">${c}</b>`).join('')}<br><span>${[...'Viva'].map((c, i) => `<b style="--i:${i + 6}">${c}</b>`).join('')}</span></h1>
+        <svg class="wm-river" viewBox="0 0 420 26" aria-hidden="true"><path d="M2 14 C 60 2, 110 26, 170 13 S 280 2, 330 14 S 400 22, 418 10"/></svg>
         <p class="lead">En este valle andino viven 52.000 personas. Cinco de ellas les van a contar su historia. Ustedes son el equipo de ingeniería que puede cambiar el final.</p>
+        <ul class="hero-stats">
+          <li><b data-count="52000">0</b><span>habitantes</span></li>
+          <li><b data-count="23">0</b><span>especies andinas</span></li>
+          <li><b data-count="5">0</b><span>historias reales</span></li>
+          <li><b data-count="5">0</b><span>asignaturas</span></li>
+        </ul>
+        <div class="hero-cta">
+          <button class="btn hero-play" type="button" id="heroPlay"><span class="play-ico" aria-hidden="true">▶</span>Comenzar la historia</button>
+          <button class="btn demo-open" type="button" id="demoOpen"><span aria-hidden="true">🎬</span> Demostración · 5 min</button>
+        </div>
+        <div class="hero-more">
+          ${S.has3d ? `<button class="chip-btn" type="button" id="exploreOpen"><span aria-hidden="true">🧭</span>Explorar el valle a pie</button>` : ''}
+          <button class="chip-btn" type="button" id="faunaOpen"><svg class="ico"><use href="#i-paw"/></svg>Conocer la fauna</button>
+        </div>
         <p class="presenter" id="presLine">${cfg.presenter ? 'Presentado por ' + esc(cfg.presenter) : ''}</p>
         ${CV.credito ? CV.credito.author() : ''}
       </div>
       <form class="card setup" id="setup" autocomplete="off">
-        <fieldset><legend>Asignatura</legend><div class="modes subjects" id="subjects">${Object.keys(D.subjects).map((k) => `<button type="button" data-s="${k}"><b>${esc(D.subjects[k].name)}</b><span>${esc(D.subjects[k].desc)}</span></button>`).join('')}</div></fieldset>
-        <fieldset id="lvlBox"><legend>Dificultad</legend>${seg('level', D.levels.map((l, i) => [i, l.name]))}<p class="voice-hint lvl-hint" id="lvlHint"></p></fieldset>
-        <fieldset><legend>Modo de juego</legend><div class="modes" id="modes">
+        <div class="setup-head"><p class="eyebrow">Prepara la partida</p><h2>¿Qué van a jugar hoy?</h2></div>
+        <fieldset class="step" style="--n:'1'"><legend>Asignatura</legend><div class="modes subjects" id="subjects">${Object.keys(D.subjects).map((k) => `<button type="button" data-s="${k}"><b>${esc(D.subjects[k].name)}</b><span>${esc(D.subjects[k].desc)}</span></button>`).join('')}</div></fieldset>
+        <fieldset id="lvlBox" class="step" style="--n:'2'"><legend>Dificultad</legend>${seg('level', D.levels.map((l, i) => [i, l.name]))}<p class="voice-hint lvl-hint" id="lvlHint"></p></fieldset>
+        <fieldset class="step" style="--n:'3'"><legend>Modo de juego</legend><div class="modes" id="modes">
           <button type="button" data-m="equipos"><b>Por equipos</b><span>La historia completa. De 2 a 4 equipos compiten y se roban preguntas.</span></button>
           <button type="button" data-m="individual"><b>Individual</b><span>Una persona vive la historia y gana un rango de ingeniería.</span></button>
           <button type="button" data-m="supervivencia"><b>Supervivencia</b><span>La contaminación avanza sin parar. Tres vidas. ¿Cuánto resisten?</span></button>
@@ -9107,10 +9208,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         <label class="field" for="pres">Presentado por (opcional)<input id="pres" maxlength="80" placeholder="Ej.: Programa de Ingeniería Ambiental" value="${esc(cfg.presenter)}"></label>
         </details>
         <button class="btn" type="submit">Comenzar la historia</button>
-        <button class="btn demo-open" type="button" id="demoOpen">🎬 Demostración de 5 minutos</button>
-        <button class="btn ghost fauna-open" type="button" id="faunaOpen"><svg class="ico"><use href="#i-paw"/></svg> Conocer la fauna de la cuenca</button>
         ${S.has3d ? `<button class="btn fauna-open energy-open" type="button" id="energyOpen" hidden>⚡ Entrar al Mundo de la energía</button>` : ''}
-        ${S.has3d ? `<button class="btn ghost fauna-open" type="button" id="exploreOpen">🧭 Explorar el valle a pie</button>` : ''}
         <details><summary>Cómo se juega</summary><ul>
           <li>En el valle viven 23 especies emblemáticas de los Andes: el oso de anteojos, el cóndor, el jaguar, la danta, los monos… Cada una vuelve cuando la cuenca le da lo que necesita y se va cuando se degrada. Con la tecla F ven qué hace cada especie por el ecosistema.</li>
           <li>Asignaturas: la historia completa de la cuenca, o solo Calidad del aire, Climatología o Transición energética, o Exploradores para niños de 8 a 15 años.</li>
@@ -9206,6 +9304,14 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     $('#faunaOpen').onclick = () => openFauna(true);
     if ($('#exploreOpen')) $('#exploreOpen').onclick = () => openExplore(cfg);
     $('#demoOpen').onclick = () => openDemo(cfg);
+    $('#heroPlay').onclick = () => { const f = $('#setup'); if (f.requestSubmit) f.requestSubmit(); else f.querySelector('[type=submit]').click(); };
+    // contadores que suben al abrir la portada
+    stage.querySelectorAll('[data-count]').forEach((b, i) => {
+      const end = +b.dataset.count, t0 = performance.now() + 500 + i * 160;
+      const fmt = (v) => v.toLocaleString('es-CO');
+      const tick = (now) => { const u = Math.max(0, Math.min(1, (now - t0) / 1400)), e = 1 - Math.pow(1 - u, 4); b.textContent = fmt(Math.round(end * e)); if (u < 1 && b.isConnected) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    });
     if ($('#energyOpen')) $('#energyOpen').onclick = () => openEnergy(cfg);
     $('#pres').oninput = (e) => { const v = e.target.value.trim(); $('#presLine').textContent = v ? 'Presentado por ' + v : ''; };
     $('#setup').onsubmit = (e) => {
