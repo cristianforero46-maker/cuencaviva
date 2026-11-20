@@ -5472,7 +5472,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         // pelaje corto pardo grisáceo, vientre y pecho crema, hocico y mentón blancos con "bigote" negro a los lados,
         // nariz rosada, ojos ámbar con anillos claros y orejas de dorso oscuro. Los cachorros nacen con manchas. ----------
         const pumaPaint = (cub) => (P) => {
-          const tawny = hx(cub ? 0xb08c66 : 0xa5845f), back = hx(cub ? 0x9c7a56 : 0x8f7050), cream = hx(0xdccbb0), white = hx(0xefe8dc), dark = hx(0x231a14);
+          const tawny = hx(cub ? 0xa38363 : 0x957756), back = hx(cub ? 0x8f7052 : 0x7a6047), cream = hx(0xdccbb0), white = hx(0xefe8dc), dark = hx(0x231a14);
           let c = mul(cs(P, mx(tawny, back, sm(0.6, 1, P.top)), cream, -0.9, -0.55), 0.92 + 0.16 * fb(P.U * 5, P.V * 3));
           if (P.kind === 'body') {
             const k = P.st, eu = Math.abs(P.u - 0.5);
@@ -5487,7 +5487,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
             if (P.ed < 0.03 && P.ed > 0.02 && P.top < 0.6) c = mx(c, white, 0.22); // claro suave bajo el ojo
             if (P.ed < 0.02) c = mx(c, dark, 0.75 * sm(0.02, 0.014, P.ed)); // borde oscuro del párpado (ojo almendrado)
             if (k > 13.2 && P.top < 0.05) c = mx(c, white, 0.85 * sm(13.2, 13.7, k) * sm(0.05, -0.2, P.top)); // labio superior blanco bajo la nariz
-            if (k > 13.3) c = mx(c, white, 0.85 * sm(13.3, 13.6, k) * (P.top < 0.5 ? 1 : sm(13.5, 13.75, k))); // el frente del hocico (alrededor de la nariz) queda claro
+            if (k > 13.3) c = mx(c, white, 0.68 * sm(13.3, 13.6, k) * sm(0.15, -0.15, P.top)); // solo el labio y el mentón; el puente de la nariz sigue pardo // el frente del hocico (alrededor de la nariz) queda claro
             if (cub && k < 9.5 && P.top > -0.4) { const w = cells(P.U, P.V, P.per, 0.05, 13); if (w.d1 < 0.18 + w.id * 0.1) c = mx(c, hx(0x6a4a32), 0.5); } // manchas de cachorro
           }
           if (P.kind === 'leg') { if (P.lat * P.side < 0) c = mx(c, cream, 0.6); if (cub && Math.sin(P.v * 24) > 0.7 && P.v < 0.75) c = mx(c, hx(0x5a3e2a), 0.5); }
@@ -5512,10 +5512,10 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           e.geo.computeVertexNormals();
           return e;
         };
-        S.puma = cat({ tpl: quad({ L: 1.0, hipH: 0.72, shH: 0.67, hipD: 0.34, chD: 0.4, hipW: 0.29, chW: 0.32, bellyW: 0.27, belly: -0.04, dip: 0.02, hump: 0.02, neckL: 0.16, neckA: 36, neckR0: 0.11, neckR1: 0.092, dome: 0.12, noseK: 0.58, pads: 1.15, cheek: 0.12,
-            headL: 0.17, headW: 0.19, headH: 0.148, headA: 10, snoutL: 0.21, snW: 0.125, snH: 0.086, eyeK: 0.5, earH: 0.044, earW: 0.058, earRound: 0.7, earSpread: 0.75, earTilt: 0.3, earX: 0.76, earY: 0.74, eyeR: 0.0165, eyeIn: 0.5, eyeTh: 35, eyeFwd: 0.66,
+        S.puma = cat({ tpl: quad({ L: 1.0, hipH: 0.72, shH: 0.67, hipD: 0.34, chD: 0.4, hipW: 0.29, chW: 0.32, bellyW: 0.27, belly: -0.04, dip: 0.02, hump: 0.02, neckL: 0.12, neckA: 28, neckR0: 0.12, neckR1: 0.1, dome: 0.12, noseK: 0.58, pads: 1.15, cheek: 0.12,
+            headL: 0.19, headW: 0.215, headH: 0.168, headA: 10, snoutL: 0.24, snW: 0.11, snH: 0.088, eyeK: 0.5, earH: 0.044, earW: 0.058, earRound: 0.7, earSpread: 0.75, earTilt: 0.3, earX: 0.76, earY: 0.74, eyeR: 0.0165, eyeIn: 0.5, eyeTh: 35, eyeFwd: 0.66,
             fr: [0.058, 0.044, 0.034], hr: [0.088, 0.054, 0.038], pawR: 0.05, pawH: 0.034, pawL: 0.105, wristK: 0.1, hockK: 0.27, tailL: 0.8, tailR0: 0.05, tailR1: 0.045, tailBush: 0.004, tailN: 9, tailUp: -62, tailCurve: 11 }),
-          fur: { len: 0.02, dens: 900, thick: 0.5, root: 0.6, tip: [1.12, 1.1, 1.06], clump: 0.15 }, speed: 0.7, stride: 1.05, sitA: 0.95, eye: { iris: 0xa07c3c, pup: 0.6 }, camK: 3.2,
+          fur: { len: 0.02, dens: 900, thick: 0.5, root: 0.62, tip: [1.04, 1.03, 1.01], clump: 0.15 }, speed: 0.7, stride: 1.05, sitA: 0.95, eye: { iris: 0xa07c3c, pup: 0.6 }, camK: 3.2,
           paint: pumaPaint(false), extras: (T) => [Object.assign(catNose(T, 0.62), { mat: pumaNoseMat })] });
         S.cachorroPuma = cat({ sid: 'puma', tpl: quad({ L: 0.45, hipH: 0.33, shH: 0.31, hipD: 0.17, chD: 0.19, hipW: 0.15, chW: 0.16, bellyW: 0.16, neckL: 0.1, neckA: 28, neckR0: 0.06, neckR1: 0.05, dome: 0.16, noseK: 0.48, pads: 0.8, cheek: 0.06,
             headL: 0.115, headW: 0.135, headH: 0.112, headA: 6, snoutL: 0.2, snW: 0.062, snH: 0.05, earH: 0.042, earW: 0.048, earRound: 1, earSpread: 0.55, earTilt: 0.1, earX: 0.62, earY: 0.84, eyeR: 0.0115, eyeTh: 40, eyeFwd: 0.62,
