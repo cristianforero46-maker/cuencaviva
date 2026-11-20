@@ -5451,18 +5451,32 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           if (k > 13.85 && P.top > 0.1 && Math.abs(P.lat) < 0.6) c = hx(noseCol);
           return c;
         };
-        S.jaguar = cat({ tpl: quad({ L: 1.15, hipH: 0.72, shH: 0.72, hipD: 0.42, chD: 0.45, hipW: 0.38, chW: 0.4, bellyW: 0.4, belly: 0.03, neckL: 0.2, neckA: 26, neckR0: 0.14, neckR1: 0.115, dome: 0.1, noseK: 0.46, pads: 1, cheek: 0.08,
-            headL: 0.23, headW: 0.25, headH: 0.19, headA: 10, snoutL: 0.27, snW: 0.12, snH: 0.095, earH: 0.042, earW: 0.055, earRound: 1, earSpread: 0.7, earTilt: 0.1, earX: 0.68, eyeR: 0.015, eyeTh: 40, eyeFwd: 0.6,
-            fr: [0.074, 0.056, 0.044], hr: [0.1, 0.064, 0.048], pawR: 0.058, pawH: 0.04, pawL: 0.12, tailL: 0.62, tailR0: 0.055, tailR1: 0.042, tailN: 8, tailUp: -55, tailCurve: 9 }),
+        // jaguar (Panthera onca): el felino más robusto de América; cabeza grande y ancha con hocico corto,
+        // pecho y patas gruesas, cola más corta que la del puma. Pelaje dorado leonado con ROSETAS: anillos negros
+        // rotos con el centro más oscuro y uno o dos puntos adentro; en cabeza, cuello y patas, manchas sólidas pequeñas.
+        S.jaguar = cat({ tpl: quad({ L: 1.15, hipH: 0.7, shH: 0.71, hipD: 0.44, chD: 0.49, hipW: 0.4, chW: 0.43, bellyW: 0.42, belly: 0.04, neckL: 0.17, neckA: 22, neckR0: 0.16, neckR1: 0.135, dome: 0.12, noseK: 0.5, pads: 1.05, cheek: 0.14,
+            headL: 0.25, headW: 0.285, headH: 0.21, headA: 10, snoutL: 0.24, snW: 0.14, snH: 0.1, earH: 0.04, earW: 0.055, earRound: 1, earSpread: 0.72, earTilt: 0.1, earX: 0.7, eyeR: 0.0155, eyeTh: 40, eyeFwd: 0.62,
+            fr: [0.084, 0.064, 0.05], hr: [0.11, 0.07, 0.052], pawR: 0.066, pawH: 0.044, pawL: 0.13, tailL: 0.56, tailR0: 0.056, tailR1: 0.044, tailN: 8, tailUp: -55, tailCurve: 9 }),
           speed: 0.7, stride: 1.05, camK: 3.1, eye: { iris: 0xc89a2a },
+          extras: (T) => [Object.assign(catNose(T, 0.66), { mat: pumaNoseMat })],
           paint(P) {
-            const gold = hx(0xc98c3c), cream = hx(0xf3ead8), blk = hx(0x17110c);
-            let c = mul(cs(P, gold, cream, -0.55, -0.1), 0.92 + 0.16 * fb(P.U * 6, P.V * 4));
-            const big = P.kind === 'body' && P.st < 9 && P.top > -0.45, w = cells(P.U, P.V, P.per, big ? 0.15 : 0.07, 3);
+            const gold = hx(0xb4874f), back = hx(0x9f7442), cream = hx(0xf1e8d6), blk = hx(0x16100b), inner = hx(0x8e6230);
+            let c = mul(cs(P, mx(gold, back, sm(0.55, 1, P.top)), cream, -0.55, -0.1), 0.92 + 0.16 * fb(P.U * 6, P.V * 4));
+            const k = P.st, face = P.kind === 'body' && k > 9.6, big = P.kind === 'body' && k < 9.2 && P.top > -0.5;
             if (big) {
-              const ring = Math.abs(w.d1 - 0.36), brk = vn(Math.atan2(w.dy, w.dx) * 2 + w.id * 9, w.id * 5) > 0.3;
-              if (w.d1 < 0.32) c = mul(c, 0.82); if (ring < 0.09 && brk) c = blk; if (w.d1 < 0.07 && w.id > 0.6) c = blk;
-            } else if (w.d1 < 0.27 + w.id * 0.12) c = blk;
+              const w = cells(P.U, P.V, P.per, 0.19, 3), ang = Math.atan2(w.dy, w.dx);
+              const ring = Math.abs(w.d1 - 0.38), brk = vn(ang * 1.6 + w.id * 9, w.id * 5) > 0.28;
+              if (w.d1 < 0.34) c = mx(c, inner, 0.55); // centro de la roseta más oscuro y rojizo
+              if (ring < 0.07 + 0.02 * vn(ang * 3, w.id * 7) && brk) c = blk;
+              // uno o dos puntos negros dentro de la roseta
+              if (w.id > 0.35 && Math.hypot(w.dx - 0.09, w.dy + 0.04) < 0.065) c = blk;
+              if (w.id > 0.7 && Math.hypot(w.dx + 0.1, w.dy - 0.08) < 0.05) c = blk;
+            } else if (face) {
+              // cara: manchas pequeñas en frente y mejillas, hocico limpio
+              if (k < 12.2) { const w = cells(P.U, P.V, P.per, 0.04, 5); if (w.d1 < 0.22 + w.id * 0.08) c = blk; }
+            } else {
+              const w = cells(P.U, P.V, P.per, 0.07, 3); if (w.d1 < 0.27 + w.id * 0.12) c = blk;
+            }
             if (P.kind === 'tail' && P.v > 0.7) c = (Math.floor(P.v * 14) % 2) ? blk : c;
             c = catFace(P, c);
             return mul(c, grain(P, 0.14));
