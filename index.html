@@ -6,15 +6,15 @@
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!-- las letras llegan sin frenar la carga: mientras tanto se usan las del sistema (y si la red del colegio las bloquea, no pasa nada) -->
-<link id="fonts" rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<link id="fonts" rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
 /* Layout: valle 3D a pantalla completa; HUD arriba, equipos abajo, tarjetas de vidrio flotando sobre el paisaje */
 :root{
   color-scheme: dark;
   --ink:#08130f; --glass:rgba(9,20,16,.68); --glass-2:rgba(255,255,255,.06); --line:rgba(226,240,228,.15);
   --mist:#eaf2ea; --mist-2:#b4c4b8; --lichen:#b8cc8c; --sun:#ffc25a; --river:#5ad1cc; --ok:#7fe08d; --alarm:#ff6a4d;
-  --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
-  --body:'Figtree','Segoe UI',system-ui,sans-serif;
+  --display:'Source Serif 4',Georgia,'Times New Roman',serif;
+  --body:'Inter','Segoe UI',system-ui,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
 }
 *{box-sizing:border-box}
@@ -480,7 +480,7 @@ body.fade #fade{opacity:1}
 .voice-row select{min-width:0;width:0;flex:1 1 0}
 .modes.subjects{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media (max-width:480px){.modes.subjects{grid-template-columns:minmax(0,1fr)}.seg[data-k="level"]{flex-wrap:wrap}.seg[data-k="level"] button{flex:1 1 45%}}
-.modes.subjects button[data-s="explora"]{border-color:rgba(255,209,102,.55)}
+.modes.subjects button[data-s="explora"]{border-color:rgba(236,230,216,.14);opacity:.85}
 .modes.subjects button[data-s="explora"][aria-pressed="true"]{border-color:#ffd166;background:rgba(255,209,102,.16);box-shadow:inset 0 0 0 1px #ffd166}
 .lvl-hint{margin:8px 0 0}
 .seg[data-k="level"] button{padding:10px 4px;font-size:14px}
@@ -727,6 +727,44 @@ body.proyector .fx-vignette{opacity:.55}
 .subjects button:hover,.modes button:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
 @media (max-width:900px){.hero-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.title-scrim{background:linear-gradient(180deg,rgba(4,12,9,.75) 0%,rgba(4,12,9,.45) 50%,rgba(4,12,9,.75) 100%)}}
 @media (prefers-reduced-motion:reduce){.title-motes,.hero-play::after{display:none}.wordmark b,.wordmark span b,.hero-pill,.hero .lead,.hero-stats li,.hero-cta,.hero-more,.setup,.setup>*,.wm-river path{animation:none;opacity:1;stroke-dashoffset:0}}
+/* ===== estilo universitario: sobrio, documental, sin adornos infantiles ===== */
+:root{--paper:#ECE6D8;--ochre:#C9A35A;--r:6px}
+body{--gf:saturate(.86) contrast(1.06) brightness(.98)}
+.btn{border-radius:var(--r);background:var(--paper);color:#14201a;font-family:var(--body);font-weight:600;letter-spacing:.005em;box-shadow:none}
+.btn:hover{background:#fff8ea}
+.btn.ghost{border-radius:var(--r);background:transparent;color:var(--mist);border:1px solid rgba(236,230,216,.35)}
+.hero-play{box-shadow:none;font-size:17px;padding:15px 24px}
+.hero-play::after{display:none}
+.play-ico{background:transparent;border:1px solid rgba(20,32,26,.35);width:26px;height:26px;font-size:11px}
+.btn.demo-open,.hero-cta .demo-open{background:transparent;color:#EAD9B0;border:1px solid var(--ochre)}
+.btn.demo-open:hover{background:rgba(201,163,90,.12)}
+.chip-btn,.hero-pill,.ex-group,.seg button,.ex-act,.demo-out,.pill{border-radius:var(--r)!important}
+.chip-btn{background:rgba(0,0,0,.4)}
+.hero-pill{font-family:var(--mono);letter-spacing:.12em}
+.live-dot{background:var(--ochre);box-shadow:none;animation:none}
+.wordmark{font-weight:600;letter-spacing:-.025em;line-height:.92}
+.title-screen .wordmark{font-size:clamp(56px,7.6vw,116px)}
+.wordmark b{animation-name:fadeUp}
+@keyframes fadeUp{from{opacity:0;transform:translateY(.25em)}}
+.wordmark span b{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--ochre);animation:fadeUp .9s cubic-bezier(.2,1,.3,1) both;animation-delay:calc(.25s + var(--i) * .06s)}
+.wm-river{display:none}
+.hero .lead{margin-top:20px;padding-top:20px;border-top:1px solid rgba(236,230,216,.22);max-width:40ch}
+.title-motes{display:none}
+.hero-stats li{border-radius:var(--r);background:rgba(0,0,0,.38)}
+.hero-stats b{font-family:var(--mono);font-weight:500;font-size:clamp(19px,2vw,26px)}
+.hero-stats span{text-transform:uppercase;letter-spacing:.08em;font-size:11px}
+.step legend::before{background:transparent;color:var(--ochre);border:1px solid var(--ochre);border-radius:4px;font:600 12px var(--mono);width:26px;height:22px}
+.card,.setup,.demo-q,.alb-card-wrap,.mis-win,.ex-mis,.cv-toast{border-radius:10px}
+.subjects button,.modes button{border-radius:8px}
+.subjects button[aria-pressed="true"],.modes button[aria-pressed="true"],.subjects button.on,.modes button.on{border-color:var(--ochre)!important;box-shadow:inset 0 0 0 1px var(--ochre)!important}
+.ex-act{background:var(--paper);color:#14201a;animation:none}
+.cv-toast{border-color:rgba(236,230,216,.3)}
+.cv-toast b{color:var(--paper);font-family:var(--body)}
+.demo-opts kbd{border-radius:4px}
+.demo-timer i{background:var(--ochre)}
+.answer-flash.ok{background:radial-gradient(circle at 50% 50%,rgba(126,217,87,0) 40%,rgba(126,217,87,.22))}
+.answer-flash.bad{background:radial-gradient(circle at 50% 50%,rgba(220,50,50,0) 40%,rgba(220,50,50,.3))}
+.team.pop b{animation-duration:.6s}
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
@@ -8432,7 +8470,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (logros.has(id)) return;
     const l = LOGROS.find((x) => x[0] === id); if (!l) return;
     logros.add(id); store.set('cv.logros', [...logros]);
-    toast('★ Logro: ' + l[1], l[2]); sfx('fanfare');
+    toast('Logro: ' + l[1], l[2]); sfx('fanfare');
   }
   // primera vez que se ve una especie a pie: entra al álbum
   function see(id) {
@@ -9141,7 +9179,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     setPhase('event'); stage.innerHTML = '';
     const restore = () => { if (CV.scene && CV.scene.night) CV.scene.night(false); CV.blackout = false; };
     // botón para salir en cualquier momento
-    const out = document.createElement('button'); out.className = 'btn ghost demo-out'; out.type = 'button'; out.textContent = '✕ Salir de la demostración';
+    const out = document.createElement('button'); out.className = 'btn ghost demo-out'; out.type = 'button'; out.textContent = 'Salir de la demostración';
     out.onclick = () => { CN.scene(); finish(); exit(); };
     document.body.appendChild(out);
     const finish = () => { out.remove(); restore(); AU.music(false); AU.pad(null); Sc.lapse(false); CV.talking = null; if (CV.atmo) CV.atmo.clear(); if (CV.scene.golden) CV.scene.golden(false); const q = document.querySelector('.demo-q'); if (q) q.remove(); };
@@ -9159,10 +9197,10 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       look: (grade, atmo) => { if (CV.atmo) { CV.atmo.grade(grade); CV.atmo.set(atmo); } },
     };
     // primer plano de quien habla: la cámara se le acerca, el fondo se desenfoca y mueve la boca al hablar
-    const close = async (id, lado) => {
-      if (!(CV.protagonistas && CV.protagonistas.list)) return true;
-      CV.talking = id; const r = await CN.cut('pp:' + id, lado ? 'lado' : null, g); if (CV.atmo) CV.atmo.dof(true); return r;
-    };
+    // testimonio al estilo documental: mientras la persona habla, la cámara recorre SU lugar
+    // (el páramo que arde, el río muerto, la escuela, el caño tapado); su nombre y oficio van en el subtítulo
+    const PLACE = { tomas: () => (CV.harsh && CV.crudo && CV.crudo.fronts ? 'incendio' : 'bio'), rosa: () => 'rio', luz: () => 'escuela', mateo: () => 'pueblo', efrain: () => 'basura' };
+    const close = async (id) => { const v = PLACE[id] ? PLACE[id]() : 'vuelo'; return CN.cut(v, 'orbitar', g); };
     const unclose = () => { CV.talking = null; if (CV.atmo) CV.atmo.dof(false); };
 
     // estado inicial: un valle golpeado pero vivo
@@ -9229,7 +9267,6 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (!(await ok(CN.say(N, `Acertaron ${score} de ${SCENES.length}. Pero ese futuro todavía no ha llegado. El páramo, el río y el aire se pueden recuperar.`, g)))) return;
     if (!(await ok(CN.cut('fauna', 'orbitar', g)))) return;
     if (!(await ok(CN.say(N, 'Eso no lo hace la suerte. Lo hace gente que estudia para cuidar la vida. Eso es la ingeniería ambiental.', g)))) return;
-    if (CV.misiones) CV.misiones.confetti(document.body);
     finalCard(score, api);
     finish();
   }
@@ -9255,7 +9292,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         box.querySelectorAll('button').forEach((b, j) => { b.disabled = true; if (j === q.ok) b.classList.add('ok'); else if (j === i) b.classList.add('bad'); });
         bar.style.animationPlayState = 'paused';
         AU.hush();
-        if (right) { SFX.ok(); if (CV.misiones) CV.misiones.confetti(document.body); } else { SFX.bad(); api.Sc.shake(0.5); }
+        if (right) { SFX.ok(); } else { SFX.bad(); api.Sc.shake(0.5); }
         api.flash(right ? 'ok' : 'bad');
         setTimeout(() => { box.remove(); res(right); }, 1700);
       };
@@ -9278,7 +9315,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     stage.innerHTML = `<div class="card final-card demo-final">
       <p class="eyebrow">Demostración · Cuenca Viva</p>
       <h2>Acertaron ${score} de ${SCENES.length}</h2>
-      <p class="lead">Esto fue un solo capítulo. El juego completo tiene la historia de cinco habitantes, cuatro asignaturas, un modo para niños, el Mundo de la energía y un valle para recorrer a pie.</p>
+      <p class="lead">Esto fue un solo capítulo. El juego completo tiene la historia de cinco habitantes, cinco asignaturas, un modo escolar, el Mundo de la energía y un valle para recorrer a pie.</p>
       <div class="demo-final-actions"><button class="btn" type="button" id="demoAgain">Ver la demostración otra vez</button><button class="btn ghost" type="button" id="demoHome">Ir al juego completo</button></div>
       ${CV.credito ? CV.credito.author('author-final') : ''}
       ${CV.musicaData ? '<p class="voice-hint">Música: Gymnopédie n.º 1 de Erik Satie, interpretada por Robin Alciatore · Musopen (dominio público).</p>' : ''}
@@ -9490,10 +9527,10 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         </ul>
         <div class="hero-cta">
           <button class="btn hero-play" type="button" id="heroPlay"><span class="play-ico" aria-hidden="true">▶</span>Comenzar la historia</button>
-          <button class="btn demo-open" type="button" id="demoOpen"><span aria-hidden="true">🎬</span> Demostración · 5 min</button>
+          <button class="btn demo-open" type="button" id="demoOpen">Demostración · 5 min</button>
         </div>
         <div class="hero-more">
-          ${S.has3d ? `<button class="chip-btn" type="button" id="exploreOpen"><span aria-hidden="true">🧭</span>Explorar el valle a pie</button>` : ''}
+          ${S.has3d ? `<button class="chip-btn" type="button" id="exploreOpen">Explorar el valle a pie</button>` : ''}
           <button class="chip-btn" type="button" id="faunaOpen"><svg class="ico"><use href="#i-paw"/></svg>Conocer la fauna</button>
         </div>
         <p class="presenter" id="presLine">${cfg.presenter ? 'Presentado por ' + esc(cfg.presenter) : ''}</p>
@@ -9522,12 +9559,12 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         <label class="field" for="voiceSel" id="voiceBox">Voz de la narradora (las «natural» son las más humanas)
           <span class="voice-row"><select id="voiceSel"></select><button type="button" class="btn ghost" id="voiceTest">Escuchar</button></span></label>
         <p class="voice-hint" id="vHint"></p>
-        <p class="voice-hint sound-test"><button type="button" class="btn ghost" id="soundTest">🔊 Probar sonido</button><span id="soundInfo"></span></p>
+        <p class="voice-hint sound-test"><button type="button" class="btn ghost" id="soundTest">Probar sonido</button><span id="soundInfo"></span></p>
         <fieldset><legend>Gráficos · ${S.has3d && CV.Q ? `este equipo usa 3D ${({ alta: 'alto', media: 'medio', ligera: 'ligero', segura: 'seguro' })[CV.Q.level] || ''}` : CV.why3d === 'webgl' ? 'este navegador no permite 3D (pruebe Chrome o Safari actualizados)' : 'jugando sin 3D'}</legend>${seg('quality', [[0, 'Automático'], [1, 'Alta'], [2, 'Ligera'], [3, 'Sin 3D']])}</fieldset>
         <label class="field" for="pres">Presentado por (opcional)<input id="pres" maxlength="80" placeholder="Ej.: Programa de Ingeniería Ambiental" value="${esc(cfg.presenter)}"></label>
         </details>
         <button class="btn" type="submit">Comenzar la historia</button>
-        ${S.has3d ? `<button class="btn fauna-open energy-open" type="button" id="energyOpen" hidden>⚡ Entrar al Mundo de la energía</button>` : ''}
+        ${S.has3d ? `<button class="btn fauna-open energy-open" type="button" id="energyOpen" hidden>Entrar al Mundo de la energía</button>` : ''}
         <details><summary>Cómo se juega</summary><ul>
           <li>En el valle viven 23 especies emblemáticas de los Andes: el oso de anteojos, el cóndor, el jaguar, la danta, los monos… Cada una vuelve cuando la cuenca le da lo que necesita y se va cuando se degrada. Con la tecla F ven qué hace cada especie por el ecosistema.</li>
           <li>Asignaturas: la historia completa de la cuenca, o solo Calidad del aire, Climatología o Transición energética, o Exploradores para niños de 8 a 15 años.</li>
@@ -10027,7 +10064,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (SURV()) { if (res.success) S.survived++; else { S.lives--; SFX.alarm(); } }
     if (res.success) SFX.ok(); else if (res.frac > 0) SFX.mid(); else Sc.shake(0.5);
     flash(res.success ? 'ok' : res.frac > 0 ? 'mid' : 'bad');
-    if (res.success && CV.misiones) CV.misiones.confetti(document.body);
+    if (res.success && KIDS() && CV.misiones) CV.misiones.confetti(document.body);
     renderTeams(who); if (pts > 0) gain(who, pts);
     later(1700, () => showReveal(res, who, pts, before, after));
   }
@@ -10172,7 +10209,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (!(await CN.say(ST.narrator, 'y el jaguar, el oso y el cóndor volverán a ser nuestros vecinos. Cada especie cumple un trabajo que ninguna máquina puede reemplazar.', g))) return;
     Object.assign(vals, saved);
     CN.chips(`<span>Epílogo</span><span>Vida de la cuenca ${pct(h)}</span>`);
-    if (ok && CV.misiones) { const z = CV.world && CV.world.zones; if (z) { CV.misiones.flock({ x: z.fauna.x, z: z.fauna.z, n: 50 }); CV.misiones.flock({ x: z.bosque.x, z: z.bosque.z, n: 30, alt: 75 }); } CV.misiones.confetti(document.body); CV.misiones.unlock('historia'); }
+    if (ok && CV.misiones) { const z = CV.world && CV.world.zones; if (z) { CV.misiones.flock({ x: z.fauna.x, z: z.fauna.z, n: 50 }); CV.misiones.flock({ x: z.bosque.x, z: z.bosque.z, n: 30, alt: 75 }); } CV.misiones.unlock('historia'); }
     if (!(await CN.say(ST.narrator, ok
       ? `Entre todos llevaron la vida de la cuenca al ${Math.round(h * 100)} por ciento. Lo lograron juntos.`
       : `La cuenca llegó al ${Math.round(h * 100)} por ciento. La meta era setenta. Restaurar un ecosistema toma años, y por eso hacen falta más ingenieros ambientales.`, g))) return;
