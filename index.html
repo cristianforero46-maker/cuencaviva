@@ -765,6 +765,56 @@ body{--gf:saturate(.86) contrast(1.06) brightness(.98)}
 .answer-flash.ok{background:radial-gradient(circle at 50% 50%,rgba(126,217,87,0) 40%,rgba(126,217,87,.22))}
 .answer-flash.bad{background:radial-gradient(circle at 50% 50%,rgba(220,50,50,0) 40%,rgba(220,50,50,.3))}
 .team.pop b{animation-duration:.6s}
+/* ===== apertura de cine ===== */
+.sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.intro{position:fixed;inset:0;z-index:40;background:#050806;color:var(--paper);display:grid;place-items:center;text-align:center;padding:24px;transition:background 1.6s ease,opacity .8s ease;cursor:pointer}
+.intro.open{background:linear-gradient(180deg,rgba(5,8,6,.05) 30%,rgba(5,8,6,.72) 100%)}
+.intro.out{opacity:0;pointer-events:none}
+.intro-gate{position:absolute;inset:0;display:grid;place-content:center;gap:10px;transition:opacity .6s}
+.intro.playing .intro-gate{opacity:0;pointer-events:none;position:absolute}
+.intro-gate .eyebrow{justify-content:center;color:var(--ochre)}
+.intro-call{font-family:var(--display);font-size:clamp(24px,3vw,36px);margin:0}
+.intro-note{margin:0;color:var(--mist-2);font-size:14px;letter-spacing:.02em}
+.intro-lines{max-width:min(980px,92vw);align-self:end;margin-bottom:12vh}
+.intro:not(.open) .intro-lines{align-self:center;margin:0}
+.intro-line{animation:introIn 1.2s cubic-bezier(.2,1,.3,1) both}
+@keyframes introIn{from{opacity:0;transform:translateY(12px);filter:blur(4px)}}
+.intro-big{font-family:var(--display);font-weight:600;font-size:clamp(28px,4.4vw,58px);line-height:1.15;margin:0;letter-spacing:-.01em}
+.intro-mid{font-family:var(--display);font-style:italic;font-size:clamp(22px,3vw,38px);margin:0;text-shadow:0 2px 20px rgba(0,0,0,.6)}
+.intro-src{margin:18px 0 0;font-family:var(--mono);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ochre)}
+.intro-title{font-family:var(--display);font-weight:600;font-size:clamp(56px,10vw,132px);line-height:.95;margin:0;letter-spacing:-.025em;text-shadow:0 4px 40px rgba(0,0,0,.5)}
+.intro-title span{color:var(--ochre)}
+.intro-sub{margin:14px 0 0;font-family:var(--display);font-size:clamp(17px,2vw,24px)}
+.intro-credit{margin:22px 0 0;font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--mist-2)}
+.intro-skip{position:absolute;right:20px;bottom:max(18px,env(safe-area-inset-bottom));font-size:13px;padding:8px 14px;opacity:.7}
+@media (prefers-reduced-motion:reduce){.intro-line{animation:none}}
+/* ===== menú principal ===== */
+.title-screen[data-view="menu"]{grid-template-columns:minmax(0,640px);justify-content:start}
+.title-screen[data-view="setup"],.title-screen[data-view="settings"],.title-screen[data-view="about"]{grid-template-columns:minmax(0,760px);justify-content:center}
+.hero.menu .lead{max-width:34ch}
+.main-menu{display:grid;gap:10px;margin-top:28px;max-width:480px}
+.menu-item{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 16px;text-align:left;padding:16px 20px;border-radius:var(--r);border:1px solid rgba(236,230,216,.18);background:rgba(5,10,8,.55);color:var(--paper);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:border-color .15s,background .15s,transform .15s;animation:riseIn .7s both}
+.menu-item:nth-child(1){animation-delay:1s}.menu-item:nth-child(2){animation-delay:1.1s}.menu-item:nth-child(3){animation-delay:1.2s}
+.menu-item b{font-family:var(--display);font-weight:600;font-size:clamp(21px,2vw,26px);grid-column:1}
+.menu-item span{grid-column:1;color:var(--mist-2);font-size:14px}
+.menu-item kbd{grid-column:2;grid-row:1/span 2;font-family:var(--mono);font-size:12px;padding:3px 8px;border:1px solid rgba(236,230,216,.3);border-radius:4px;color:var(--mist-2)}
+.menu-item:hover,.menu-item:focus-visible{border-color:var(--ochre);background:rgba(20,28,22,.75);transform:translateX(4px);outline:none}
+.menu-item:first-child{border-color:rgba(201,163,90,.6)}
+.menu-foot{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;animation:riseIn .7s 1.3s both}
+/* ===== asistente por pasos y paneles ===== */
+.wizard,.side-panel{width:min(760px,100%);animation:panelIn .6s cubic-bezier(.2,1,.3,1) both}
+.wizard .setup-head h2,.side-panel .setup-head h2{font-size:clamp(24px,2.6vw,32px)}
+.wz-step{display:grid;gap:16px;animation:riseIn .45s both}
+.wz-nav{display:flex;justify-content:space-between;gap:10px;margin-top:6px;padding-top:16px;border-top:1px solid rgba(236,230,216,.14)}
+.wz-nav .btn{min-width:150px}
+.energy-open{justify-self:start}
+.side-panel{display:grid;gap:16px;max-height:calc(100vh - 40px);overflow:auto}
+.about-list{margin:0;padding-left:18px;display:grid;gap:10px;color:var(--mist);line-height:1.5}
+@media (max-width:640px){.main-menu{max-width:none}.wz-nav .btn{min-width:0;flex:1}}
+/* ===== modo presentador ===== */
+@media (pointer:coarse){.menu-item kbd{display:none}}
+body.presenting,body.presenting *{cursor:none!important}
+body.presenting.proyector{--pf:brightness(1.28) contrast(1.18) saturate(1.1)}
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
@@ -4814,7 +4864,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const LT = (n) => (LITE ? Math.max(1, Math.round(n * 0.5)) : n);
       const place = (id, n, hab, o = {}) => { for (let i = 0; i < LT(n); i++) { const [x, z] = ptIn(HAB[hab]); spawn(id, Object.assign({ hab: HAB[hab], x, z, mode: 'ground' }, typeof o === 'function' ? o(i) : o)); } };
       place('venado', 7, 'pradera', (i) => ({ male: i === 0 }));
-      place('guanaco', 6, 'pradera'); place('conejo', 9, 'pradera'); place('armadillo', 3, 'pradera'); place('hormiguero', 2, 'pradera');
+      place('guanaco', 4, 'paramo'); place('guanaco', 2, 'bosque'); place('conejo', 9, 'pradera'); place('armadillo', 3, 'pradera'); place('hormiguero', 2, 'pradera');
       place('zorro', 1, 'pradera'); if (!LITE) place('zorro', 2, 'pradera', { sc: 0.55, pup: true });
       place('jaguarundi', 2, 'pradera'); place('coati', 7, 'bosque'); place('taira', 2, 'bosque');
       // osos de anteojos: una madre con su cría en el páramo, otra con dos oseznos en el borde del bosque,
@@ -5455,17 +5505,19 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
             return mul(c, grain(P, 0.1));
           } };
 
-        S.guanaco = { tpl: quad({ L: 0.95, hipH: 1.05, shH: 1.04, hipD: 0.42, chD: 0.46, hipW: 0.34, chW: 0.34, bellyW: 0.38, belly: 0.02, neckL: 0.66, neckA: 66, neckR0: 0.105, neckR1: 0.08,
-            headL: 0.3, headW: 0.14, headH: 0.15, headA: 8, snoutL: 0.45, snW: 0.09, snH: 0.085, earH: 0.13, earW: 0.05, earRound: 0.2, earSpread: 0.15, earTilt: 0.2, eyeR: 0.019, eyeTh: 72, eyeFwd: 0.15,
-            fr: [0.07, 0.04, 0.03], hr: [0.1, 0.05, 0.035], pawR: 0.042, pawH: 0.03, pawL: 0.1, wristK: 0.3, hockK: 0.32, thighK: 0.42, tailL: 0.26, tailR0: 0.055, tailR1: 0.045, tailN: 4, tailUp: -20, tailCurve: -18 }),
-          fur: { len: 0.045, dens: 460, thick: 0.46, root: 0.62, tip: [1.08, 1.02, 0.96] }, under: 0.7, speed: 0.75, stride: 1.4, swing: 0.45, idle: ['graze', 'look', 'graze', 'alert'], grazeN: 1.45, eye: { iris: 0x241810 }, camK: 2.6,
+        // pudú del norte (Pudu mephistophiles): el venado más pequeño del mundo, 32 a 35 cm a la cruz;
+        // cuerpo compacto y redondeado, patas cortas, cuello corto, orejas redondas y pelaje pardo rojizo oscuro, cara casi negra
+        S.guanaco = { tpl: quad({ L: 0.4, hipH: 0.36, shH: 0.33, hipD: 0.2, chD: 0.19, hipW: 0.17, chW: 0.15, bellyW: 0.19, belly: 0.02, neckL: 0.1, neckA: 32, neckR0: 0.06, neckR1: 0.05,
+            headL: 0.13, headW: 0.07, headH: 0.07, headA: 28, snoutL: 0.4, snW: 0.035, snH: 0.034, earH: 0.055, earW: 0.04, earRound: 0.95, earSpread: 0.8, earTilt: 0.25, eyeR: 0.0105, eyeTh: 66, eyeFwd: 0.2,
+            fr: [0.026, 0.016, 0.012], hr: [0.04, 0.021, 0.014], pawR: 0.012, pawH: 0.012, pawL: 0.03, wristK: 0.22, hockK: 0.26, tailL: 0.03, tailR0: 0.02, tailR1: 0.01, tailN: 2, tailUp: -40 }),
+          fur: { len: 0.016, dens: 900, thick: 0.5, root: 0.55, tip: [1.03, 1.02, 1.0] }, under: 0.85, speed: 0.55, stride: 0.55, swing: 0.45, idle: ['graze', 'look', 'alert', 'graze'], grazeN: 0.7, eye: { iris: 0x1a0e08 }, camK: 4.5,
           paint(P) {
-            const br = hx(0xa96d3e), wh = hx(0xf0ebe2);
-            let c = mul(cs(P, br, wh, -0.25, -0.05), 0.92 + 0.16 * fb(P.U * 5, P.V * 3));
-            if (P.kind === 'body') { const k = P.st; if (k > 6 && k < 9 && P.top < 0.1) c = mx(c, wh, sm(0.1, -0.3, P.top)); if (k > 9.4) { c = mx(hx(0x8a8076), hx(0x45403c), sm(10, 12, k)); if (k > 12.8 && P.top < 0.2) c = mx(c, wh, 0.6); c = eyeRing(P, c, 0xd9d2c4, 0.02, 0.032); } c = nose(P, c, 0x2a2624); }
-            if (P.kind === 'leg') { c = P.lat * P.side < 0.1 ? mx(br, wh, 0.75) : br; c = mx(c, hx(0xd8d0c2), sm(0.45, 0.65, P.v)); if (P.v > 0.92) c = hx(0x3a3430); }
-            if (P.kind === 'ear') c = P.top > 0.3 ? hx(0x8a8076) : hx(0x5a524a);
-            return mul(c, grain(P, 0.2));
+            const br = hx(0x6e4028), dk = hx(0x2e1c14);
+            let c = mul(cs(P, br, hx(0x8a5a3c), -0.6, -0.2), 0.88 + 0.2 * fb(P.U * 6, P.V * 4));
+            if (P.kind === 'body' && P.st > 9.4) { c = mx(c, dk, 0.75 * sm(9.4, 11, P.st)); c = nose(P, c, 0x141010); }
+            if (P.kind === 'leg') c = legDark(P, c, 0x2a1a12, 0.2, 0.55);
+            if (P.kind === 'ear') c = P.top > 0.3 ? hx(0x5a3a28) : hx(0x3a2418);
+            return mul(c, grain(P, 0.16));
           } };
 
         S.coati = { tpl: quad({ L: 0.42, hipH: 0.33, shH: 0.29, hipD: 0.18, chD: 0.17, hipW: 0.17, chW: 0.15, bellyW: 0.18, neckL: 0.08, neckA: 18, neckR0: 0.07, neckR1: 0.06,
@@ -6683,37 +6735,37 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       q: '¿Qué porcentaje del agua del planeta es dulce y está disponible en ríos, lagos y acuíferos accesibles?',
       opts: ['Menos del 1 %', 'Cerca del 10 %', 'Cerca del 25 %', 'La mitad'], a: 0,
       dato: 'El 97,5 % del agua es salada. Del 2,5 % que es dulce, la mayor parte está congelada en glaciares o muy profunda. Lo que podemos usar con facilidad es menos del 1 %.',
-      ing: 'Por eso un ingeniero ambiental planea cómo proteger y repartir cada litro: diseña acueductos, calcula caudales y protege las fuentes de agua.' },
+      ing: 'Por eso cada litro se planea: se diseñan acueductos, se calculan caudales y se protegen las fuentes antes de que se agoten.' },
     { cat: 'agua', type: 'order',
       q: 'Ordena las etapas de una planta de tratamiento de aguas residuales (PTAR).',
       steps: ['Rejillas y desarenador: retiran basura y arena', 'Sedimentación primaria: los sólidos se asientan', 'Tratamiento biológico: bacterias se comen la materia orgánica', 'Desinfección: se eliminan los microorganismos que enferman'],
       dato: 'En una PTAR el agua va de lo grueso a lo fino: primero se quitan los sólidos, después la materia orgánica y al final los patógenos. En Bogotá, la PTAR El Salitre fue ampliada para limpiar parte del agua que llega al río Bogotá.',
-      ing: 'Diseñar, operar y mejorar plantas de tratamiento es uno de los trabajos más comunes de un ingeniero ambiental.' },
+      ing: 'Diseñar, operar y mejorar plantas de tratamiento es uno de los oficios más demandados en el sector del agua.' },
     { cat: 'agua', type: 'estimate',
       q: '¿Cuántos litros de agua se necesitan para producir una camiseta de algodón?',
       min: 0, max: 10000, step: 100, unit: 'litros', a: 2700, tol: 2500,
       dato: 'Cerca de 2.700 litros, sobre todo para regar el algodón. Es el agua que una persona bebe en unos dos años y medio.',
-      ing: 'Calcular la huella hídrica de un producto ayuda a las empresas a ahorrar agua. Ese cálculo lo hace un ingeniero ambiental.' },
+      ing: 'Con la huella hídrica de un producto, una empresa sabe dónde está gastando agua y cómo ahorrarla.' },
     { cat: 'agua', type: 'tf',
       q: 'Colombia es uno de los países con más agua dulce del mundo, así que aquí nadie se queda sin agua.', a: false,
       dato: 'Colombia sí tiene una enorme riqueza hídrica, pero el agua está mal distribuida y muchos ríos están contaminados. En temporadas secas, muchos municipios sufren desabastecimiento.',
-      ing: 'Un ingeniero ambiental modela cuencas para anticipar sequías y diseña soluciones de almacenamiento, ahorro y reúso.' },
+      ing: 'Los modelos hidrológicos permiten anticipar una sequía meses antes y preparar almacenamiento, ahorro y reúso.' },
     { cat: 'agua', type: 'quiz',
       q: 'Un río "se muere" cuando la materia orgánica que le cae encima le roba...',
       opts: ['El oxígeno disuelto', 'La sal', 'La arena del fondo', 'La luz de la luna'], a: 0,
       dato: 'Las bacterias que descomponen la materia orgánica consumen el oxígeno del agua. Sin oxígeno los peces mueren y el río huele a huevo podrido por el sulfuro de hidrógeno.',
-      ing: 'Medir el oxígeno disuelto y la DBO (demanda bioquímica de oxígeno) es parte del monitoreo que hace un ingeniero ambiental.' },
+      ing: 'El oxígeno disuelto y la DBO (demanda bioquímica de oxígeno) son los dos primeros números que se miden para saber si un río está vivo.' },
 
     // ---------- AIRE ----------
     { cat: 'aire', type: 'quiz',
       q: 'En los reportes de calidad del aire aparece "PM2.5". ¿Qué significa?',
       opts: ['Partículas de menos de 2,5 micras', 'Un gas con 2,5 % de plomo', 'La contaminación medida a las 2:50 p. m.', '2,5 toneladas de polvo por día'], a: 0,
       dato: 'Son partículas unas 30 veces más delgadas que un cabello. Son tan pequeñas que llegan al fondo de los pulmones y pasan a la sangre.',
-      ing: 'Un ingeniero ambiental instala y opera redes de monitoreo de calidad del aire y propone medidas cuando hay alertas.' },
+      ing: 'Las redes de monitoreo miden el aire hora por hora; cuando suena una alerta, alguien tiene que proponer medidas ese mismo día.' },
     { cat: 'aire', type: 'tf',
       q: 'El smog de las ciudades lo producen solo las fábricas.', a: false,
       dato: 'En ciudades como Bogotá y Medellín, el transporte, sobre todo los camiones y buses a diésel, es una de las mayores fuentes de material particulado.',
-      ing: 'Un ingeniero ambiental hace inventarios de emisiones para saber quién contamina y cuánto, y así diseñar medidas que funcionen.' },
+      ing: 'Un inventario de emisiones dice quién contamina y cuánto; sin él, cualquier medida es adivinar.' },
     { cat: 'aire', type: 'quiz',
       q: 'Un precipitador electrostático o un filtro de mangas en una chimenea sirve para...',
       opts: ['Atrapar las partículas antes de que salgan al aire', 'Hacer que el humo suba más alto', 'Pintar el humo de blanco', 'Enfriar la fábrica'], a: 0,
@@ -6723,7 +6775,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       q: 'Según la OMS, ¿cuántos millones de personas mueren cada año en el mundo por la contaminación del aire (exterior y dentro de casa)?',
       min: 0, max: 20, step: 0.5, unit: 'millones', a: 7, tol: 6,
       dato: 'Cerca de 7 millones de muertes prematuras al año. Es uno de los mayores riesgos ambientales para la salud humana.',
-      ing: 'Mejorar la calidad del aire salva vidas, y ese resultado se puede medir. Es parte del trabajo de un ingeniero ambiental.' },
+      ing: 'Mejorar la calidad del aire salva vidas, y ese resultado se puede medir en las estadísticas de salud de una ciudad.' },
     { cat: 'aire', type: 'quiz',
       q: '¿Cuál es el gas de efecto invernadero que más emiten las actividades humanas?',
       opts: ['Dióxido de carbono (CO₂)', 'Oxígeno (O₂)', 'Helio (He)', 'Nitrógeno (N₂)'], a: 0,
@@ -6740,12 +6792,12 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       ],
       items: [['Botella PET limpia', 0], ['Cáscara de banano', 2], ['Servilleta usada', 1], ['Lata de aluminio', 0], ['Cuncho de café', 2], ['Papel higiénico', 1], ['Caja de cartón seca', 0], ['Empaque de papas metalizado', 1]],
       dato: 'Desde 2021 Colombia usa este código de tres colores (Resolución 2184 de 2019). Separar en casa permite que los recicladores aprovechen mucho más material.',
-      ing: 'Un ingeniero ambiental diseña los planes de gestión integral de residuos (PGIRS) de municipios y empresas.' },
+      ing: 'Cada municipio colombiano debe tener un plan de gestión integral de residuos (PGIRS); alguien lo diseña y lo hace cumplir.' },
     { cat: 'residuos', type: 'quiz',
       q: '¿Cuánto tarda aproximadamente una botella plástica en degradarse en el ambiente?',
       opts: ['Unos 6 meses', 'Unos 15 años', 'Cientos de años', 'Una semana al sol'], a: 2,
       dato: 'Se estima que puede tardar cientos de años. Antes de desaparecer se rompe en microplásticos que terminan en ríos, mares y hasta en nuestra comida.',
-      ing: 'Un ingeniero ambiental trabaja en economía circular: diseñar para que los materiales vuelvan a usarse en vez de volverse basura.' },
+      ing: 'La economía circular empieza en el diseño: un empaque pensado para volver a usarse nunca llega al botadero.' },
     { cat: 'residuos', type: 'tf',
       q: 'Doña Juana es el relleno sanitario que recibe la basura de Bogotá.', a: true,
       dato: 'Recibe más de 6.000 toneladas de residuos al día. Cada kilo que se separa y se recicla le alarga la vida útil.',
@@ -6754,23 +6806,23 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       q: 'En un relleno sanitario, ¿qué es el lixiviado?',
       opts: ['El líquido contaminante que escurre de la basura', 'Un tipo de reciclaje de vidrio', 'El gas que huele a flores', 'La tierra que tapa la basura'], a: 0,
       dato: 'El lixiviado arrastra materia orgánica, metales y otros compuestos. Si llega a un río o al agua subterránea, causa mucho daño.',
-      ing: 'Un ingeniero ambiental diseña los sistemas que captan y tratan el lixiviado antes de devolver esa agua al ambiente.' },
+      ing: 'Un relleno sanitario bien hecho capta y trata el lixiviado; uno mal hecho lo deja correr hacia la quebrada.' },
     { cat: 'residuos', type: 'order',
       q: 'Ordena la jerarquía de gestión de residuos: de la mejor opción a la última.',
       steps: ['Reducir: no generar el residuo', 'Reutilizar: darle otro uso', 'Reciclar o aprovechar', 'Disposición final en relleno sanitario'],
       dato: 'El mejor residuo es el que no se produce. Reciclar es bueno, pero reducir y reutilizar ahorran todavía más energía y materiales.',
-      ing: 'Un ingeniero ambiental aplica esta jerarquía en empresas y ciudades para que generen menos basura.' },
+      ing: 'Primero no generar, luego reutilizar, después reciclar: esa jerarquía, aplicada en una ciudad, reduce toneladas de basura al año.' },
 
     // ---------- ENERGÍA ----------
     { cat: 'energia', type: 'quiz',
       q: '¿De dónde viene la mayor parte de la electricidad en Colombia?',
       opts: ['De hidroeléctricas', 'De plantas nucleares', 'De paneles solares', 'De quemar basura'], a: 0,
       dato: 'Cerca de dos terceras partes de la electricidad del país sale del agua de los embalses. Cuidar las cuencas también es cuidar la energía.',
-      ing: 'Un ingeniero ambiental evalúa los impactos de los proyectos de energía y propone cómo prevenirlos y compensarlos.' },
+      ing: 'Ningún proyecto de energía es neutro: sus impactos se evalúan antes de construir, para prevenirlos o compensarlos.' },
     { cat: 'energia', type: 'tf',
       q: 'La Guajira tiene uno de los mejores vientos de Sudamérica para producir energía eólica.', a: true,
       dato: 'Sus vientos alisios son fuertes y constantes casi todo el año. Allí se planean parques eólicos, que deben construirse en diálogo con las comunidades wayuu.',
-      ing: 'Antes de construir un parque eólico, un ingeniero ambiental hace el estudio de impacto ambiental y acompaña la consulta previa con las comunidades.' },
+      ing: 'Antes de un parque eólico vienen el estudio de impacto ambiental y la consulta previa con las comunidades del territorio.' },
     { cat: 'energia', type: 'quiz',
       q: 'El fenómeno de El Niño pone en riesgo la electricidad en Colombia porque...',
       opts: ['Llueve menos y bajan los embalses', 'Calienta los cables', 'Aumenta el viento y tumba las torres', 'Hace que el sol brille menos'], a: 0,
@@ -6780,23 +6832,23 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       q: '¿Qué porcentaje de la luz que recibe convierte en electricidad un panel solar comercial?',
       min: 0, max: 100, step: 1, unit: '%', a: 20, tol: 25,
       dato: 'Los paneles comerciales actuales están entre 18 y 23 % de eficiencia. Parece poco, pero el sol entrega tanta energía que un techo con paneles puede cubrir el consumo de una casa.',
-      ing: 'Un ingeniero ambiental calcula cuántos paneles necesita una empresa o un colegio y cuánto CO₂ se deja de emitir.' },
+      ing: 'Con la radiación del sitio y el consumo se calcula cuántos paneles necesita un colegio y cuánto CO₂ deja de emitir.' },
 
     // ---------- BIODIVERSIDAD ----------
     { cat: 'bio', type: 'quiz',
       q: '¿Por qué los páramos son tan importantes para Colombia?',
       opts: ['Capturan y regulan el agua que llega a las ciudades', 'Producen petróleo', 'Son ideales para potreros', 'Allí se fabrica el oxígeno del planeta'], a: 0,
       dato: 'Colombia tiene cerca de la mitad de los páramos del mundo, y el de Sumapaz es el más grande. Funcionan como esponjas: guardan el agua y la sueltan poco a poco a los ríos.',
-      ing: 'Un ingeniero ambiental participa en la protección de páramos y en proyectos para que las comunidades vivan de ellos sin destruirlos.' },
+      ing: 'Proteger un páramo no es cercarlo: es lograr que las familias que viven allí tengan ingresos sin destruirlo.' },
     { cat: 'bio', type: 'estimate',
       q: '¿Cuántos centímetros crece al año un frailejón?',
       min: 0, max: 30, step: 0.5, unit: 'cm por año', a: 1, tol: 10,
       dato: 'Apenas cerca de 1 cm al año. Un frailejón de 2 metros puede tener unos 200 años. Arrancar uno es un daño que tarda siglos en repararse.',
-      ing: 'En restauración ecológica, un ingeniero ambiental calcula tiempos de recuperación y elige especies nativas para cada zona.' },
+      ing: 'Restaurar un bosque toma décadas, y empieza por elegir las especies nativas correctas para cada ladera.' },
     { cat: 'bio', type: 'tf',
       q: 'Colombia es el país con más especies de aves del mundo.', a: true,
       dato: 'Tiene más de 1.900 especies de aves: casi una de cada cinco especies de aves del planeta vive aquí.',
-      ing: 'Un ingeniero ambiental evalúa cómo afecta un proyecto a la fauna y diseña corredores biológicos para que las especies puedan moverse.' },
+      ing: 'Un corredor biológico une fragmentos de bosque para que un oso o un puma puedan moverse sin cruzar una carretera.' },
     { cat: 'bio', type: 'quiz',
       q: 'El oso de anteojos es clave para el bosque andino porque...',
       opts: ['Dispersa semillas mientras se mueve', 'Se come las plagas de los cultivos', 'Construye represas como los castores', 'Poliniza las flores de noche'], a: 0,
@@ -7224,11 +7276,11 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       why: 'Cuando se asusta levanta la cola y muestra la parte blanca, como una alarma. Es la presa del puma: si hay venados, hay alimento para los grandes felinos.',
       back: 'Los venados volvieron a bajar a beber al río.',
       lost: 'Los venados se fueron del valle. Sin ellos, el puma tampoco tiene qué comer.' },
-    { id: 'guanaco', name: 'Guanaco', art: 'el', sci: 'Lama guanicoe', hab: 'Pastizales de los Andes del sur', estado: 'Preocupación menor', need: { bio: 0.4 }, color: '#b07a4a',
-      rol: 'Pastoreo que renueva la pradera',
-      why: 'Es el pariente silvestre de la llama y vive en los Andes del sur: Perú, Bolivia, Chile y Argentina. Sus patas acolchadas maltratan menos el suelo que las pezuñas del ganado.',
-      back: 'Los guanacos volvieron a pastar en la pradera.',
-      lost: 'Sin pastos sanos, los guanacos se fueron.' },
+    { id: 'guanaco', name: 'Pudú del norte', art: 'el', sci: 'Pudu mephistophiles', hab: 'Páramo y bosque altoandino, de 2.000 a 4.000 m', estado: 'Datos insuficientes (UICN, 2019)', need: { bio: 0.45 }, color: '#7a4a30',
+      rol: 'Ramonea el sotobosque y dispersa semillas',
+      why: 'Es el venado más pequeño del mundo: mide entre 32 y 35 centímetros a la cruz. Vive escondido en el páramo y el bosque altoandino, y casi nadie lo ve. Necesita bosque continuo para moverse entre parches de páramo.',
+      back: 'Un pudú volvió a asomarse entre los frailejones.',
+      lost: 'Con el páramo partido en pedazos, el pudú dejó de verse.' },
     { id: 'conejo', name: 'Conejo de monte', art: 'el', sci: 'Sylvilagus', hab: 'Pradera', estado: 'Preocupación menor', need: { bio: 0.25 }, color: '#8d7a66',
       rol: 'Alimento de muchos depredadores',
       why: 'Es presa de zorros, comadrejas, felinos y aves rapaces. Sin conejos, la cadena alimenticia se rompe.',
@@ -9538,7 +9590,60 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   addEventListener('resize', measureChrome);
 
   // ---------- portada y configuración ----------
+  // ---------- apertura de cine (máximo 20 s, se salta con Esc, clic o toque) ----------
+  // datos verificados: presentación institucional del Instituto Humboldt, 2022
+  function playIntro(done) {
+    setPhase('intro'); stage.innerHTML = ''; hud.hidden = true; teamsEl.hidden = true;
+    try { sessionStorage.setItem('cv-intro', '1'); } catch (e) {}
+    KEYS.forEach((k) => Sc.set(k, 1, true)); Sc.shot('paseo', null, true);
+    const el = document.createElement('div'); el.className = 'intro'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Introducción');
+    el.innerHTML = `<div class="intro-gate"><p class="eyebrow">Cuenca Viva</p><p class="intro-call">Haga clic o presione una tecla para comenzar</p><p class="intro-note">Experiencia con sonido · Esc salta la introducción</p></div>
+      <div class="intro-lines" aria-live="polite"></div>
+      <button class="btn ghost intro-skip" type="button">Saltar introducción</button>`;
+    document.body.appendChild(el);
+    const timers = [], lines = el.querySelector('.intro-lines');
+    let ended = false, started = false;
+    const show = (html) => { lines.innerHTML = html ? `<div class="intro-line">${html}</div>` : ''; };
+    const at = (ms, fn) => timers.push(setTimeout(() => { if (!ended) fn(); }, ms));
+    const finish = () => {
+      if (ended) return; ended = true;
+      timers.forEach(clearTimeout); removeEventListener('keydown', key, true);
+      el.classList.add('out'); AU.theme(false);
+      if (CV.scene.golden) CV.scene.golden(false); if (CV.atmo) CV.atmo.clear();
+      setTimeout(() => el.remove(), 900);
+      done();
+    };
+    const begin = () => {
+      if (started) return; started = true;
+      AU.init(); AU.setMood(1); AU.theme(true); el.classList.add('playing');
+      if (CV.weather) CV.weather.force(0, 25); // amanecer despejado durante la apertura
+      at(800, () => show('<p class="intro-big">El 52 % de los páramos del mundo está en Colombia.</p><p class="intro-src">Instituto Humboldt, 2022</p>'));
+      at(6000, () => show('<p class="intro-big">De ellos viene el agua de los 7,8 millones de habitantes de Bogotá.</p><p class="intro-src">Instituto Humboldt, 2022</p>'));
+      at(11200, () => { show(''); el.classList.add('open'); if (CV.scene.golden) CV.scene.golden(true); if (CV.atmo) { CV.atmo.grade('dorado'); CV.atmo.set('dorado'); } Sc.shot('vuelo', null, true); });
+      at(12200, () => show('<p class="intro-mid">Esta es la historia de una cuenca que todavía puede salvarse.</p>'));
+      at(15600, () => show('<h1 class="intro-title">Cuenca <span>Viva</span></h1><p class="intro-sub">Una historia del agua, el aire y la vida en los Andes</p><p class="intro-credit">Creado por Cristian Forero · Ingeniería Ambiental</p>'));
+      at(20000, finish);
+    };
+    const key = (e) => { e.preventDefault(); e.stopPropagation(); if (e.key === 'Escape' || started) finish(); else begin(); };
+    addEventListener('keydown', key, true);
+    el.addEventListener('click', (e) => { if (e.target.closest('.intro-skip') || started) finish(); else begin(); });
+  }
+
+  // modo presentador: demostración en pantalla completa, sin cursor
+  function presenter() {
+    const cfg = S.setupCfg; if (!cfg) return;
+    document.body.classList.add('presenting');
+    try { const d = document.documentElement; if (!document.fullscreenElement && d.requestFullscreen) d.requestFullscreen().catch(() => {}); } catch (e) {}
+    openDemo(cfg);
+  }
+
   function renderSetup() {
+    if (!S.introDone) {
+      S.introDone = true;
+      let seen = false; try { seen = sessionStorage.getItem('cv-intro') === '1'; } catch (e) {}
+      if (!seen && S.has3d) return playIntro(renderSetup);
+    }
+    document.body.classList.remove('presenting');
     CN.scene(); CN.off(); clearLater(); stopTimer(); setPhase('setup'); toggleBare(false); AU.theme(false);
     CV.harsh = false;
     hud.hidden = true; teamsEl.hidden = true; pauseEl.hidden = true; S.paused = false;
@@ -9551,45 +9656,54 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     stage.innerHTML = `<section class="title-screen">
       <div class="title-scrim" aria-hidden="true"></div>
       <div class="title-motes" aria-hidden="true">${Array.from({ length: 18 }, (_, i) => `<i style="--x:${(i * 53) % 100}%;--d:${8 + (i % 6) * 2.5}s;--w:${-(i * 1.7) % 12}s;--s:${3 + (i % 4)}px"></i>`).join('')}</div>
-      <div class="hero">
+      <div class="hero menu" id="mainMenu">
         <p class="eyebrow hero-pill"><span class="live-dot"></span>Ingeniería Ambiental · Una historia interactiva</p>
         <h1 class="wordmark" aria-label="Cuenca Viva">${[...'Cuenca'].map((c, i) => `<b style="--i:${i}">${c}</b>`).join('')}<br><span>${[...'Viva'].map((c, i) => `<b style="--i:${i + 6}">${c}</b>`).join('')}</span></h1>
-        <svg class="wm-river" viewBox="0 0 420 26" aria-hidden="true"><path d="M2 14 C 60 2, 110 26, 170 13 S 280 2, 330 14 S 400 22, 418 10"/></svg>
-        <p class="lead">En este valle andino viven 52.000 personas. Cinco de ellas les van a contar su historia. Ustedes son el equipo de ingeniería que puede cambiar el final.</p>
-        <ul class="hero-stats">
-          <li><b data-count="52000">0</b><span>habitantes</span></li>
-          <li><b data-count="23">0</b><span>especies andinas</span></li>
-          <li><b data-count="5">0</b><span>historias reales</span></li>
-          <li><b data-count="5">0</b><span>asignaturas</span></li>
-        </ul>
-        <div class="hero-cta">
-          <button class="btn hero-play" type="button" id="heroPlay"><span class="play-ico" aria-hidden="true">▶</span>Comenzar la historia</button>
-          <button class="btn demo-open" type="button" id="demoOpen">Demostración · 5 min</button>
-        </div>
-        <div class="hero-more">
-          ${S.has3d ? `<button class="chip-btn" type="button" id="exploreOpen">Explorar el valle a pie</button>` : ''}
-          <button class="chip-btn" type="button" id="faunaOpen"><svg class="ico"><use href="#i-paw"/></svg>Conocer la fauna</button>
+        <p class="lead">Un valle andino, cincuenta y dos mil personas y una cuenca que todavía puede salvarse.</p>
+        <nav class="main-menu" aria-label="Menú principal">
+          <button class="menu-item" type="button" id="demoOpen"><b>Demostración</b><span>Cinco minutos para salvar un valle</span><kbd>P</kbd></button>
+          <button class="menu-item" type="button" id="heroPlay"><b>Jugar la historia</b><span>Por equipos, individual o supervivencia</span></button>
+          ${S.has3d ? `<button class="menu-item" type="button" id="exploreOpen"><b>Explorar el valle</b><span>Recorrer la cuenca a pie, con misiones</span></button>` : ''}
+        </nav>
+        <div class="menu-foot">
+          <button class="chip-btn" type="button" id="faunaOpen">Fauna de la cuenca</button>
+          <button class="chip-btn" type="button" id="settingsOpen">Ajustes</button>
+          <button class="chip-btn" type="button" id="aboutOpen">Cómo se juega</button>
         </div>
         <p class="presenter" id="presLine">${cfg.presenter ? 'Presentado por ' + esc(cfg.presenter) : ''}</p>
         ${CV.credito ? CV.credito.author() : ''}
       </div>
-      <form class="card setup" id="setup" autocomplete="off">
-        <div class="setup-head"><p class="eyebrow">Prepara la partida</p><h2>¿Qué van a jugar hoy?</h2></div>
-        <fieldset class="step" style="--n:'1'"><legend>Asignatura</legend><div class="modes subjects" id="subjects">${Object.keys(D.subjects).map((k) => `<button type="button" data-s="${k}"><b>${esc(D.subjects[k].name)}</b><span>${esc(D.subjects[k].desc)}</span></button>`).join('')}</div></fieldset>
-        <fieldset id="lvlBox" class="step" style="--n:'2'"><legend>Dificultad</legend>${seg('level', D.levels.map((l, i) => [i, l.name]))}<p class="voice-hint lvl-hint" id="lvlHint"></p></fieldset>
-        <fieldset class="step" style="--n:'3'"><legend>Modo de juego</legend><div class="modes" id="modes">
-          <button type="button" data-m="equipos"><b>Por equipos</b><span>La historia completa. De 2 a 4 equipos compiten y se roban preguntas.</span></button>
-          <button type="button" data-m="individual"><b>Individual</b><span>Una persona vive la historia y gana un rango de ingeniería.</span></button>
-          <button type="button" data-m="supervivencia"><b>Supervivencia</b><span>La contaminación avanza sin parar. Tres vidas. ¿Cuánto resisten?</span></button>
-        </div></fieldset>
-        <div id="teamBox" class="setup-box">
-          <fieldset><legend>Número de equipos</legend>${seg('n', [[2, '2 equipos'], [3, '3 equipos'], [4, '4 equipos']])}</fieldset>
-          <div class="team-inputs" id="tIn"></div>
+      <form class="card setup wizard" id="setup" autocomplete="off" hidden>
+        <div class="setup-head"><p class="eyebrow" id="wzStep">Paso 1 de 3</p><h2 id="wzTitle">Elijan la asignatura</h2></div>
+        <section class="wz-step" data-step="1">
+          <fieldset><legend class="sr-only">Asignatura</legend><div class="modes subjects" id="subjects">${Object.keys(D.subjects).map((k) => `<button type="button" data-s="${k}"><b>${esc(D.subjects[k].name)}</b><span>${esc(D.subjects[k].desc)}</span></button>`).join('')}</div></fieldset>
+          ${S.has3d ? `<button class="btn ghost energy-open" type="button" id="energyOpen" hidden>Entrar al Mundo de la energía</button>` : ''}
+        </section>
+        <section class="wz-step" data-step="2" hidden>
+          <fieldset id="lvlBox"><legend class="sr-only">Dificultad</legend>${seg('level', D.levels.map((l, i) => [i, l.name]))}<p class="voice-hint lvl-hint" id="lvlHint"></p></fieldset>
+        </section>
+        <section class="wz-step" data-step="3" hidden>
+          <fieldset><legend>Modo de juego</legend><div class="modes" id="modes">
+            <button type="button" data-m="equipos"><b>Por equipos</b><span>La historia completa. De 2 a 4 equipos compiten y se roban preguntas.</span></button>
+            <button type="button" data-m="individual"><b>Individual</b><span>Una persona vive la historia y gana un rango de ingeniería.</span></button>
+            <button type="button" data-m="supervivencia"><b>Supervivencia</b><span>La contaminación avanza sin parar. Tres vidas. ¿Cuánto resisten?</span></button>
+          </div></fieldset>
+          <div id="teamBox" class="setup-box">
+            <fieldset><legend>Número de equipos</legend>${seg('n', [[2, '2 equipos'], [3, '3 equipos'], [4, '4 equipos']])}</fieldset>
+            <div class="team-inputs" id="tIn"></div>
+          </div>
+          <label class="field" id="playerBox" for="player">Nombre del jugador o del grupo<input id="player" maxlength="22" placeholder="Ej.: Valentina, o Grado 11B" value="${esc(cfg.player)}"></label>
+          <p class="voice-hint" id="recLine">${cfg.best ? `Récord de supervivencia en este computador: ${rondas(cfg.best)}.` : ''}</p>
+          <fieldset id="durBox"><legend>Duración</legend>${seg('rounds', [[10, 'Rápida · 10 capítulos'], [15, 'Completa · 15 capítulos']])}</fieldset>
+        </section>
+        <div class="wz-nav">
+          <button class="btn ghost" type="button" id="wzBack">Volver al menú</button>
+          <button class="btn" type="button" id="wzNext">Siguiente</button>
+          <button class="btn" type="submit" id="wzGo" hidden>Comenzar la historia</button>
         </div>
-        <label class="field" id="playerBox" for="player">Nombre del jugador o del grupo<input id="player" maxlength="22" placeholder="Ej.: Valentina, o Grado 11B" value="${esc(cfg.player)}"></label>
-        <p class="voice-hint" id="recLine">${cfg.best ? `Récord de supervivencia en este computador: ${rondas(cfg.best)}.` : ''}</p>
-        <fieldset id="durBox"><legend>Duración</legend>${seg('rounds', [[10, 'Rápida · 10 capítulos'], [15, 'Completa · 15 capítulos']])}</fieldset>
-        <details class="more-opts"><summary>Más opciones · voz, sonido, gráficos, escenas fuertes</summary>
+      </form>
+      <section class="card side-panel" id="settings" hidden aria-label="Ajustes">
+        <div class="setup-head"><p class="eyebrow">Ajustes</p><h2>Sonido, imagen y presentación</h2></div>
         <fieldset><legend>Modo proyector</legend>${seg('proj', [[0, 'No'], [1, 'Sí']])}<p class="voice-hint lvl-hint">Sube brillo y contraste para que el valle se vea bien en un video beam o una sala con luz.</p></fieldset>
         <fieldset id="hardBox"><legend>Escenas fuertes</legend>${seg('fuerte', [[1, 'Sí'], [0, 'No']])}<p class="voice-hint lvl-hint">Incendios, gas tóxico, animales y personas afectadas y testimonios duros. Pensado para mayores de 14 años.</p></fieldset>
         <fieldset><legend>Narración por voz</legend>${seg('voice', [[1, 'Sí'], [0, 'No']])}</fieldset>
@@ -9599,23 +9713,21 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         <p class="voice-hint sound-test"><button type="button" class="btn ghost" id="soundTest">Probar sonido</button><span id="soundInfo"></span></p>
         <fieldset><legend>Gráficos · ${S.has3d && CV.Q ? `este equipo usa 3D ${({ alta: 'alto', media: 'medio', ligera: 'ligero', segura: 'seguro' })[CV.Q.level] || ''}` : CV.why3d === 'webgl' ? 'este navegador no permite 3D (pruebe Chrome o Safari actualizados)' : 'jugando sin 3D'}</legend>${seg('quality', [[0, 'Automático'], [1, 'Alta'], [2, 'Ligera'], [3, 'Sin 3D']])}</fieldset>
         <label class="field" for="pres">Presentado por (opcional)<input id="pres" maxlength="80" placeholder="Ej.: Programa de Ingeniería Ambiental" value="${esc(cfg.presenter)}"></label>
-        </details>
-        <button class="btn" type="submit">Comenzar la historia</button>
-        ${S.has3d ? `<button class="btn fauna-open energy-open" type="button" id="energyOpen" hidden>Entrar al Mundo de la energía</button>` : ''}
-        <details><summary>Cómo se juega</summary><ul>
-          <li>En el valle viven 23 especies emblemáticas de los Andes: el oso de anteojos, el cóndor, el jaguar, la danta, los monos… Cada una vuelve cuando la cuenca le da lo que necesita y se va cuando se degrada. Con la tecla F ven qué hace cada especie por el ecosistema.</li>
-          <li>Asignaturas: la historia completa de la cuenca, o solo Calidad del aire, Climatología o Transición energética, o Exploradores para niños de 8 a 15 años.</li>
-          <li>Dificultad: cambia el tiempo, los puntos, las ayudas y lo que le pasa a la cuenca cuando fallan. En esas asignaturas y en Exploradores también cambia qué tan difíciles son las preguntas.</li>
-          <li>Exploradores: cada acierto gana una lámina de un animal. Si fallan, reciben una misión de dibujo para el cuaderno que recupera puntos. Cada cuatro preguntas hay un recreo salvaje.</li>
+        <p class="voice-hint">Modo presentador: en el menú, la tecla P abre la demostración en pantalla completa y oculta el cursor.</p>
+        <button class="btn" type="button" data-close>Listo</button>
+      </section>
+      <section class="card side-panel" id="about" hidden aria-label="Cómo se juega">
+        <div class="setup-head"><p class="eyebrow">Cómo se juega</p><h2>Reglas y controles</h2></div>
+        <ul class="about-list">
+          <li>En el valle viven 23 especies emblemáticas de los Andes. Cada una vuelve cuando la cuenca le da lo que necesita y se va cuando se degrada. Con la tecla F ven qué hace cada especie por el ecosistema.</li>
+          <li>Asignaturas: la historia completa de la cuenca, o solo Calidad del aire, Climatología o Transición energética, y un modo escolar (Exploradores, 8 a 15 años).</li>
           <li>Cada capítulo empieza con la historia de una persona del valle. Después, un equipo enfrenta un reto: pregunta, mito o realidad, clasificar residuos, ordenar un proceso o calcular.</li>
-          <li>Si un equipo falla una pregunta, los demás pueden robarla: el primero que presione su tecla (1 a 4) o toque su ficha responde.</li>
-          <li>Responder rápido da puntos extra. Gana el equipo con más puntos.</li>
-          <li>Meta común: si entre todos llevan la vida de la cuenca al 70 %, todos los equipos ganan el sello de Guardianes de la Cuenca.</li>
-          <li>Mundo de la energía (en Transición energética): repartan carbón, gas, hidráulica, solar, eólica, biomasa y baterías; las centrales aparecen en el valle y el sistema se pone a prueba contra sequía, noche sin viento y gas caro.</li>
-          <li>Explorar el valle: recorran la cuenca a pie, sin preguntas. Cerca de un animal aparece qué hace por la cuenca, y pueden cambiar el estado del valle para ver cómo cambian la lluvia y la neblina.</li>
-          <li>Teclas: Enter avanza el subtítulo, S salta la escena, H muestra solo el paisaje, A a D responden, P pausa.</li>
-        </ul></details>
-      </form>
+          <li>Si un equipo falla, los demás pueden robar la pregunta con su tecla (1 a 4). Responder rápido da puntos extra.</li>
+          <li>Meta común: si entre todos llevan la vida de la cuenca al 70 %, todos ganan el sello de Guardianes de la Cuenca.</li>
+          <li>Teclas: Enter avanza el subtítulo, S salta la escena, H muestra solo el paisaje, A a D responden, P pausa (en el menú, P abre el modo presentador).</li>
+        </ul>
+        <button class="btn" type="button" data-close>Cerrar</button>
+      </section>
     </section>`;
     const tIn = $('#tIn');
     const drawInputs = () => {
@@ -9630,7 +9742,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       $('#durBox').hidden = m === 'supervivencia'; $('#recLine').hidden = m !== 'supervivencia';
       startLabel();
     };
-    const startLabel = () => { $('#setup button[type=submit]').textContent = cfg.mode === 'supervivencia' ? 'Empezar a sobrevivir' : D.subjects[cfg.subject].start || 'Comenzar la historia'; };
+    const startLabel = () => { $('#wzGo').textContent = cfg.mode === 'supervivencia' ? 'Empezar a sobrevivir' : D.subjects[cfg.subject].start || 'Comenzar la historia'; };
     // la supervivencia usa la película de la cuenca: en las demás asignaturas no aplica
     const setSubject = (k) => {
       cfg.subject = k;
@@ -9680,7 +9792,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       AU.narratorVoice = cfg.voiceName; const was = AU.voice; AU.voice = true;
       AU.speak('En lo alto del páramo, donde nace el agua… vuelve a caminar un viejo guardián.', ST.narrator).then(() => { AU.voice = was; });
     };
-    $('#setup').querySelectorAll('.seg').forEach((sg) => (sg.onclick = (e) => {
+    stage.querySelectorAll('.seg').forEach((sg) => (sg.onclick = (e) => {
       const b = e.target.closest('button'); if (!b) return;
       const k = sg.dataset.k; cfg[k] = +b.dataset.v;
       sg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
@@ -9697,7 +9809,28 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     $('#faunaOpen').onclick = () => openFauna(true);
     if ($('#exploreOpen')) $('#exploreOpen').onclick = () => openExplore(cfg);
     $('#demoOpen').onclick = () => openDemo(cfg);
-    $('#heroPlay').onclick = () => { const f = $('#setup'); if (f.requestSubmit) f.requestSubmit(); else f.querySelector('[type=submit]').click(); };
+    // asistente por pasos: asignatura → dificultad → modo y equipos
+    const STEPS = ['Elijan la asignatura', 'Elijan la dificultad', 'Modo de juego y equipos'];
+    let step = 1;
+    const view = (v) => { $('#mainMenu').hidden = v !== 'menu'; $('#setup').hidden = v !== 'setup'; $('#settings').hidden = v !== 'settings'; $('#about').hidden = v !== 'about'; stage.querySelector('.title-screen').dataset.view = v; };
+    const showStep = (n) => {
+      step = n;
+      stage.querySelectorAll('.wz-step').forEach((sec) => (sec.hidden = +sec.dataset.step !== n));
+      $('#wzStep').textContent = `Paso ${n} de 3`; $('#wzTitle').textContent = STEPS[n - 1];
+      $('#wzBack').textContent = n === 1 ? 'Volver al menú' : 'Atrás';
+      $('#wzNext').hidden = n === 3; $('#wzGo').hidden = n !== 3;
+      const f = stage.querySelector(`.wz-step[data-step="${n}"] button[aria-pressed="true"]`) || stage.querySelector(`.wz-step[data-step="${n}"] button`);
+      if (f) f.focus({ preventScroll: true });
+    };
+    $('#heroPlay').onclick = () => { view('setup'); showStep(1); };
+    $('#wzNext').onclick = () => showStep(Math.min(3, step + 1));
+    $('#wzBack').onclick = () => { if (step === 1) { view('menu'); $('#heroPlay').focus(); } else showStep(step - 1); };
+    $('#settingsOpen').onclick = () => { view('settings'); hint(); };
+    $('#aboutOpen').onclick = () => view('about');
+    stage.querySelectorAll('[data-close]').forEach((b) => (b.onclick = () => { view('menu'); $('#heroPlay').focus(); }));
+    view('menu');
+    setTimeout(() => { const b = $('#demoOpen'); if (b && S.phase === 'setup') b.focus({ preventScroll: true }); }, 400);
+    S.setupCfg = cfg; S.setupView = view;
     // contadores que suben al abrir la portada
     stage.querySelectorAll('[data-count]').forEach((b, i) => {
       const end = +b.dataset.count, t0 = performance.now() + 500 + i * 160;
@@ -10147,7 +10280,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (res.success || res.frac > 0) { if (gTxt) lines.push([ST.narrator, `Gracias a ${t.name}, ${gTxt}.`]); }
     else lines.push([ST.narrator, `Todavía hay ${UI.statNow(it.cat, after)}.`]);
     lines.push([ST.narrator, 'Dato: ' + it.dato]);
-    lines.push([ST.narrator, 'Así trabaja un ingeniero ambiental: ' + it.ing]);
+    lines.push([ST.narrator, it.ing]);
     for (const [w, txt] of lines) if (!(await CN.say(w, txt, g))) return;
     if (CV.harsh && S.lastFail && !(await testimony(it.cat, g))) return;
     if (!(await faunaMoment(S.fx, g))) return;
@@ -10339,6 +10472,17 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   addEventListener('keydown', (e) => {
     if (e.target.matches && e.target.matches('input:not([type=range]), textarea')) return;
     const k = e.key;
+    if (S.phase === 'intro') return;
+    if (S.phase === 'setup') {
+      if (k === 'p' || k === 'P') { e.preventDefault(); return presenter(); }
+      if (k === 'Escape' && S.setupView) { S.setupView('menu'); return; }
+      if (k === 'ArrowDown' || k === 'ArrowUp') {
+        const items = [...document.querySelectorAll('#mainMenu:not([hidden]) .menu-item')];
+        if (items.length) { e.preventDefault(); let i = items.indexOf(document.activeElement); i = (i + (k === 'ArrowDown' ? 1 : -1) + items.length) % items.length; items[i].focus(); return; }
+      }
+    }
+    // los controles remotos de diapositivas envían Página abajo o flecha derecha: avanzan como Enter
+    if ((k === 'PageDown' || k === 'ArrowRight') && CINE.includes(S.phase)) { e.preventDefault(); if (CN.busy) CN.next(); else { const b = $('#go') || $('#next'); if (b) b.click(); } return; }
     if (k === 'f' || k === 'F') return openFauna();
     if (!$('#faunaPanel').hidden) { if (k === 'Escape') openFauna(false); return; }
     if (k === 'h' || k === 'H') return toggleBare();
