@@ -7757,8 +7757,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     [55, 110.4, 165].forEach((f, i) => { const o = c.createOscillator(), g = c.createGain(); o.type = 'sawtooth'; o.frequency.value = f; g.gain.value = [0.5, 0.25, 0.12][i]; o.connect(g); g.connect(hl); o.start(); });
     const rg = c.createGain(); rg.gain.value = 1.2; loopNoise().connect(filt('bandpass', 120, 0.8)).connect(rg); rg.connect(hl);
     // música: La menor con novena ↔ Do mayor con novena
-    amb.sad = pad([110, 164.81, 261.63, 329.63, 493.88]);
-    amb.hope = pad([130.81, 196, 329.63, 392, 587.33]);
+    amb.sad = pad([123.47, 185, 293.66, 369.99, 554.37]); // si menor con novena
+    amb.hope = pad([146.83, 220, 369.99, 440, 659.25]); // re mayor con novena
     setMood(A.mood, true);
   }
 
@@ -7768,8 +7768,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     const t = A.ctx.currentTime, k = now ? 0.01 : 2.5, a = A.amb;
     a.hum.gain.setTargetAtTime(0.06 * Math.pow(1 - h, 1.5), t, k);
     a.river.gain.setTargetAtTime(0.012 + 0.05 * h, t, k);
-    a.sad.gain.setTargetAtTime(0.4 * (1 - h), t, k);
-    a.hope.gain.setTargetAtTime(0.4 * h, t, k);
+    a.sad.gain.setTargetAtTime(0.22 * (1 - h), t, k);
+    a.hope.gain.setTargetAtTime(0.22 * h, t, k);
   }
   function duck(on) { if (A.bus) A.bus.gain.setTargetAtTime(on ? 0.3 : 1, A.ctx.currentTime, 0.3); }
 
@@ -7924,71 +7924,97 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   }
   function hush() { try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch (e) {} if (A.ctx) duck(false); }
 
-  // ---------- tema musical de la fauna: piano suave con reverberación, para los momentos emotivos ----------
-  let themeG = null, themeT = null, stopT = null, rev = null, step = 0;
+  // ---------- música: cuerdas muy suaves (violines, viola y violonchelo) con reverberación de sala ----------
+  // Cada nota es un "arco": entra despacio, se sostiene con un vibrato leve y se apaga sin golpe.
+  // Tonalidad de re mayor, lenta y cálida; el violín solo canta una melodía corta cada dos vueltas.
+  let themeG = null, themeT = null, stopT = null, rev = null, bar = 0;
   function reverb() {
     if (rev) return rev;
-    const c = A.ctx, len = c.sampleRate * 3.2, b = c.createBuffer(2, len, c.sampleRate);
-    for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.8); }
+    const c = A.ctx, len = c.sampleRate * 4.2, b = c.createBuffer(2, len, c.sampleRate);
+    for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2); }
     rev = c.createConvolver(); rev.buffer = b;
-    const wet = c.createGain(); wet.gain.value = 0.55; rev.connect(wet); wet.connect(themeG);
+    const wet = c.createGain(); wet.gain.value = 0.7; rev.connect(wet); wet.connect(A.master);
     return rev;
   }
-  function pianoNote(f, t, d, v) {
-    const c = A.ctx, g = c.createGain(), o1 = c.createOscillator(), o2 = c.createOscillator(), o3 = c.createOscillator(), g2 = c.createGain(), g3 = c.createGain();
-    o1.type = 'sine'; o2.type = 'sine'; o3.type = 'triangle'; o1.frequency.value = f; o2.frequency.value = f * 2.002; o3.frequency.value = f * 3.004;
-    g2.gain.value = 0.28; g3.gain.value = 0.06;
-    o1.connect(g); o2.connect(g2); g2.connect(g); o3.connect(g3); g3.connect(g);
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(v * 0.3, t + 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
-    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400; g.connect(lp); lp.connect(themeG); lp.connect(reverb());
-    [o1, o2, o3].forEach((o) => { o.start(t); o.stop(t + d + 0.1); });
+  // una voz de cuerda frotada: tres sierras apenas desafinadas, filtro de cuerpo de madera y vibrato que llega tarde
+  function bowed(dest, f, t, dur, vol, o) {
+    o = o || {};
+    const c = A.ctx, g = c.createGain(), lp = c.createBiquadFilter(), body = c.createBiquadFilter(), air = c.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = o.bright || 1800; lp.Q.value = 0.3;
+    body.type = 'peaking'; body.frequency.value = o.body || 480; body.Q.value = 1; body.gain.value = 3.5;
+    air.type = 'highshelf'; air.frequency.value = 3200; air.gain.value = -9;
+    const vib = c.createOscillator(), vg = c.createGain();
+    vib.frequency.value = 4.6 + Math.random() * 0.8;
+    vg.gain.setValueAtTime(0, t); vg.gain.linearRampToValueAtTime(o.vib === undefined ? 8 : o.vib, t + Math.min(1.4, dur * 0.45));
+    vib.connect(vg);
+    const os = [];
+    (o.det || [-7, 0, 6]).forEach((d) => {
+      const x = c.createOscillator(); x.type = 'sawtooth'; x.frequency.value = f; x.detune.value = d + (Math.random() - 0.5) * 4;
+      vg.connect(x.detune); x.connect(lp); os.push(x);
+    });
+    lp.connect(body); body.connect(air); air.connect(g);
+    const a = o.attack || 1.8, r = o.release || 2.8, hold = Math.max(a + 0.1, dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + a);
+    g.gain.setValueAtTime(vol, t + hold); g.gain.exponentialRampToValueAtTime(0.0001, t + hold + r);
+    g.connect(dest); g.connect(reverb());
+    const end = t + hold + r + 0.1;
+    os.forEach((x) => { x.start(t); x.stop(end); }); vib.start(t); vib.stop(end);
   }
-  // Do mayor 7 · La menor 7 · Fa mayor 7 · Sol: una progresión tranquila y luminosa
-  const PROG = [[261.63, 329.63, 392, 493.88], [220, 261.63, 329.63, 392], [174.61, 220, 261.63, 329.63], [196, 246.94, 293.66, 392]];
+  const N = { D2: 73.42, Fs2: 92.5, G2: 98, A2: 110, B1: 61.74, B3: 246.94, Cs4: 277.18, D4: 293.66, E4: 329.63, Fs4: 369.99, G4: 392, A4: 440, B4: 493.88, Cs5: 554.37, D5: 587.33, E5: 659.25, Fs5: 739.99, G3: 196, A3: 220 };
+  // re · si menor · sol · la · re · fa sostenido menor · sol · la
+  const SONG = [
+    { ch: [N.D4, N.Fs4, N.A4], bass: N.D2, mel: [[N.Fs5, 0, 2.6], [N.E5, 0.5, 2.6]] },
+    { ch: [N.B3, N.D4, N.Fs4], bass: N.B1, mel: [[N.D5, 0, 3.4], [N.Cs5, 0.7, 1.6]] },
+    { ch: [N.B3, N.D4, N.G4], bass: N.G2, mel: [[N.B4, 0, 2.4], [N.D5, 0.5, 2.6]] },
+    { ch: [N.Cs4, N.E4, N.A4], bass: N.A2, mel: [[N.Cs5, 0, 4.6]] },
+    { ch: [N.D4, N.Fs4, N.A4], bass: N.D2, mel: [[N.A4, 0, 2.4], [N.D5, 0.5, 2.6]] },
+    { ch: [N.Cs4, N.Fs4, N.A4], bass: N.Fs2, mel: [[N.Cs5, 0, 2.4], [N.A4, 0.5, 2.6]] },
+    { ch: [N.B3, N.D4, N.G4], bass: N.G2, mel: [[N.B4, 0, 2.4], [N.G4, 0.5, 2.4]] },
+    { ch: [N.Cs4, N.E4, N.A4], bass: N.A2, mel: [[N.A4, 0, 4.8]] },
+  ];
+  const BAR = 5.4;
   function theme(on) {
     if (!A.ctx || !A.on) return;
     const c = A.ctx;
     if (!themeG) { themeG = c.createGain(); themeG.gain.value = 0; themeG.connect(A.master); }
-    themeG.gain.setTargetAtTime(on ? 1 : 0, c.currentTime, on ? 1.4 : 2);
+    themeG.gain.setTargetAtTime(on ? 1 : 0, c.currentTime, on ? 1.8 : 2.2);
     if (on) {
       if (stopT) { clearTimeout(stopT); stopT = null; }
       if (!themeT) {
         const tick = () => {
-          const t = c.currentTime + 0.05, ch = PROG[Math.floor(step / 8) % 4], i = step % 8, pat = [0, 2, 1, 3, 2, 1, 3, 2];
-          pianoNote(ch[pat[i]] * (i % 4 === 0 ? 1 : 2), t, 3.4, i === 0 ? 0.055 : 0.035);
-          if (i === 0) pianoNote(ch[0] / 2, t, 5, 0.05);
-          step++;
+          const t = c.currentTime + 0.05, s = SONG[bar % SONG.length], withMel = Math.floor(bar / SONG.length) % 2 === 0;
+          s.ch.forEach((f, i) => bowed(themeG, f, t + i * 0.12, BAR, 0.016, { attack: 2.2, release: 3.2 })); // violines y viola en piano
+          bowed(themeG, s.bass, t, BAR, 0.024, { bright: 700, body: 160, attack: 2.4, release: 3.4, vib: 4 }); // violonchelo
+          if (withMel) s.mel.forEach(([f, at, d]) => bowed(themeG, f, t + at * BAR, d, 0.02, { bright: 2600, body: 900, attack: 0.9, release: 2.2, vib: 12, det: [-3, 3] })); // violín solo
+          bar++;
         };
-        tick(); themeT = setInterval(tick, 620);
+        tick(); themeT = setInterval(tick, BAR * 1000);
       }
     } else if (themeT && !stopT) stopT = setTimeout(() => { clearInterval(themeT); themeT = null; stopT = null; }, 3000);
   }
 
-  // ---------- cuerdas: colchón de acordes lentos debajo del piano (triste, oscuro o esperanza) ----------
-  let padG = null, padT = null, padV = [], padStep = 0;
+  // ---------- colchón de cuerdas para las escenas (triste, oscuro o esperanza), sin melodía ----------
+  let padG = null, padT = null, padStep = 0;
   const PADS = {
-    triste: [[220, 261.63, 329.63], [174.61, 220, 261.63], [261.63, 329.63, 392], [196, 246.94, 293.66]],
-    oscuro: [[73.42, 110, 146.83, 174.61], [69.3, 103.83, 138.59, 164.81], [73.42, 110, 146.83, 155.56], [65.41, 98, 130.81, 155.56]],
-    esperanza: [[261.63, 329.63, 392, 523.25], [196, 293.66, 392, 493.88], [220, 329.63, 440, 523.25], [174.61, 261.63, 349.23, 440]],
+    triste: [[N.B3, N.D4, N.Fs4, N.B1], [N.B3, N.D4, N.G4, N.G2], [N.A3, N.D4, N.Fs4, N.D2], [N.A3, N.Cs4, N.E4, N.A2]],
+    oscuro: [[N.D4 / 2, N.A3 / 2, N.D4 / 2 * 1.189, N.D2 / 2], [N.D4 / 2 * 0.944, N.A3 / 2 * 0.944, N.D4 / 2 * 1.122, N.D2 / 2 * 0.944]],
+    esperanza: [[N.D4, N.Fs4, N.A4, N.D2], [N.D4, N.G4, N.B4, N.G2], [N.D4, N.Fs4, N.B4, N.B1], [N.Cs4, N.E4, N.A4, N.A2]],
   };
   function strings(kind) {
     const c = A.ctx; if (!c) return;
-    if (!padG) { padG = c.createGain(); padG.gain.value = 0; const lp = filt('lowpass', 1400, 0.5); padG.connect(lp); lp.connect(A.master); try { lp.connect(reverb()); } catch (e) {} }
-    const stopVoices = (when) => { padV.forEach((o) => { try { o.g.gain.setTargetAtTime(0.0001, when, 1.2); o.o.forEach((x) => x.stop(when + 5)); } catch (e) {} }); padV = []; };
-    if (!kind || !A.on) { padG.gain.setTargetAtTime(0, c.currentTime, 1.5); if (padT) { clearInterval(padT); padT = null; } stopVoices(c.currentTime); return; }
-    padG.gain.setTargetAtTime(kind === 'oscuro' ? 0.11 : 0.075, c.currentTime, 1.6);
-    const chords = PADS[kind] || PADS.triste;
+    if (!padG) { padG = c.createGain(); padG.gain.value = 0; padG.connect(A.master); }
+    if (!kind || !A.on) { padG.gain.setTargetAtTime(0, c.currentTime, 1.6); if (padT) { clearInterval(padT); padT = null; } return; }
+    padG.gain.setTargetAtTime(1, c.currentTime, 1.6);
+    const chords = PADS[kind] || PADS.triste, dark = kind === 'oscuro', len = dark ? 7 : 6.5;
     const play = () => {
-      const t = c.currentTime; stopVoices(t);
-      chords[padStep++ % chords.length].forEach((f) => {
-        const g = c.createGain(), os = [];
-        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 2.2);
-        [-7, 0, 6].forEach((det) => { const o = c.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = det; o.connect(g); o.start(t); os.push(o); });
-        g.connect(padG); padV.push({ g, o: os });
+      const t = c.currentTime + 0.05, ch = chords[padStep++ % chords.length];
+      ch.forEach((f, i) => {
+        const low = i === ch.length - 1;
+        bowed(padG, f, t + i * 0.15, len, low ? 0.022 : dark ? 0.016 : 0.012, { bright: dark ? 800 : low ? 700 : 1500, body: low ? 160 : 420, attack: 2.6, release: 3.6, vib: dark ? 3 : 6 });
       });
     };
     if (padT) clearInterval(padT);
-    play(); padT = setInterval(play, 6500);
+    play(); padT = setInterval(play, len * 1000);
   }
 
   // ---------- música grabada (Gymnopédie n.º 1 de Satie, Musopen, dominio público) ----------
@@ -9216,7 +9242,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       event(t) { t.weather(0, 60); t.blaze(0.6, 70); t.drop(['bio', 'agua'], 0.12); t.sfx('alarm'); t.shake(0.6); },
       narr: 'Cuarenta y dos días sin llover. Allá arriba, donde nace el agua, el páramo empieza a arder.',
       who: 'tomas',
-      say: 'Ay, sumercé… Yo tengo setenta y cuatro años y nunca había visto el páramo así. Mi abuelo me decía: mijo, el frailejón es el que nos guarda el agua, no lo vaya a tocar. Antes había harta neblina, sumercé. Ahoritica no queda ni el rocío.',
+      say: 'Ay, sumercé… Yo tengo setenta y cuatro años y nunca había visto el páramo así. Mi abuelo me decía: mijo, el frailejón es el que nos guarda el agua, no lo vaya a tocar. Y ahoritica no queda ni el rocío.',
       q: { text: '¿Por qué el páramo es tan importante para el agua del valle?', ok: 0,
         opts: ['Atrapa la humedad de la niebla y la suelta poco a poco a quebradas y ríos', 'Porque allá arriba llueve todos los días del año', 'Porque guarda lagos subterráneos de agua salada', 'No es importante: el agua del valle viene del mar'],
         why: 'El páramo es una esponja: guarda la niebla y regula el agua de millones de colombianos.' },
@@ -9301,7 +9327,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     tools.look('dorado', 'dorado'); AU.pad('esperanza');
     if (!(await ok(CN.cut('vuelo', null, g)))) return;
     if (!(await ok(CN.chapter('Cuenca Viva', 'Cinco minutos para salvar un valle', g)))) return;
-    if (!(await ok(CN.say(N, 'Un valle de los Andes colombianos. Cincuenta y dos mil personas, un río, un páramo. Hoy el valle está enfermo… y ustedes deciden cómo termina esta historia.', g)))) return;
+    if (!(await ok(CN.say(N, 'Un valle de los Andes colombianos. Hoy está enfermo… y ustedes deciden cómo termina esta historia.', g)))) return;
 
     for (let i = 0; i < SCENES.length; i++) {
       const sc = SCENES[i];
@@ -9353,7 +9379,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (CV.scene.golden) CV.scene.golden(true); tools.look('esperanza', 'dorado');
     if (!(await ok(CN.cut('vuelo', null, g)))) return;
     if (CV.misiones) { const z = CV.world && CV.world.zones; if (z) { CV.misiones.flock({ x: z.fauna.x, z: z.fauna.z, n: 50 }); CV.misiones.flock({ x: z.bosque.x, z: z.bosque.z, n: 30, alt: 75 }); } }
-    if (!(await ok(CN.say(N, `Acertaron ${score} de ${SCENES.length}. Pero ese futuro todavía no ha llegado. El páramo, el río y el aire se pueden recuperar.`, g)))) return;
+    if (!(await ok(CN.say(N, 'Pero ese futuro todavía no ha llegado. El páramo, el río y el aire se pueden recuperar.', g)))) return;
     if (!(await ok(CN.cut('fauna', 'orbitar', g)))) return;
     if (!(await ok(CN.say(N, 'Eso no lo hace la suerte. Lo hace gente que estudia para cuidar la vida. Eso es la ingeniería ambiental.', g)))) return;
     finalCard(score, api);
