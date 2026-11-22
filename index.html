@@ -662,6 +662,43 @@ body[data-grade="esperanza"] .fx-grade{opacity:.7;background:linear-gradient(180
 body.dof .fx-vignette{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);-webkit-mask-image:radial-gradient(ellipse 30% 42% at 50% 44%,transparent 45%,#000 95%);mask-image:radial-gradient(ellipse 30% 42% at 50% 44%,transparent 45%,#000 95%)}
 body.proyector{--pf:brightness(1.22) contrast(1.12) saturate(1.12)}
 body.proyector .fx-vignette{opacity:.55}
+/* lenguaje de cine: tarjetas de capítulo en negro, subtítulos de película, grano y la carta de Juanita */
+#fade{transition:opacity .6s ease}
+body.titlecard #fade{opacity:1;transition:opacity .9s ease}
+.chapter{left:0;right:0;top:0;bottom:0;margin:auto;max-width:none;display:grid;place-content:center;justify-items:center;text-align:center;gap:18px;transform:none;transition:opacity 1.1s ease;text-shadow:none;padding:0 24px}
+.chapter.show{transform:none}
+.chapter span{font:500 12px/1 var(--body);letter-spacing:.42em;padding-left:.42em;color:#cdb27a}
+.chapter b{font-family:var(--display);font-weight:300;font-size:clamp(38px,6vw,84px);line-height:1;letter-spacing:-.02em;color:#f2ecdf}
+.chapter i{display:block;width:min(220px,40vw);height:1px;background:linear-gradient(90deg,transparent,#cdb27a,transparent);opacity:.8}
+body.cine .fx-grain{opacity:.09}
+body.cine::after{content:"";position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse 85% 75% at 50% 50%,transparent 55%,rgba(0,0,0,.45) 100%)}
+body.cine #subText{font-weight:400;letter-spacing:.005em;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+body.cine .subs.narrator #subText{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2vw,30px);color:#efe8da}
+body.cine .sub-who .narr{color:#cdb27a;letter-spacing:.3em}
+body.cine .sub-who b{font-weight:600;letter-spacing:.02em}
+body.cine .cine-chips span,body.cine .cine-chips .res-bad,body.cine .cine-chips .res-ok,body.cine .cine-chips .res-mid{background:none;border:0;padding:0 4px;color:rgba(242,236,223,.62);font:500 11px/1.4 var(--body);letter-spacing:.24em;text-transform:uppercase}
+body.cine .cine-chips .res-bad{color:#e0a07a}
+body.cine .cine-chips .res-ok{color:#cdb27a}
+body.cine .cine-chips span+span::before{content:"·";margin-right:10px;color:rgba(242,236,223,.35)}
+body.letter .subs{opacity:0!important}
+body.demo-run .lb-top .ticker{visibility:hidden}
+body.cine.vista .lb-top,body.cine.vista .lb-bot{height:0}
+body.vista .demo-out,body.vista .cine-chips{opacity:0;transition:opacity 1s}
+.demo-why{margin:14px 0 0;padding:12px 14px;border-left:2px solid #cdb27a;background:rgba(205,178,122,.08);font-size:clamp(15px,1.8vw,17px);line-height:1.5;animation:subIn .5s both}
+.demo-why b{color:#e8d6a8;margin-right:4px}
+.demo-q.out{opacity:0;transition:opacity .5s}
+.carta{position:fixed;left:50%;top:calc(var(--lbt) + 3vh);z-index:8;width:min(540px,calc(100vw - 40px));max-height:calc(100vh - var(--lbt) - var(--lbb) - 6vh);overflow:hidden;transform:translate(-50%,10px);opacity:0;transition:opacity 1.6s ease,transform 1.6s ease;
+  padding:clamp(20px,3vw,34px) clamp(22px,3.4vw,40px);color:#2b2219;border-radius:2px;
+  background:radial-gradient(120% 90% at 30% 20%,#f4eddc 0%,#e8dcc2 70%,#d9caa8 100%);box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 0 60px rgba(120,90,40,.18)}
+.carta.show{opacity:1;transform:translate(-50%,0)}
+.carta-head{margin:0 0 14px;font:500 11px/1 var(--body);letter-spacing:.3em;text-transform:uppercase;color:#8a6a3a}
+.carta-body{margin:0;font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(16px,1.7vw,21px);line-height:1.6}
+.carta-body span{opacity:.14;transition:opacity 1.4s ease}
+.carta-body span.on{opacity:1}
+.carta-sign{margin:16px 0 0;text-align:right;font-family:var(--display);font-style:italic;font-size:clamp(20px,2.2vw,28px);color:#5a3f22;opacity:0;transition:opacity 1.6s ease}
+.carta-sign.on{opacity:1}
+.carta-sign::before{content:"— "}
+@media (prefers-reduced-motion:reduce){.carta,.carta-body span,.chapter{transition:none}}
 /* pantalla de carga: cordillera nocturna al amanecer, tipografía editorial y detalles en oro viejo */
 .loader{isolation:isolate;overflow:hidden;background:#05070a;--gold:#cdb27a;--gold-2:#e8d6a8;--ivory:#f2ecdf}
 .loader-art{position:absolute;inset:-3%;width:106%;height:106%;z-index:-2;animation:ldDrift 40s ease-in-out infinite alternate;transform-origin:50% 70%}
@@ -5171,6 +5208,17 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           else { const p = branchPoint(a.perch, a.at); a.g.position.set(p[0], p[1] + a.perch.r * 0.8, p[2]); a.g.rotation.y = a.ry; }
           return;
         }
+        // el último vuelo: se aleja del valle sin volver, aleteando despacio y subiendo con la térmica
+        if (m === 'leave') {
+          const L = a.leave; L.s += dt;
+          const k = L.s, v = 15 + k * 0.6;
+          a.g.position.set(L.p0.x + L.d.x * k * v, L.p0.y + k * 2.2 + k * k * 0.05, L.p0.z + L.d.z * k * v);
+          a.g.rotation.set(0, Math.atan2(L.d.x, L.d.z), 0, 'YXZ'); a.g.rotateZ(Math.sin(k * 0.35) * 0.12);
+          const n = a.n, fl = Math.max(0, Math.sin(t * 1.7)) * (Math.sin(k * 0.5) > 0.6 ? 0.32 : 0.04);
+          if (n.wingL) { n.wingL.rotation.z = 0.08 + fl; n.wingR.rotation.z = -0.08 - fl; n.wingLH.rotation.z = 0.06 + fl * 0.6; n.wingRH.rotation.z = -0.06 - fl * 0.6; }
+          if (k > 45) a.gone = true;
+          return;
+        }
         if (m === 'soar') {
           a.a += dt * a.sp;
           const x = a.cx + Math.cos(a.a) * a.R, z = a.cz + Math.sin(a.a) * a.R;
@@ -5205,7 +5253,11 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const dummy = new THREE.Object3D();
 
       // ---------- presencia según la salud de la cuenca ----------
-      const want = (a) => { const s = SP && SP.byId[a.spec.sid || a.id]; return !s || SP.margin(s, target) >= 0 ? 1 : 0; };
+      const want = (a) => {
+        if (a.gone) return 0;
+        if (a.mode === 'leave') return 1;
+        const s = SP && SP.byId[a.spec.sid || a.id]; return !s || SP.margin(s, target) >= 0 ? 1 : 0;
+      };
       inds.forEach((a) => { a.vis = want(a); });
       let frame = 0;
       ups.push((dt, t) => {
@@ -5256,7 +5308,41 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         if (kind === 'arbol') { const tr = pool.find((q) => q.mode === 'treeRest'); if (tr) return tr; }
         return pool.find((q) => q.mother) || pool.find((q) => !q.pup && (q.mode === 'ground' || q.mode === 'bank')) || pool.find((q) => !q.pup) || pool[0];
       }
+      // la despedida del cóndor (demostración): 'adios' lo sigue mientras se va; 'cielo' mira la roca donde se posaba, ya vacía
+      const condors = () => inds.filter((q) => (q.spec.sid || q.id) === 'condor');
+      CV.wildlife.condorReady = () => condors().some((q) => q.mode === 'soar' || q.mode === 'leave' || q.rock);
+      CV.wildlife.restoreCondor = () => condors().forEach((q) => { q.gone = false; if (q.leave) { q.mode = 'soar'; q.leave = null; } });
+      function condorShot(kind) {
+        const list = condors(); if (!list.length) return null;
+        const center = new THREE.Vector3(riverX(-100), 0, -100);
+        if (kind === 'cielo') {
+          list.forEach((q) => { q.gone = true; if (q.mode === 'leave') q.leave.s = 99; });
+          const r = (list.find((q) => q.rock) || {}).rock || rocks[0]; if (!r) return null;
+          const d = new THREE.Vector3(center.x - r.x, 0, center.z - r.z).normalize();
+          const top = r.top || height(r.x, r.z) + 2;
+          return { calm: true, dur: 26, f0: 40, f1: 34, linear: true,
+            path: (e) => {
+              const back = 16 - 5 * e, p = new THREE.Vector3(r.x - d.x * back, 0, r.z - d.z * back);
+              p.y = Math.max(top + 3.2, height(p.x, p.z) + 2);
+              return { p, t: new THREE.Vector3(r.x + d.x * 220, top + 55 + 10 * e, r.z + d.z * 220) };
+            } };
+        }
+        if (kind !== 'adios') return null;
+        const a = list.find((q) => q.mode === 'soar') || list.find((q) => q.mode === 'leave');
+        if (!a) return null;
+        if (a.mode !== 'leave') {
+          const p0 = a.g.position.clone(), d = new THREE.Vector3(p0.x - center.x, 0, p0.z - center.z);
+          if (d.lengthSq() < 1) d.set(1, 0, 0);
+          d.normalize(); a.mode = 'leave'; a.leave = { p0, d, s: 0 }; a.vis = 1; a.gone = false;
+        }
+        const L = a.leave, side = new THREE.Vector3(-L.d.z, 0, L.d.x);
+        // la cámara se queda atrás, un poco abajo y a un lado, y lo ve hacerse pequeño contra el cielo
+        const cam = L.p0.clone().addScaledVector(L.d, -55).addScaledVector(side, 22); cam.y = Math.max(L.p0.y - 16, height(cam.x, cam.z) + 12);
+        return { calm: true, dur: 30, f0: 34, f1: 18, linear: true,
+          path: () => ({ p: cam.clone(), t: a.g.position.clone() }) };
+      }
       function shot(id, kind) {
+        if (id === 'condor' && (kind === 'adios' || kind === 'cielo')) return condorShot(kind);
         const list = inds.filter((q) => (q.spec.sid || q.id) === id || q.id === id);
         if (!list.length) return null;
         const a = pickInd(list, kind), Lk = LENS[kind === 'arbol' ? 'medio' : kind] || LENS.medio, cubs = inds.filter((c) => c.mom === a);
@@ -6027,7 +6113,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           const cyc = Math.sin(t * 0.09) + Math.sin(t * 0.037 + 1.3);
           let want = smooth(0.2, 0.9, cyc) * smooth(0.22, 0.6, v.agua);
           if (forceT > 0) { forceT -= dt; want = forceV; }
-          k += (want - k) * Math.min(1, dt * 0.45);
+          k += (want - k) * Math.min(1, dt * (forceT > 0 && forceV < 0.05 ? 1.5 : 0.45));
+          if (k < 0.03 && want < 0.03) k = Math.max(0, k - dt * 0.05);
           CV.rainK = k;
           if (CV.audio && CV.audio.setRain) CV.audio.setRain(k);
           rain.visible = k > 0.015;
@@ -6071,7 +6158,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     }
     const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
   };
-  const VERT = `uniform float uT, uF, uScale, uH, uSp, uSize, uWander; attribute vec4 aR; attribute float aLit; uniform float uG, uBurn; varying float vL;
+  const VERT = `uniform float uT, uF, uScale, uH, uSp, uSize, uWander; attribute vec4 aR; attribute float aLit; uniform float uG, uBurn; varying float vL; varying float vS;
     void main() {
       // cada punto se enciende cuando el fuego llega hasta él; lo ya quemado se apaga, salvo focos que siguen ardiendo
       float age = uG - aLit, burn = max(1.0 - smoothstep(uBurn * 0.6, uBurn, age), step(0.74, aR.y));
@@ -6080,25 +6167,46 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       p.y += l * uH * (0.45 + 0.55 * aR.y);
       p.x += sin(uT * 2.7 + aR.x * 40.0 + l * 4.0) * uWander * (0.4 + l) + l * l * uH * 0.35;
       p.z += cos(uT * 2.3 + aR.y * 30.0 + l * 3.0) * uWander * (0.4 + l);
-      vL = l;
+      vL = l; vS = aR.z;
       vec4 mv = viewMatrix * vec4(p, 1.0);
       gl_PointSize = on * uScale * uSize * (0.6 + aR.w) / max(1.0, -mv.z);
       gl_Position = projectionMatrix * mv;
     }`;
-  const FLAME = `varying float vL; void main() {
-      float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard;
-      vec3 c = mix(vec3(1.0, 0.86, 0.38), vec3(1.0, 0.3, 0.05), smoothstep(0.0, 0.55, vL));
-      c = mix(c, vec3(0.45, 0.05, 0.02), smoothstep(0.55, 1.0, vL));
-      gl_FragColor = vec4(c * 0.7, smoothstep(0.5, 0.05, d) * (1.0 - vL * vL) * 0.34);
+  // llama: una lengua angosta arriba y ancha abajo, que ondula; núcleo casi blanco, borde naranja y punta roja
+  const FLAME = `uniform float uT; varying float vL; varying float vS; void main() {
+      vec2 p = gl_PointCoord - 0.5; p.y = -p.y;
+      float wob = sin(p.y * 9.0 + uT * 8.0 + vS * 40.0) * 0.06 * (p.y + 0.5) + sin(uT * 13.0 + vS * 17.0) * 0.02;
+      float w = mix(0.34, 0.035, smoothstep(-0.45, 0.48, p.y)), x = abs(p.x + wob) / w;
+      float body = (1.0 - smoothstep(0.45, 1.0, x)) * smoothstep(0.5, 0.2, p.y) * smoothstep(-0.5, -0.32, p.y);
+      if (body < 0.01) discard;
+      float core = (1.0 - smoothstep(0.0, 0.7, x)) * smoothstep(0.25, -0.3, p.y) * (1.0 - vL);
+      vec3 c = mix(vec3(1.0, 0.5, 0.1), vec3(1.0, 0.9, 0.62), core);
+      c = mix(c, vec3(0.7, 0.12, 0.02), smoothstep(0.25, 0.95, vL));
+      float fl = 0.75 + 0.25 * sin(uT * 21.0 + vS * 60.0);
+      gl_FragColor = vec4(c, body * (1.0 - vL * vL) * 0.36 * fl);
     }`;
-  const SMOKE = `varying float vL; void main() {
-      float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard;
-      vec3 c = mix(vec3(0.05, 0.04, 0.035), vec3(0.2, 0.17, 0.15), vL);
-      gl_FragColor = vec4(c, smoothstep(0.5, 0.1, d) * smoothstep(0.0, 0.1, vL) * (1.0 - vL) * 0.42);
+  // humo: volutas con textura de ruido, oscuras arriba y teñidas de naranja abajo, donde las alumbra el fuego
+  const SMOKE = `uniform float uT; varying float vL; varying float vS;
+    float h(vec2 q) { return fract(sin(dot(q, vec2(127.1, 311.7))) * 43758.5453); }
+    float n(vec2 q) { vec2 i = floor(q), f = fract(q); f = f * f * (3.0 - 2.0 * f); return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }
+    void main() {
+      vec2 p = gl_PointCoord - 0.5; float d = length(p); if (d > 0.5) discard;
+      float nz = n(p * 4.0 + vS * 23.0 + vec2(0.0, uT * 0.15)) * 0.65 + n(p * 9.0 + vS * 7.0) * 0.35;
+      vec3 c = mix(vec3(0.42, 0.2, 0.08), vec3(0.08, 0.07, 0.065), smoothstep(0.0, 0.35, vL));
+      c = mix(c, vec3(0.24, 0.22, 0.21), smoothstep(0.45, 1.0, vL)) * (0.75 + 0.5 * nz);
+      float a = smoothstep(0.5, 0.05, d) * smoothstep(0.0, 0.08, vL) * (1.0 - vL) * 0.5 * smoothstep(0.25, 0.75, nz + 0.25);
+      gl_FragColor = vec4(c, a);
     }`;
-  const EMBER = `varying float vL; void main() {
+  const EMBER = `uniform float uT; varying float vL; varying float vS; void main() {
       float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard;
-      gl_FragColor = vec4(1.0, 0.55, 0.15, (1.0 - vL) * smoothstep(0.5, 0.2, d));
+      float tw = 0.55 + 0.45 * sin(uT * 18.0 + vS * 90.0);
+      gl_FragColor = vec4(1.0, 0.62 - vL * 0.3, 0.2 - vL * 0.15, (1.0 - vL) * smoothstep(0.5, 0.1, d) * tw);
+    }`;
+  // brasas en el suelo: una franja que respira en rojo y naranja bajo las llamas
+  const BED = `uniform float uT; varying float vL; varying float vS; void main() {
+      vec2 p = gl_PointCoord - 0.5; p.y *= 2.6; float d = length(p); if (d > 0.5) discard;
+      float br = 0.55 + 0.3 * sin(uT * 3.0 + vS * 40.0) + 0.15 * sin(uT * 11.0 + vS * 13.0);
+      gl_FragColor = vec4(mix(vec3(0.9, 0.12, 0.02), vec3(1.0, 0.5, 0.1), br * 0.6), smoothstep(0.5, 0.0, d) * 0.4 * br);
     }`;
 
   CV.crudo = {
@@ -6142,9 +6250,13 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const k = lite ? 0.35 : 1;
       const layers = [
         layer(Math.round(1500 * k), SMOKE, THREE.NormalBlending, { H: 130, sp: 0.09, size: 62, w: 16, burn: 2.2 }),
-        layer(Math.round(2400 * k), FLAME, THREE.AdditiveBlending, { H: 16, sp: 0.8, size: 3.6, w: 1.9, burn: 0.75 }),
-        layer(Math.round(700 * k), EMBER, THREE.AdditiveBlending, { H: 60, sp: 0.28, size: 1.1, w: 9, burn: 0.9 }),
+        layer(Math.round(900 * k), BED, THREE.AdditiveBlending, { H: 0.6, sp: 0.05, size: 14, w: 0.4, burn: 1.3 }),
+        layer(Math.round(2400 * k), FLAME, THREE.AdditiveBlending, { H: 20, sp: 0.75, size: 7.5, w: 1.6, burn: 0.75 }),
+        layer(Math.round(900 * k), EMBER, THREE.AdditiveBlending, { H: 70, sp: 0.26, size: 0.9, w: 11, burn: 0.9 }),
       ];
+      // luz del incendio: un solo foco que tiembla sobre el frente más cercano a la cámara (ilumina el suelo y el humo)
+      const fireLight = lite ? null : new THREE.PointLight(0xff6a1e, 0, 240, 2);
+      if (fireLight) scene.add(fireLight);
       // resplandor naranja que late sobre cada frente
       const tex = softTex(), glows = fronts.map((f) => {
         const m = new THREE.SpriteMaterial({ map: tex, color: 0xff5a14, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
@@ -6190,6 +6302,16 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
           if (on) {
             U.uT.value = (U.uT.value + dt) % 900; U.uF.value = Math.max(F, grow > 0.01 ? 0.25 : 0); U.uG.value = grow;
             U.uScale.value = renderer.domElement.height / (2 * Math.tan((camera.fov * Math.PI) / 360));
+          }
+          if (fireLight) {
+            if (on && fire > 0.02) {
+              let best = null, bd = 1e9; const cp = camera.position;
+              fronts.forEach((f) => { if (grow < f.start) return; const d = Math.hypot(f.x - cp.x, f.z - cp.z); if (d < bd) { bd = d; best = f; } });
+              if (best) {
+                fireLight.position.set(best.x, height(best.x, best.z) + 12, best.z);
+                fireLight.intensity = fire * (2.6 + 0.7 * Math.sin(t * 13.1) + 0.45 * Math.sin(t * 23.7) + 0.3 * Math.sin(t * 5.3));
+              } else fireLight.intensity = 0;
+            } else fireLight.intensity = 0;
           }
           snag.visible = grow > 0.05; snag.count = Math.round(NS * Math.min(1, grow));
           fish.visible = D > 0.05;
@@ -7775,8 +7897,10 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     const t = A.ctx.currentTime, k = now ? 0.01 : 2.5, a = A.amb;
     a.hum.gain.setTargetAtTime(0.06 * Math.pow(1 - h, 1.5), t, k);
     a.river.gain.setTargetAtTime(0.012 + 0.05 * h, t, k);
-    a.sad.gain.setTargetAtTime(0.22 * (1 - h), t, k);
-    a.hope.gain.setTargetAtTime(0.22 * h, t, k);
+    // con la grabación real, los colchones sintetizados quedan casi en silencio: no compiten con los violines
+    const pk = CV.musicaData ? 0.25 : 1;
+    a.sad.gain.setTargetAtTime(0.22 * (1 - h) * pk, t, k);
+    a.hope.gain.setTargetAtTime(0.22 * h * pk, t, k);
   }
   function duck(on) { if (A.bus) A.bus.gain.setTargetAtTime(on ? 0.3 : 1, A.ctx.currentTime, 0.3); }
 
@@ -8065,6 +8189,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (musStop) { clearTimeout(musStop); musStop = null; }
     if (v > 0) {
       musG.gain.setTargetAtTime(v, t, 1.4);
+      if (musFrom != null && (mus.paused || musG.gain.value < 0.12)) { try { mus.currentTime = musFrom; } catch (e) {} }
+      musFrom = null;
       if (mus.paused) { const p = mus.play(); if (p && p.catch) p.catch(() => fallback()); }
     } else {
       musG.gain.setTargetAtTime(0, t, 1.2);
@@ -8077,11 +8203,23 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     mus = null;
     if (w.theme) theme(true);
   }
-  function music(on) { rec(on ? 0.5 : 0, 'theme'); if (!CV.musicaData && A.ctx) theme(on); }
+  // music(true, desde, nivel): desde = segundo de la grabación donde empieza (solo si estaba en silencio)
+  let musFrom = null;
+  function music(on, from, level) { if (on && from !== undefined) musFrom = from; rec(on ? (level || 0.5) : 0, 'theme'); if (!CV.musicaData && A.ctx) theme(on); }
+
+  // crepitar del fuego: chasquidos cortos de ruido que salen más seguido cuanto más arde
+  let fireK = 0;
+  setInterval(() => {
+    const c = A.ctx; if (!c || !A.on || !A.noise || fireK < 0.08 || Math.random() > fireK * 0.7) return;
+    const n = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(), t = c.currentTime, d = 0.015 + Math.random() * 0.05;
+    n.buffer = A.noise; f.type = 'highpass'; f.frequency.value = 1200 + Math.random() * 2500;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.05 + Math.random() * 0.12 * fireK, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    n.connect(f); f.connect(g); g.connect(A.bus || A.master); n.start(t, Math.random() * 1.5); n.stop(t + d + 0.02);
+  }, 70);
 
   CV.audio = {
     init, setMood, speak, hush, sfx, theme, listVoices, pad: strings, music,
-    setFire(k) { if (A.amb && A.amb.fire) A.amb.fire.gain.setTargetAtTime(k * 0.09, A.ctx.currentTime, 0.8); },
+    setFire(k) { fireK = k; if (A.amb && A.amb.fire) A.amb.fire.gain.setTargetAtTime(k * 0.09, A.ctx.currentTime, 0.8); },
     setRain(k) { if (A.amb && A.amb.rain) A.amb.rain.gain.setTargetAtTime(k * 0.05, A.ctx.currentTime, 0.8); },
     set narratorVoice(n) { A.narratorVoice = n || ''; },
     get narratorVoice() { return A.narratorVoice || ''; },
@@ -8232,22 +8370,30 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       const s3d = CV.has3d && CV.scene && CV.scene.shot;
       if (skipAll || !s3d) { if (s3d) CV.scene.shot(view, { snap: true, kind }); return g === undefined || g === gen; }
       document.body.classList.add('fade');
-      await sleep(430);
+      await sleep(620);
       CV.scene.shot(view, { snap: true, kind });
-      await sleep(120);
+      await sleep(180);
       document.body.classList.remove('fade');
       return g === undefined || g === gen;
     },
 
-    async chapter(kicker, title, g) {
+    // Tarjeta de capítulo como en el cine: la imagen se va a negro, el título aparece en silencio y,
+    // mientras tanto, prep() prepara el plano y el clima siguientes; luego la imagen vuelve
+    async chapter(kicker, title, g, prep) {
       if (g !== gen) return false;
       const e = grab();
-      if (skipAll) return true;
-      e.chap.innerHTML = `<span>${esc(kicker)}</span><b>${esc(title)}</b>`;
+      if (skipAll) { if (prep) prep(); return true; }
+      const b = document.body;
+      b.classList.add('titlecard');
+      await sleep(750);
+      if (prep) { try { prep(); } catch (err) { console.error(err); } }
+      e.chap.innerHTML = `<span>${esc(kicker)}</span><b>${esc(title)}</b><i aria-hidden="true"></i>`;
       e.chap.classList.remove('show'); void e.chap.offsetWidth; e.chap.classList.add('show');
-      AU.sfx.whoosh();
-      await waitStep(Promise.all([AU.speak(`${kicker}. ${title}.`, NARR()), sleep(2600)]));
+      await waitStep(sleep(2700));
       e.chap.classList.remove('show');
+      await sleep(550);
+      b.classList.remove('titlecard');
+      await sleep(350);
       return g === gen;
     },
 
@@ -9265,9 +9411,11 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
 })();
 </script>
 <script>/* Cuenca Viva · demostración de 5 minutos (para presentar el juego)
-   Un capítulo corto y cinematográfico: el páramo arde, el río muere, el aire enferma y llega la gran tormenta.
-   Cada habitante habla como se habla en su tierra. Cuatro preguntas para el público, el futuro si nada cambia
-   y un cierre de esperanza. game.js le pasa sus herramientas en run(api). */
+   Un capítulo corto, contado como una película: el páramo arde y el último cóndor se va, el río muere,
+   el aire enferma y llega la gran tormenta. Cada habitante habla como se habla en su tierra.
+   Cuatro preguntas para el público, el futuro si nada cambia, un mirador en silencio, y la carta de Juanita,
+   la nieta de doña Rosa, escrita sesenta años después. La música real (Bach) se guarda para dos momentos:
+   la despedida del cóndor y el regreso de la vida. game.js le pasa sus herramientas en run(api). */
 (function () {
   const CV = window.CV;
   const esc = (s) => CV.ch.util.esc(s);
@@ -9275,61 +9423,74 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   // reparto de voces: con Microsoft Edge se oyen las voces neuronales (Salomé y Gonzalo de Colombia,
   // Luis y Andrea de Ecuador, Margarita de Panamá, Paola de Venezuela); en otros navegadores, la mejor que haya
   const CAST = {
-    tomas: { key: 'bio', name: 'Don Tomás', role: 'campesino del páramo, Boyacá', gender: 'm', pitch: 0.9, rate: 0.9, prefer: ['Luis', 'Gonzalo', 'Jorge', 'Alonso'] },
-    rosa: { key: 'agua', name: 'Doña Rosa', role: 'pescadora del Magdalena', gender: 'f', pitch: 0.97, rate: 1, prefer: ['Margarita', 'Paola', 'Karla', 'Ramona', 'Camila'] },
-    luz: { key: 'energia', name: 'Luz Marina', role: 'enfermera, Antioquia', gender: 'f', pitch: 1, rate: 1, prefer: ['Paola', 'Andrea', 'Camila', 'Catalina'] },
-    mateo: { key: 'aire', name: 'Mateo', role: '9 años', gender: 'f', pitch: 1.25, rate: 1.05, prefer: ['Andrea', 'Sofia', 'Valentina', 'Dalia'] },
-    efrain: { key: 'residuos', name: 'Don Efraín', role: 'reciclador, Bogotá', gender: 'm', pitch: 0.95, rate: 1, prefer: ['Gonzalo', 'Sebastian', 'Jorge', 'Alonso'] },
+    tomas: { key: 'bio', name: 'Don Tomás', role: 'campesino del páramo, Boyacá', gender: 'm', pitch: 0.9, rate: 0.88, prefer: ['Luis', 'Gonzalo', 'Jorge', 'Alonso'] },
+    rosa: { key: 'agua', name: 'Doña Rosa', role: 'pescadora del Magdalena', gender: 'f', pitch: 0.97, rate: 0.97, prefer: ['Margarita', 'Paola', 'Karla', 'Ramona', 'Camila'] },
+    luz: { key: 'energia', name: 'Luz Marina', role: 'enfermera, Antioquia', gender: 'f', pitch: 1, rate: 0.97, prefer: ['Paola', 'Andrea', 'Camila', 'Catalina'] },
+    mateo: { key: 'aire', name: 'Mateo', role: '9 años', gender: 'f', pitch: 1.25, rate: 1.02, prefer: ['Andrea', 'Sofia', 'Valentina', 'Dalia'] },
+    efrain: { key: 'residuos', name: 'Don Efraín', role: 'reciclador, Bogotá', gender: 'm', pitch: 0.95, rate: 0.97, prefer: ['Gonzalo', 'Sebastian', 'Jorge', 'Alonso'] },
+    juanita: { key: 'agua', name: 'Juanita', role: 'nieta de doña Rosa · 2086', gender: 'f', pitch: 0.9, rate: 0.86, sad: true, prefer: ['Salome', 'Margarita', 'Paola', 'Camila'] },
   };
 
   const SCENES = [
     {
-      kicker: 'Capítulo I', title: 'El páramo arde', view: 'bosque', fireView: 'incendio', close: 'bio', grade: 'fuego', atmo: 'brasas', pad: 'triste', chips: 'Ola de calor · 34 °C en el páramo',
-      event(t) { t.weather(0, 60); t.blaze(0.6, 70); t.drop(['bio', 'agua'], 0.12); t.sfx('alarm'); t.shake(0.6); },
-      narr: 'Cuarenta y dos días sin llover. Allá arriba, donde nace el agua, el páramo empieza a arder.',
+      kicker: 'Capítulo I', title: 'El páramo arde', view: 'bosque', fireView: 'incendio', grade: 'fuego', atmo: 'brasas', chips: 'Ola de calor · 34 °C en el páramo',
+      event(t) { t.weather(0, 60); t.blaze(0.6, 70); t.drop(['bio', 'agua'], 0.12); t.shake(0.4); },
+      narr: 'Cuarenta y dos días sin una gota de lluvia. Allá arriba, donde nace el agua, el páramo empezó a arder.',
       who: 'tomas',
-      say: 'Ay, sumercé… Yo tengo setenta y cuatro años y nunca había visto el páramo así. Mi abuelo me decía: mijo, el frailejón es el que nos guarda el agua, no lo vaya a tocar. Y ahoritica no queda ni el rocío.',
+      say: 'Ay, sumercé… tengo setenta y cuatro años y nunca había visto el páramo así. Mi abuelo me llevaba de la mano y me decía: mijo, el frailejón es el que nos guarda el agua; tóquelo con respeto. Y mírelo ahora… ni el rocío nos dejó.',
+      // la pérdida que no tiene regreso
+      farewell: 'Esa tarde, el último cóndor del valle dio una vuelta sobre el humo… y se fue. Nunca volvió.',
       q: { text: '¿Por qué el páramo es tan importante para el agua del valle?', ok: 0,
         opts: ['Atrapa la humedad de la niebla y la suelta poco a poco a quebradas y ríos', 'Porque allá arriba llueve todos los días del año', 'Porque guarda lagos subterráneos de agua salada', 'No es importante: el agua del valle viene del mar'],
-        why: 'El páramo es una esponja: guarda la niebla y regula el agua de millones de colombianos.' },
+        why: 'El páramo es una esponja: atrapa la niebla y la suelta despacio, gota a gota, a los ríos de millones de colombianos.' },
     },
     {
-      kicker: 'Capítulo II', title: 'El río que se murió', view: 'curtiembre', close: 'rio', grade: 'rio', atmo: null, pad: 'triste', chips: 'Vertimiento ilegal · el río sin oxígeno',
-      event(t) { t.drop(['agua', 'bio'], 0.14); t.sfx('fall'); },
-      narr: 'Río abajo, las curtiembres descargan sin tratar. El agua se queda sin oxígeno.',
+      kicker: 'Capítulo II', title: 'El río que dejó de respirar', view: 'curtiembre', grade: 'rio', atmo: null, chips: 'Vertimiento sin tratar · el río sin oxígeno',
+      event(t) { t.drop(['agua', 'bio'], 0.14); },
+      narr: 'Río abajo, las curtiembres vierten sin tratar. El agua se queda sin oxígeno… y el río deja de respirar.',
       who: 'rosa',
-      say: 'Ajá, mijo, mire esta vaina. Aquí mismito yo tiraba la atarraya y sacaba bocachico pa’ todo el barrio. Ahora saco bolsas, espuma… y pescao muerto. Ombe, este río me dio de comer cuarenta años. Y yo no sé qué le voy a dar de comer a mis nietos.',
+      say: 'Ajá, mijo, mire esta vaina. Aquí mismito yo tiraba la atarraya y sacaba bocachico pa’ todo el barrio. Ahora saco bolsas, espuma… pescao muerto. Este río me dio de comer cuarenta años. Yo le prometí a mi nieta Juanita que le iba a enseñar a pescar… y ya no sé si me alcance.',
       q: { text: 'Mito o realidad: «el río se limpia solo, sin importar cuánto le echemos».', ok: 1,
         opts: ['Realidad: el agua corriendo lo limpia todo', 'Mito: si la carga supera lo que el río puede degradar, se queda sin oxígeno y muere'],
-        why: 'El río se depura solo hasta un límite. Por eso existen las plantas de tratamiento.' },
+        why: 'El río se limpia solo, pero hasta un límite. Para eso existen las plantas de tratamiento.' },
     },
     {
-      kicker: 'Capítulo III', title: 'El aire que no se ve', view: 'aire', close: 'escuela', grade: 'smog', atmo: 'smog', pad: 'triste', chips: 'Alerta roja · PM2,5 en 98 µg/m³',
-      event(t) { t.drop(['aire'], 0.2); t.sfx('alarm'); },
-      narr: 'Quemas, buses viejos, chimeneas. Una nube gris queda atrapada entre las montañas.',
+      kicker: 'Capítulo III', title: 'El aire que no se ve', view: 'aire', grade: 'smog', atmo: 'smog', chips: 'Alerta roja · PM2,5 en 98 µg/m³',
+      event(t) { t.drop(['aire'], 0.2); },
+      narr: 'Quemas, buses viejos, chimeneas. Una nube gris se queda atrapada entre las montañas… y entra a las casas sin que nadie la vea.',
       who: 'luz',
-      say: 'Ay, qué pecado… Esta semana me llegaron once niños con tos al puesto de salud. Uno es Mateo, el de doña Gloria. Pues vea, el cielo de este pueblo ya no es azul. Es gris.',
-      who2: 'mateo', say2: 'Seño… ¿por qué me cuesta respirar cuando juego fútbol?',
+      say: 'Ay, qué pecado… esta semana me llegaron once niños con tos al puesto de salud. Uno es Mateo, el de doña Gloria. Yo me acuerdo de cuando el cielo de este pueblo era azul.',
+      who2: 'mateo', say2: 'Seño… ¿por qué me duele el pecho cuando juego fútbol?',
       q: { text: '¿Qué contaminante del aire entra más profundo en los pulmones de un niño?', ok: 2,
         opts: ['El vapor de agua', 'El nitrógeno', 'El material particulado fino PM2,5', 'El oxígeno'],
-        why: 'El PM2,5 es tan fino que llega a los alvéolos y pasa a la sangre.' },
+        why: 'El PM2,5 es tan fino que llega hasta el fondo de los pulmones y pasa a la sangre.' },
     },
     {
-      kicker: 'Capítulo IV', title: 'La noche de la gran tormenta', view: 'pueblo', close: 'rio', grade: 'tormenta', atmo: 'tormenta', pad: 'oscuro', chips: 'Emergencia · el río se desborda', storm: true,
-      event(t) { t.dusk(true); t.weather(1, 120); t.blackout(true); t.drop(['agua', 'residuos', 'energia'], 0.12); t.sfx('alarm'); t.shake(1); },
-      narr: 'Después de la sequía, el diluvio. Sin bosque que frene el agua, la montaña baja hacia el pueblo. Se va la luz.',
+      kicker: 'Capítulo IV', title: 'La noche de la gran tormenta', view: 'pueblo', grade: 'tormenta', atmo: 'tormenta', chips: 'Emergencia · el río se desborda', storm: true,
+      event(t) { t.dusk(true); t.weather(1, 120); t.blackout(true); t.drop(['agua', 'residuos', 'energia'], 0.12); t.shake(0.8); },
+      narr: 'Después de la sequía, el diluvio. Sin bosque que frene el agua, la montaña baja entera hacia el pueblo. Se va la luz.',
       who: 'efrain',
-      say: 'Mi llave, yo llevo treinta años recogiendo lo que la gente bota. Y anoche, con ese aguacero, la basura tapó los caños y el agua se metió a las casas. Qué boleta… la gente subiendo a los niños al techo.',
+      say: 'Mi llave, treinta años recogiendo lo que la gente bota. Y anoche, con ese aguacero, la basura tapó los caños y el agua se metió a las casas. Yo vi a una mamá subiendo a sus hijos al techo… y no pude hacer nada.',
       q: { text: 'Decisión final. El alcalde les entrega el presupuesto. ¿Qué hacen primero?', ok: 1, big: true,
         opts: ['Construir un muro más alto en la orilla del río', 'Restaurar el páramo y el bosque de la cuenca alta, tratar las aguas y separar los residuos', 'Traer agua en carrotanques cada verano', 'Esperar a que el clima vuelva a la normalidad'],
         why: 'Un muro no cura una cuenca enferma. Cuidar la parte alta protege a todos los de abajo.' },
     },
   ];
 
+  // el futuro si nada cambia: la historia de Juanita y de Mateo sigue
   const FUTURE = [
-    { year: '2040', view: 'rio', set: 0.03, say: 'Dos mil cuarenta. Nadie cambió nada. Doña Rosa colgó la atarraya: ya no había peces.' },
-    { year: '2050', view: 'quebrada', set: 0, say: 'Dos mil cincuenta. Las quebradas se secaron, y las familias se fueron con sus corotos en un camión.' },
-    { year: '2050', view: 'pueblo', set: 0, say: 'Mateo tiene treinta y cuatro años y respira con un inhalador. Le cuenta a su hija que, cuando él era niño, aquí había un río.', hard: true },
+    { year: '2040', view: 'rio', set: 0.03, say: 'Dos mil cuarenta. Nadie cambió nada. Doña Rosa colgó la atarraya para siempre. Juanita nunca aprendió a pescar.' },
+    { year: '2050', view: 'pueblo', set: 0, say: 'Mateo tiene treinta y cuatro años y respira con un inhalador. Le cuenta a su hija que aquí, una vez, hubo un río.' },
+  ];
+
+  // la carta de Juanita, sesenta años después, en el futuro que sí cambió
+  const CARTA = [
+    'Para quienes vivieron en dos mil veintiséis:',
+    'Me llamo Juanita. Tengo sesenta y ocho años.',
+    'Mi abuela Rosa alcanzó a enseñarme a pescar en este río.',
+    'Esta mañana le enseñé yo a mi nieta.',
+    'No sé cómo se llamaban ustedes… pero sé que un día alguien decidió no rendirse.',
+    'Gracias.',
   ];
 
   async function run(api) {
@@ -9338,60 +9499,74 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     const alive = () => CN.alive(g);
     let score = 0;
     setPhase('event'); stage.innerHTML = '';
+    const WL = CV.wildlife || {};
+    if (WL.restoreCondor) WL.restoreCondor();
     const restore = () => { if (CV.scene && CV.scene.night) CV.scene.night(false); CV.blackout = false; };
     // botón para salir en cualquier momento
     const out = document.createElement('button'); out.className = 'btn ghost demo-out'; out.type = 'button'; out.textContent = 'Salir de la demostración';
     out.onclick = () => { CN.scene(); finish(); exit(); };
     document.body.appendChild(out);
-    const finish = () => { out.remove(); restore(); AU.music(false); AU.pad(null); Sc.lapse(false); CV.talking = null; if (CV.atmo) CV.atmo.clear(); if (CV.scene.golden) CV.scene.golden(false); const q = document.querySelector('.demo-q'); if (q) q.remove(); };
+    const finish = () => {
+      out.remove(); restore(); AU.music(false); AU.pad(null); Sc.lapse(false); CV.talking = null;
+      if (CV.atmo) CV.atmo.clear(); if (CV.scene.golden) CV.scene.golden(false);
+      if (WL.restoreCondor) WL.restoreCondor();
+      document.body.classList.remove('vista', 'letter', 'demo-run');
+      const q = document.querySelector('.demo-q'); if (q) q.remove();
+      const c = document.querySelector('.carta'); if (c) c.remove();
+    };
 
     const tools = {
       weather: (v, s) => { if (CV.weather) CV.weather.force(v, s); },
-      fire: (s) => { if (CV.crudo && CV.harsh) CV.crudo.ignite(s); },
-      blaze: (g, s) => { if (CV.crudo && CV.harsh && CV.crudo.blaze) CV.crudo.blaze(g, s); },
+      blaze: (k, s) => { if (CV.crudo && CV.harsh && CV.crudo.blaze) CV.crudo.blaze(k, s); },
       drop: (ks, d) => { ks.forEach((k) => Sc.add(k, -d)); refresh(true); },
-      sfx: (n) => { try { SFX[n](); } catch (e) {} },
       shake: (s) => Sc.shake(s),
-      night: (on) => { if (CV.scene && CV.scene.night) CV.scene.night(on); },
       dusk: (on) => { if (CV.scene && CV.scene.dusk) CV.scene.dusk(on); },
       blackout: (on) => { CV.blackout = on; },
       look: (grade, atmo) => { if (CV.atmo) { CV.atmo.grade(grade); CV.atmo.set(atmo); } },
     };
-    // primer plano de quien habla: la cámara se le acerca, el fondo se desenfoca y mueve la boca al hablar
     // testimonio al estilo documental: mientras la persona habla, la cámara recorre SU lugar
-    // (el páramo que arde, el río muerto, la escuela, el caño tapado); su nombre y oficio van en el subtítulo
     const PLACE = { tomas: () => (CV.harsh && CV.crudo && CV.crudo.fronts ? 'incendio' : 'bio'), rosa: () => 'rio', luz: () => 'escuela', mateo: () => 'pueblo', efrain: () => 'basura' };
-    const close = async (id) => { const v = PLACE[id] ? PLACE[id]() : 'vuelo'; return CN.cut(v, 'orbitar', g); };
-    const unclose = () => { CV.talking = null; if (CV.atmo) CV.atmo.dof(false); };
-
-    // estado inicial: un valle golpeado pero vivo
-    KEYS.forEach((k) => Sc.set(k, 0.42, true)); refresh(false);
-    CN.on(); CN.chips('<span>Demostración</span><span>5 minutos</span>');
+    const close = (id) => CN.cut(PLACE[id] ? PLACE[id]() : 'vuelo', 'orbitar', g);
     const ok = async (p) => (await p) && alive();
+    const hasCondor = () => !!(CV.has3d && WL.condorReady && WL.condorReady());
+
+    // estado inicial: un valle golpeado pero vivo; sin música: solo el viento y el río
+    KEYS.forEach((k) => Sc.set(k, 0.42, true)); refresh(false);
+    AU.pad(null); AU.music(false);
+    CN.on(); CN.chips('<span>Una historia de los Andes</span><span>Cuenca Viva</span>');
+    document.body.classList.add('demo-run');
 
     if (CV.scene.golden) CV.scene.golden(true);
-    tools.look('dorado', 'dorado'); AU.pad('esperanza');
+    tools.look('dorado', 'dorado');
     if (!(await ok(CN.cut('vuelo', null, g)))) return;
-    if (!(await ok(CN.chapter('Cuenca Viva', 'Cinco minutos para salvar un valle', g)))) return;
-    if (!(await ok(CN.say(N, 'Un valle de los Andes colombianos. Hoy está enfermo… y ustedes deciden cómo termina esta historia.', g)))) return;
+    if (!(await ok(CN.say(N, 'Todo río empieza como una gota de niebla en la hoja de un frailejón. Hoy este valle está enfermo… y ustedes van a decidir cómo termina su historia.', g)))) return;
 
     for (let i = 0; i < SCENES.length; i++) {
       const sc = SCENES[i];
       setPhase('event');
       if (i === 0 && CV.scene.golden) CV.scene.golden(false);
-      if (!(await ok(CN.cut(sc.fireView && CV.harsh && CV.crudo && CV.crudo.fronts ? sc.fireView : sc.view, 'acercar', g)))) return;
-      sc.event(tools); tools.look(sc.grade, sc.atmo); AU.pad(sc.pad);
-      CN.chips(`<span class="res-bad">${esc(sc.kicker)}</span><span>${esc(sc.chips)}</span>`);
-      if (!(await ok(CN.chapter(sc.kicker, sc.title, g)))) return;
+      if (!(await ok(CN.chapter(sc.kicker, sc.title, g, () => {
+        // detrás de la tarjeta negra se prepara el plano y el clima del capítulo
+        if (CV.has3d && CV.scene.shot) CV.scene.shot(sc.fireView && CV.harsh && CV.crudo && CV.crudo.fronts ? sc.fireView : sc.view, { snap: true, kind: 'acercar' });
+        sc.event(tools); tools.look(sc.grade, sc.atmo);
+        CN.chips(`<span class="res-bad">${esc(sc.kicker)}</span><span>${esc(sc.chips)}</span>`);
+      })))) return;
       if (!(await ok(CN.say(N, sc.narr, g)))) return;
-      // testimonio en primer plano, con piano y cuerdas suaves y silencios, como en una película
+      // testimonio: la persona habla sobre su lugar, sin música; el silencio también cuenta
       if (!(await ok(close(sc.who)))) return;
-      AU.pad(null); AU.music(true);
-      if (!(await ok(CN.pause(350, g)))) return;
-      if (!(await ok(CN.say(CAST[sc.who], sc.say, g)))) return;
-      if (sc.who2) { if (!(await ok(close(sc.who2, true)))) return; if (!(await ok(CN.say(Object.assign({}, CAST[sc.who2]), sc.say2, g)))) return; }
       if (!(await ok(CN.pause(250, g)))) return;
-      unclose(); AU.music(false); AU.pad(sc.pad);
+      if (!(await ok(CN.say(CAST[sc.who], sc.say, g)))) return;
+      if (sc.who2) { if (!(await ok(close(sc.who2)))) return; if (!(await ok(CN.say(CAST[sc.who2], sc.say2, g)))) return; }
+      if (!(await ok(CN.pause(400, g)))) return;
+      // la despedida del cóndor: el primer momento con música
+      if (sc.farewell && hasCondor()) {
+        CN.clear(); AU.music(true, 96, 0.38);
+        if (!(await ok(CN.cut('sp:condor:adios', null, g)))) return;
+        if (!(await ok(CN.pause(1600, g)))) return;
+        if (!(await ok(CN.say(N, sc.farewell, g)))) return;
+        if (!(await ok(CN.pause(2000, g)))) return;
+        AU.music(false);
+      }
       // pregunta para el público
       const right = await ask(sc.q, g, api, i);
       if (!alive()) return;
@@ -9399,40 +9574,83 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       refresh(true);
       if (sc.storm) { tools.blackout(false); tools.dusk(false); tools.weather(0.3, 20); tools.look(null, null); }
       setPhase('event');
-      if (!(await ok(CN.cut(sc.view, 'orbitar', g)))) return;
-      if (!(await ok(CN.say(N, (right ? '¡Correcto! ' : 'No era esa. ') + sc.q.why, g)))) return;
     }
 
     // ---------- el futuro si nada cambia ----------
     setPhase('event');
-    CN.chips('<span class="res-bad">¿Y si nada cambia?</span>');
     const saved = KEYS.map((k) => api.vals[k]);
-    if (!(await ok(CN.chapter('Epílogo', '¿Y si todo sigue igual?', g)))) return;
-    Sc.lapse(true); AU.setMood(0); tools.look('futuro', 'ceniza'); AU.pad('oscuro');
+    if (!(await ok(CN.chapter('Epílogo', '¿Y si todo sigue igual?', g, () => {
+      Sc.lapse(true); AU.setMood(0); tools.look('futuro', 'ceniza');
+      CN.chips('<span class="res-bad">Si nada cambia</span>');
+    })))) { Sc.lapse(false); return; }
     for (const b of FUTURE) {
       if (b.hard && !CV.harsh) continue;
       CN.chips(`<span class="res-bad">${b.year}</span><span>Si nada cambia</span>`);
       if (!(await ok(CN.cut(b.view, 'acercar', g)))) { Sc.lapse(false); return; }
-      KEYS.forEach((k) => Sc.set(k, b.set)); refresh(true); tools.sfx('fall');
+      KEYS.forEach((k) => Sc.set(k, b.set)); refresh(true);
       if (!(await ok(CN.say(N, b.say, g)))) { Sc.lapse(false); return; }
+      if (!(await ok(CN.pause(600, g)))) { Sc.lapse(false); return; }
     }
     Sc.lapse(false);
 
-    // ---------- todavía estamos a tiempo ----------
-    CN.chips('<span class="res-ok">Hoy</span><span>Todavía estamos a tiempo</span>');
-    KEYS.forEach((k, i) => Sc.set(k, Math.max(saved[i], 0.88))); refresh(true);
-    AU.setMood(1); AU.pad(null); AU.music(true); tools.sfx('rise');
+    // ---------- el mirador: negro, silencio, y el valle que vuelve con la música ----------
+    CN.clear(); CN.chips('');
+    document.body.classList.add('fade');
+    if (!(await ok(CN.pause(1800, g)))) return;
+    KEYS.forEach((k, i) => Sc.set(k, Math.max(saved[i], 0.88), true)); refresh(true);
+    if (CV.crudo && CV.crudo.reset) CV.crudo.reset();
+    if (CV.riverCtl) setTimeout(() => CV.riverCtl.trigger(), 60);
+    tools.weather(0, 240);
+    AU.setMood(1); if (CV.atmo) CV.atmo.clear();
     if (CV.scene.golden) CV.scene.golden(true); tools.look('esperanza', 'dorado');
-    if (!(await ok(CN.cut('vuelo', null, g)))) return;
+    if (CV.has3d && CV.scene.shot) CV.scene.shot('vuelo', { snap: true });
+    document.body.classList.add('vista');
+    AU.music(true, 0, 0.55);
+    document.body.classList.remove('fade');
     if (CV.misiones) { const z = CV.world && CV.world.zones; if (z) { CV.misiones.flock({ x: z.fauna.x, z: z.fauna.z, n: 50 }); CV.misiones.flock({ x: z.bosque.x, z: z.bosque.z, n: 30, alt: 75 }); } }
-    if (!(await ok(CN.say(N, 'Pero ese futuro todavía no ha llegado. El páramo, el río y el aire se pueden recuperar.', g)))) return;
-    if (!(await ok(CN.cut('fauna', 'orbitar', g)))) return;
+    if (!(await ok(CN.pause(7000, g)))) return;
+    document.body.classList.remove('vista');
+    CN.chips('<span class="res-ok">Hoy</span><span>Todavía estamos a tiempo</span>');
+    if (!(await ok(CN.say(N, 'Ese futuro todavía no ha llegado. El páramo, el río y el aire se pueden recuperar. Casi todo puede volver.', g)))) return;
+    if (hasCondor()) {
+      if (!(await ok(CN.cut('sp:condor:cielo', null, g)))) return;
+      if (!(await ok(CN.pause(1500, g)))) return;
+    }
+    if (!(await ok(CN.say(N, 'Casi todo. El cóndor no regresó. Hay pérdidas que no tienen vuelta… por eso hay que llegar a tiempo.', g)))) return;
+
+    // ---------- la carta de Juanita ----------
+    if (!(await ok(CN.cut('rio', 'orbitar', g)))) return;
+    CN.chips('<span class="res-ok">2086</span><span>Valle del río</span>');
+    if (!(await ok(carta(api, g)))) return;
+    if (!(await ok(CN.cut('vuelo', null, g)))) return;
     if (!(await ok(CN.say(N, 'Eso no lo hace la suerte. Lo hace gente que estudia para cuidar la vida. Eso es la ingeniería ambiental.', g)))) return;
+    if (!(await ok(CN.pause(1500, g)))) return;
     finalCard(score, api);
     finish();
+    AU.music(true, undefined, 0.4);
   }
 
-  // tarjeta con la pregunta: se responde con clic o con las teclas 1 a 4 (o A a D); 20 segundos
+  // la carta aparece sobre el río; cada frase se ilumina mientras Juanita la lee
+  async function carta(api, g) {
+    const { CN } = api;
+    const box = document.createElement('article'); box.className = 'carta'; box.setAttribute('aria-label', 'Carta de Juanita');
+    box.innerHTML = `<p class="carta-head">Valle del río · 2086</p><p class="carta-body">${CARTA.map((s) => `<span>${esc(s)}</span>`).join(' ')}</p><p class="carta-sign">Juanita</p>`;
+    document.body.appendChild(box); document.body.classList.add('letter');
+    requestAnimationFrame(() => box.classList.add('show'));
+    const spans = [...box.querySelectorAll('.carta-body span')];
+    let okk = await CN.pause(900, g);
+    for (let i = 0; okk && i < CARTA.length; i++) {
+      spans[i].classList.add('on');
+      okk = await CN.say(CV.demo.cast.juanita, CARTA[i], g);
+      if (okk && i === CARTA.length - 2) okk = await CN.pause(700, g);
+    }
+    if (okk) { box.querySelector('.carta-sign').classList.add('on'); okk = await CN.pause(2200, g); }
+    box.classList.remove('show'); document.body.classList.remove('letter');
+    setTimeout(() => box.remove(), 1200);
+    return okk;
+  }
+
+  // tarjeta con la pregunta: se responde con clic o con las teclas 1 a 4 (o A a D); 15 segundos, 20 la última
   function ask(q, g, api, idx) {
     const { CN, AU, setPhase } = api, SFX = AU.sfx;
     return new Promise((res) => {
@@ -9455,7 +9673,9 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         AU.hush();
         if (right) { SFX.ok(); } else { SFX.bad(); api.Sc.shake(0.5); }
         api.flash(right ? 'ok' : 'bad');
-        setTimeout(() => { box.remove(); res(right); }, 1700);
+        const why = document.createElement('p'); why.className = 'demo-why'; why.innerHTML = `<b>${right ? 'Correcto.' : i < 0 ? 'Se acabó el tiempo.' : 'No era esa.'}</b> ${esc(q.why)}`;
+        box.insertBefore(why, box.querySelector('.demo-timer'));
+        setTimeout(() => { box.classList.add('out'); setTimeout(() => { box.remove(); res(right); }, 500); }, 4600);
       };
       const key = (e) => {
         if (!CN.alive(g)) { removeEventListener('keydown', key, true); return; }
@@ -9481,8 +9701,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       ${CV.credito ? CV.credito.author('author-final') : ''}
       ${CV.musicaData ? '<p class="voice-hint">Música: Air de la Suite orquestal n.º 3 de J. S. Bach, interpretada por la United States Air Force Strings · Wikimedia Commons (dominio público).</p>' : ''}
     </div>`;
-    stage.querySelector('#demoAgain').onclick = () => api.again();
-    stage.querySelector('#demoHome').onclick = exit;
+    stage.querySelector('#demoAgain').onclick = () => { api.AU.music(false); api.again(); };
+    stage.querySelector('#demoHome').onclick = () => { api.AU.music(false); exit(); };
   }
 
   CV.demo = { run, cast: CAST };
