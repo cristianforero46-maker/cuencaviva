@@ -7933,32 +7933,50 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     const c = A.ctx, len = c.sampleRate * 4.2, b = c.createBuffer(2, len, c.sampleRate);
     for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2); }
     rev = c.createConvolver(); rev.buffer = b;
-    const wet = c.createGain(); wet.gain.value = 0.7; rev.connect(wet); wet.connect(A.master);
+    const wet = c.createGain(); wet.gain.value = 0.6; rev.connect(wet); wet.connect(A.bus);
     return rev;
   }
-  // una voz de cuerda frotada: tres sierras apenas desafinadas, filtro de cuerpo de madera y vibrato que llega tarde
+  // una voz de sección de cuerdas: onda de cuerda frotada (no la sierra de sintetizador), cuatro instrumentos
+  // apenas desafinados y abiertos en estéreo, cada uno con su deriva lenta de afinación, roce suave del arco
+  // y las resonancias de la caja de madera; el vibrato llega tarde y es leve
+  let bowWave = null;
+  function bowShape(c) {
+    if (bowWave) return bowWave;
+    const H = 28, re = new Float32Array(H + 1), im = new Float32Array(H + 1);
+    for (let n = 1; n <= H; n++) im[n] = Math.pow(n, -1.15) * Math.exp(-n / 14) * (n % 2 ? 1 : 0.82);
+    bowWave = c.createPeriodicWave(re, im);
+    return bowWave;
+  }
   function bowed(dest, f, t, dur, vol, o) {
     o = o || {};
-    const c = A.ctx, g = c.createGain(), lp = c.createBiquadFilter(), body = c.createBiquadFilter(), air = c.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = o.bright || 1800; lp.Q.value = 0.3;
-    body.type = 'peaking'; body.frequency.value = o.body || 480; body.Q.value = 1; body.gain.value = 3.5;
-    air.type = 'highshelf'; air.frequency.value = 3200; air.gain.value = -9;
+    const c = A.ctx, g = c.createGain(), lp = c.createBiquadFilter(), b1 = c.createBiquadFilter(), b2 = c.createBiquadFilter(), air = c.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = o.bright || 1500; lp.Q.value = 0.2;
+    b1.type = 'peaking'; b1.frequency.value = o.body || 290; b1.Q.value = 1.2; b1.gain.value = 3;
+    b2.type = 'peaking'; b2.frequency.value = 1050; b2.Q.value = 1.4; b2.gain.value = 2;
+    air.type = 'highshelf'; air.frequency.value = 2800; air.gain.value = -12;
+    lp.connect(b1); b1.connect(b2); b2.connect(air); air.connect(g);
+    const a = o.attack || 2.4, r = o.release || 3.4, hold = Math.max(a + 0.1, dur), end = t + hold + r + 0.1;
     const vib = c.createOscillator(), vg = c.createGain();
-    vib.frequency.value = 4.6 + Math.random() * 0.8;
-    vg.gain.setValueAtTime(0, t); vg.gain.linearRampToValueAtTime(o.vib === undefined ? 8 : o.vib, t + Math.min(1.4, dur * 0.45));
-    vib.connect(vg);
-    const os = [];
-    (o.det || [-7, 0, 6]).forEach((d) => {
-      const x = c.createOscillator(); x.type = 'sawtooth'; x.frequency.value = f; x.detune.value = d + (Math.random() - 0.5) * 4;
-      vg.connect(x.detune); x.connect(lp); os.push(x);
-    });
-    lp.connect(body); body.connect(air); air.connect(g);
-    const a = o.attack || 1.8, r = o.release || 2.8, hold = Math.max(a + 0.1, dur);
+    vib.frequency.value = 4.8 + Math.random() * 0.6;
+    vg.gain.setValueAtTime(0, t); vg.gain.linearRampToValueAtTime(o.vib === undefined ? 5 : o.vib, t + Math.min(2, dur * 0.5));
+    vib.connect(vg); vib.start(t); vib.stop(end);
+    const players = o.players || 4;
+    for (let k = 0; k < players; k++) {
+      const x = c.createOscillator(), drift = c.createOscillator(), dg = c.createGain(), pan = c.createStereoPanner ? c.createStereoPanner() : null;
+      x.setPeriodicWave(bowShape(c)); x.frequency.value = f; x.detune.value = (Math.random() - 0.5) * 16;
+      drift.frequency.value = 0.08 + Math.random() * 0.2; dg.gain.value = 3; drift.connect(dg); dg.connect(x.detune); vg.connect(x.detune);
+      if (pan) { pan.pan.value = (k / Math.max(1, players - 1) - 0.5) * 1.1; x.connect(pan); pan.connect(lp); } else x.connect(lp);
+      x.start(t + Math.random() * 0.15); x.stop(end); drift.start(t); drift.stop(end);
+    }
+    // roce del arco: un soplo de ruido filtrado, muy bajo, que sigue la dinámica de la nota
+    if (A.noise) {
+      const n = c.createBufferSource(), nb = c.createBiquadFilter(), ng = c.createGain();
+      n.buffer = A.noise; n.loop = true; nb.type = 'bandpass'; nb.frequency.value = Math.min(4000, f * 6); nb.Q.value = 0.9; ng.gain.value = 0.35;
+      n.connect(nb); nb.connect(ng); ng.connect(g); n.start(t, Math.random()); n.stop(end);
+    }
     g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + a);
     g.gain.setValueAtTime(vol, t + hold); g.gain.exponentialRampToValueAtTime(0.0001, t + hold + r);
     g.connect(dest); g.connect(reverb());
-    const end = t + hold + r + 0.1;
-    os.forEach((x) => { x.start(t); x.stop(end); }); vib.start(t); vib.stop(end);
   }
   const N = { D2: 73.42, Fs2: 92.5, G2: 98, A2: 110, B1: 61.74, B3: 246.94, Cs4: 277.18, D4: 293.66, E4: 329.63, Fs4: 369.99, G4: 392, A4: 440, B4: 493.88, Cs5: 554.37, D5: 587.33, E5: 659.25, Fs5: 739.99, G3: 196, A3: 220 };
   // re · si menor · sol · la · re · fa sostenido menor · sol · la
@@ -7972,20 +7990,19 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     { ch: [N.B3, N.D4, N.G4], bass: N.G2, mel: [[N.B4, 0, 2.4], [N.G4, 0.5, 2.4]] },
     { ch: [N.Cs4, N.E4, N.A4], bass: N.A2, mel: [[N.A4, 0, 4.8]] },
   ];
-  const BAR = 5.4;
+  const BAR = 7;
   function theme(on) {
     if (!A.ctx || !A.on) return;
     const c = A.ctx;
-    if (!themeG) { themeG = c.createGain(); themeG.gain.value = 0; themeG.connect(A.master); }
-    themeG.gain.setTargetAtTime(on ? 1 : 0, c.currentTime, on ? 1.8 : 2.2);
+    if (!themeG) { themeG = c.createGain(); themeG.gain.value = 0; themeG.connect(A.bus); }
+    themeG.gain.setTargetAtTime(on ? 0.55 : 0, c.currentTime, on ? 2.2 : 2.4);
     if (on) {
       if (stopT) { clearTimeout(stopT); stopT = null; }
       if (!themeT) {
         const tick = () => {
-          const t = c.currentTime + 0.05, s = SONG[bar % SONG.length], withMel = Math.floor(bar / SONG.length) % 2 === 0;
-          s.ch.forEach((f, i) => bowed(themeG, f, t + i * 0.12, BAR, 0.016, { attack: 2.2, release: 3.2 })); // violines y viola en piano
-          bowed(themeG, s.bass, t, BAR, 0.024, { bright: 700, body: 160, attack: 2.4, release: 3.4, vib: 4 }); // violonchelo
-          if (withMel) s.mel.forEach(([f, at, d]) => bowed(themeG, f, t + at * BAR, d, 0.02, { bright: 2600, body: 900, attack: 0.9, release: 2.2, vib: 12, det: [-3, 3] })); // violín solo
+          const t = c.currentTime + 0.05, s = SONG[bar % SONG.length];
+          s.ch.forEach((f, i) => bowed(themeG, f, t + i * 0.3, BAR, 0.009, { attack: 2.8, release: 3.6 })); // violines y viola, muy suaves
+          bowed(themeG, s.bass, t, BAR, 0.012, { bright: 650, body: 160, attack: 3, release: 3.8, vib: 2, players: 3 }); // violonchelo
           bar++;
         };
         tick(); themeT = setInterval(tick, BAR * 1000);
@@ -8002,15 +8019,15 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
   };
   function strings(kind) {
     const c = A.ctx; if (!c) return;
-    if (!padG) { padG = c.createGain(); padG.gain.value = 0; padG.connect(A.master); }
+    if (!padG) { padG = c.createGain(); padG.gain.value = 0; padG.connect(A.bus); }
     if (!kind || !A.on) { padG.gain.setTargetAtTime(0, c.currentTime, 1.6); if (padT) { clearInterval(padT); padT = null; } return; }
-    padG.gain.setTargetAtTime(1, c.currentTime, 1.6);
+    padG.gain.setTargetAtTime(0.55, c.currentTime, 2);
     const chords = PADS[kind] || PADS.triste, dark = kind === 'oscuro', len = dark ? 7 : 6.5;
     const play = () => {
       const t = c.currentTime + 0.05, ch = chords[padStep++ % chords.length];
       ch.forEach((f, i) => {
         const low = i === ch.length - 1;
-        bowed(padG, f, t + i * 0.15, len, low ? 0.022 : dark ? 0.016 : 0.012, { bright: dark ? 800 : low ? 700 : 1500, body: low ? 160 : 420, attack: 2.6, release: 3.6, vib: dark ? 3 : 6 });
+        bowed(padG, f, t + i * 0.25, len, low ? 0.013 : dark ? 0.01 : 0.008, { bright: dark ? 750 : low ? 650 : 1400, body: low ? 160 : 300, attack: 3, release: 3.8, vib: dark ? 2 : 4, players: low ? 3 : 4 });
       });
     };
     if (padT) clearInterval(padT);
