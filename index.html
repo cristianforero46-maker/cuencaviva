@@ -470,7 +470,7 @@ body.fade #fade{opacity:1}
 @keyframes bump{30%{transform:scale(1.08)}}
 @keyframes buzz{20%{transform:translateY(-12px) scale(1.06)}60%{transform:translateY(-4px)}}
 @keyframes rise{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-36px)}}
-@media (prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){body:not(.presenting) *,body:not(.presenting) *::before{animation:none!important;transition:none!important}}
 .sound-test{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sound-test .btn{font-size:14px;padding:8px 14px}
 /* asignaturas, dificultad y modo Exploradores */
@@ -733,6 +733,23 @@ body .card.ch .opt.is-bad::after{content:"✕";margin-left:auto;padding-left:10p
 body .card.ch .opt.is-dim{opacity:.3}
 body .card.ch .tf .opt{font-family:var(--display);font-weight:500;justify-content:center}
 @media (prefers-reduced-motion:reduce){body .card.ch,body .card.ch .opt{animation:none}}
+/* la vida vuelve: foto del valle muerto que se abre en círculo desde el río */
+.vida-dead{position:fixed;left:0;top:0;width:100vw;height:100vh;object-fit:cover;z-index:3;pointer-events:none}
+/* créditos de película sobre el valle dorado */
+.creditos{position:fixed;left:0;right:0;top:0;bottom:0;z-index:9;overflow:hidden;cursor:pointer;background:linear-gradient(90deg,rgba(6,9,11,.15),rgba(6,9,11,.62) 35%,rgba(6,9,11,.62) 65%,rgba(6,9,11,.15));transition:opacity .9s ease}
+.creditos.out{opacity:0}
+.cr-roll{position:absolute;left:0;right:0;top:100%;display:grid;justify-items:center;text-align:center;padding:0 24px;animation:crRoll 19s linear forwards}
+@keyframes crRoll{from{transform:translateY(0)}to{transform:translateY(calc(-100% - 100vh))}}
+.cr-title{margin:0 0 9vh;font:300 clamp(54px,8vw,110px)/1 var(--display);letter-spacing:-.02em;color:#f2ecdf}
+.cr-title em{font-style:italic;color:#e8d6a8}
+.cr-k{margin:5.5vh 0 10px;font:500 11px/1 var(--body);letter-spacing:.4em;text-transform:uppercase;color:#cdb27a}
+.cr-n{margin:4px 0;font:400 clamp(26px,3vw,40px)/1.2 var(--display);color:#f6f1e6}
+.cr-n.sm{font-size:clamp(20px,2.2vw,28px)}
+.cr-s{margin:4px 0;max-width:46ch;font:400 clamp(16px,1.5vw,20px)/1.5 var(--display);color:rgba(242,236,223,.82)}
+.cr-end{margin:12vh 0 0;font:italic 400 clamp(24px,2.6vw,34px)/1.3 var(--display);color:#e8d6a8}
+.creditos.still .cr-roll{top:50%;transform:translateY(-50%) scale(.72);animation:none}
+.creditos.still{animation:crFade 1.2s ease both;background:radial-gradient(ellipse at center,rgba(4,7,6,.86),rgba(2,4,3,.94))}
+@keyframes crFade{from{opacity:0}to{opacity:1}}
 body.vista .demo-out,body.vista .cine-chips{opacity:0;transition:opacity 1s}
 .demo-why{margin:14px 0 0;padding:12px 14px;border-left:2px solid #cdb27a;background:rgba(205,178,122,.08);font-size:clamp(15px,1.8vw,17px);line-height:1.5;animation:subIn .5s both}
 .demo-why b{color:#e8d6a8;margin-right:4px}
@@ -9855,6 +9872,8 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
       document.body.classList.remove('vista', 'letter', 'demo-run');
       const q = document.querySelector('.demo-q'); if (q) q.remove();
       const c = document.querySelector('.carta'); if (c) c.remove();
+      document.querySelectorAll('.vida-dead, .creditos').forEach((e) => e.remove());
+      if (CV.scene.explore) CV.scene.explore(null);
     };
 
     const tools = {
@@ -9938,19 +9957,25 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     // ---------- el mirador: negro, silencio, y el valle que vuelve con la música ----------
     CN.clear(); CN.chips('');
     document.body.classList.add('fade');
-    if (!(await ok(CN.pause(1800, g)))) return;
+    // en negro: la cámara queda quieta frente al valle muerto y se toma una foto de ese instante
+    const dead = await deadFrame();
+    if (!(await ok(CN.pause(1000, g)))) { if (dead) dead.remove(); return; }
     KEYS.forEach((k, i) => Sc.set(k, Math.max(saved[i], 0.88), true)); refresh(true);
     if (CV.crudo && CV.crudo.reset) CV.crudo.reset();
     if (CV.riverCtl) setTimeout(() => CV.riverCtl.trigger(), 60);
     tools.weather(0, 240);
     AU.setMood(1); if (CV.atmo) CV.atmo.clear();
     if (CV.scene.golden) CV.scene.golden(true); tools.look('esperanza', 'dorado');
-    if (CV.has3d && CV.scene.shot) CV.scene.shot('vuelo', { snap: true });
+    if (!dead && CV.has3d && CV.scene.shot) CV.scene.shot('vuelo', { snap: true });
     document.body.classList.add('vista');
-    AU.music(true, 0, 0.55);
     document.body.classList.remove('fade');
+    // la vida vuelve: sobre la foto del valle muerto entra la música y una onda de vida se abre desde el río
+    if (dead) { if (!(await ok(CN.pause(1600, g)))) { dead.remove(); return; } }
+    AU.music(true, 0, 0.55);
     if (CV.misiones) { const z = CV.world && CV.world.zones; if (z) { CV.misiones.flock({ x: z.fauna.x, z: z.fauna.z, n: 50 }); CV.misiones.flock({ x: z.bosque.x, z: z.bosque.z, n: 30, alt: 75 }); } }
-    if (!(await ok(CN.pause(7000, g)))) return;
+    if (dead) { await lifeWave(dead, 6000); if (!alive()) return; }
+    if (!(await ok(CN.pause(dead ? 2600 : 7000, g)))) return;
+    if (dead && CV.scene.explore) { CV.scene.explore(null); if (!(await ok(CN.cut('vuelo', null, g)))) return; }
     document.body.classList.remove('vista');
     CN.chips('<span class="res-ok">Hoy</span><span>Todavía estamos a tiempo</span>');
     if (!(await ok(CN.say(N, 'Ese futuro todavía no ha llegado. El páramo, el río y el aire se pueden recuperar. Casi todo puede volver.', g)))) return;
@@ -9966,10 +9991,73 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (!(await ok(carta(api, g)))) return;
     if (!(await ok(CN.cut('vuelo', null, g)))) return;
     if (!(await ok(CN.say(N, 'Eso no lo hace la suerte. Lo hace gente que estudia para cuidar la vida. Eso es la ingeniería ambiental.', g)))) return;
-    if (!(await ok(CN.pause(1500, g)))) return;
+    if (!(await ok(CN.pause(1200, g)))) return;
+    if (!(await ok(credits(g, CN)))) return;
     finalCard(score, api);
     finish();
     AU.music(true, undefined, 0.4);
+  }
+
+  // ---------- la vida vuelve ----------
+  // foto del valle muerto desde una cámara fija; luego el valle sano queda debajo y se revela con una onda circular
+  const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
+  async function deadFrame() {
+    try {
+      if (!CV.has3d || !CV.scene.explore || !CV.scene.debug) return null;
+      const p = [25, 78, 420], t = [0, 28, -120], dx = t[0] - p[0], dy = t[1] - p[1], dz = t[2] - p[2];
+      CV.scene.explore({ x: p[0], y: p[1], z: p[2], yaw: Math.atan2(dx, dz), pitch: Math.atan2(dy, Math.hypot(dx, dz)), step() {} });
+      for (let i = 0; i < 6; i++) await nextFrame();
+      const { renderer } = CV.scene.debug(), cv = renderer.domElement;
+      await nextFrame();
+      const url = cv.toDataURL('image/jpeg', 0.92);
+      const img = new Image(); img.className = 'vida-dead'; img.alt = ''; img.src = url;
+      img.style.filter = getComputedStyle(cv).filter;
+      document.body.appendChild(img);
+      return img;
+    } catch (e) { return null; }
+  }
+  function lifeWave(img, ms) {
+    return new Promise((res) => {
+      const W = innerWidth, H = innerHeight, cx = W * 0.5, cy = H * 0.72, R = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy)) + 220, t0 = performance.now();
+      const ease = (u) => 1 - Math.pow(1 - u, 2.4);
+      const step = (now) => {
+        const u = Math.min(1, (now - t0) / ms), r = ease(u) * R;
+        const m = `radial-gradient(circle at ${cx}px ${cy}px, transparent ${r}px, rgba(0,0,0,.6) ${r + 70}px, #000 ${r + 200}px)`;
+        img.style.webkitMaskImage = m; img.style.maskImage = m;
+        if (u < 1 && img.isConnected) requestAnimationFrame(step); else { img.remove(); res(); }
+      };
+      requestAnimationFrame(step);
+    });
+  }
+
+  // ---------- créditos de película ----------
+  function credits(g, CN) {
+    return new Promise((res) => {
+      const el = document.createElement('section'); el.className = 'creditos'; el.setAttribute('aria-label', 'Créditos');
+      el.innerHTML = `<div class="cr-roll">
+        <p class="cr-title">Cuenca <em>Viva</em></p>
+        <p class="cr-k">Una historia de</p><p class="cr-n">Cristian Camilo Forero Becerra</p>
+        <p class="cr-s">Ingeniería Ambiental · Universidad Santo Tomás, Seccional Tunja</p>
+        <p class="cr-k">Con</p>
+        <p class="cr-n sm">Don Tomás · Doña Rosa · Luz Marina</p><p class="cr-n sm">Mateo · Don Efraín · Juanita</p>
+        <p class="cr-k">Música</p><p class="cr-s">«Air», J. S. Bach · United States Air Force Strings</p>
+        <p class="cr-k">Voces</p><p class="cr-s">ElevenLabs</p>
+        <p class="cr-k">Ciencia</p><p class="cr-s">Instituto Humboldt · UICN · clases de Calidad del aire, Climatología y Transición energética</p>
+        <p class="cr-k">Probado con</p><p class="cr-s">estudiantes de Ingeniería Ambiental</p>
+        <p class="cr-end">Para quienes cuidan el agua.</p>
+      </div>`;
+      // con animaciones reducidas (y sin modo presentador) los créditos aparecen quietos, sin desplazarse
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches && !document.body.classList.contains('presenting');
+      if (still) el.classList.add('still');
+      document.body.appendChild(el); document.body.classList.add('vista');
+      let done = false;
+      const end = () => { if (done) return; done = true; clearInterval(watch); clearTimeout(limit); el.classList.add('out'); document.body.classList.remove('vista'); setTimeout(() => el.remove(), 900); res(CN.alive(g)); };
+      el.querySelector('.cr-roll').addEventListener('animationend', end);
+      el.addEventListener('click', end);
+      // nunca se queda pegado: termina solo aunque la animación no corra
+      const limit = setTimeout(end, still ? 9000 : 19800);
+      const watch = setInterval(() => { if (!CN.alive(g)) end(); }, 300);
+    });
   }
 
   // la carta aparece sobre el río; cada frase se ilumina mientras Juanita la lee
@@ -10048,7 +10136,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     stage.querySelector('#demoHome').onclick = () => { api.AU.music(false); exit(); };
   }
 
-  CV.demo = { run, cast: CAST };
+  CV.demo = { run, cast: CAST, _credits: credits };
 })();
 </script>
 <script>/* Cuenca Viva · flujo del juego como película:
