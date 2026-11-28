@@ -9252,6 +9252,46 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
         blobs.instanceMatrix.needsUpdate = true;
       });
 
+      // ---------- puma adulto con el modelo 3D escaneado y animado (Idle, Walk, Run) ----------
+      // El puma procedural sigue decidiendo dónde está, a dónde camina y dónde lo filma la cámara;
+      // su cuerpo se oculta y encima se monta el modelo, que elige la animación según lo que esté haciendo.
+      const pumasGLB = [];
+      if (CV.visor3d && CV.visor3d.disponible()) {
+        inds.filter((a) => a.id === 'puma').forEach((a) => {
+          CV.visor3d.nuevo().then((gl) => {
+            const m = gl.scene;
+            m.traverse((o) => { if (o.isMesh) { o.frustumCulled = false; o.castShadow = !LITE; o.receiveShadow = !LITE; if (o.material) { o.material.metalness = 0; o.material.roughness = 0.85; o.material.envMapIntensity = 0.6; } } });
+            // mismo tamaño que el puma procedural (alto total), patas en el suelo y mirando hacia +Z como los demás animales
+            const g0 = a.A.geo; if (!g0.boundingBox) g0.computeBoundingBox();
+            const hp = g0.boundingBox.max.y - Math.max(0, g0.boundingBox.min.y);
+            const caja = new THREE.Box3().setFromObject(m), tam = caja.getSize(new THREE.Vector3()), cen = caja.getCenter(new THREE.Vector3());
+            const k = hp / tam.y, piv = new THREE.Group();
+            m.position.set(-cen.x, -caja.min.y, -cen.z);
+            piv.add(m); piv.scale.setScalar(k); piv.rotation.y = -Math.PI / 2;
+            a.mesh.visible = false;
+            if (a.shell) { a.g.remove(a.shell); a.shell = null; }
+            a.g.add(piv);
+            const mix = new THREE.AnimationMixer(m), acc = {};
+            gl.animations.forEach((c) => { acc[c.name] = mix.clipAction(c); });
+            a.glb = { piv, mix, acc, k, cur: null };
+            pumasGLB.push(a);
+          }).catch((e) => console.warn('puma 3D: se queda el modelo procedural', e));
+        });
+      }
+      function pumaAnim(a, dt) {
+        const G = a.glb, K = a.k, suelo = a.mode === 'ground' || a.mode === 'bank';
+        const nom = suelo && K.run > 0.5 && K.walk > 0.3 ? 'Run' : suelo && K.walk > 0.3 ? 'Walk' : 'Idle';
+        const act = G.acc[nom];
+        if (act && G.cur !== act) { act.reset().fadeIn(0.4).play(); if (G.cur) G.cur.fadeOut(0.4); G.cur = act; }
+        // el paso del modelo acompaña la velocidad real (avance del modelo en sus unidades por segundo: 0,53 al caminar, 3,2 al correr)
+        if (nom === 'Walk') act.timeScale = clamp(a.spec.speed * K.walk / (0.53 * G.k), 0.4, 2.8);
+        else if (nom === 'Run') act.timeScale = clamp(a.spec.speed * 2.2 * K.walk / (3.2 * G.k), 0.5, 2.8);
+        else if (act) act.timeScale = 1;
+        G.mix.update(dt);
+      }
+      ups.push((dt) => { pumasGLB.forEach((a) => { if (a.g.visible) pumaAnim(a, dt); }); });
+      CV.wildlife.pumas3d = pumasGLB;   // para revisar desde la consola
+
       // ---------- planos de documental para cada especie ----------
       function headPos(a, out) { a.g.updateMatrixWorld(true); return a.n.head.getWorldPosition(out); }
       // Lenguaje de cine: plano general (el animal pequeño en su paisaje), plano medio que lo acompaña,
@@ -13939,6 +13979,13 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     });
     return cargando;
   }
+  // copia nueva e independiente del puma (cada individuo del valle necesita su propio esqueleto)
+  function nuevo() {
+    return new Promise((ok, mal) => {
+      const loader = new THREE.GLTFLoader(); loader.setMeshoptDecoder(window.MeshoptDecoder);
+      window.MeshoptDecoder.ready.then(() => loader.parse(bytes(CV.pumaGLB), '', ok, mal)).catch(mal);
+    });
+  }
   const disponible = () => !!(window.THREE && THREE.GLTFLoader && window.MeshoptDecoder && CV.pumaGLB);
 
   function sombra() {   // sombra suave bajo el animal (textura radial, sin luces de sombra)
@@ -14045,7 +14092,7 @@ float cvN(vec2 p){ vec2 i = floor(p), f = fract(p); vec2 u = f * f * (3.0 - 2.0 
     if (e.renderer.forceContextLoss) e.renderer.forceContextLoss();
   }
 
-  CV.visor3d = { mount, unmount, disponible, creditoHTML, creditoCorto, CREDITO };
+  CV.visor3d = { mount, unmount, disponible, nuevo, creditoHTML, creditoCorto, CREDITO };
 })();
 </script>
 <script>/* Cuenca Viva · flujo del juego como película:
